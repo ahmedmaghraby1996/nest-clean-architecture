@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AdditionalInfoModule } from 'src/modules/additional-info/additional-info.module';
 import { AddressModule } from 'src/modules/address/address.module';
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
 import { FileModule } from 'src/modules/file/file.module';
@@ -16,7 +17,7 @@ export default (app: INestApplication, config: ConfigService) => {
     .setDescription(`${config.get('APP_NAME')} API description`)
     .setVersion('v1')
     .setContact('Contact', 'https://github.com/mahkassem', 'mahmoud.ali.kassem@gmail.com')
-    .setLicense('Developed by Mahmoud Kassem', 'https://github.com/mahkassem')
+    .setLicense('Developed by Ahmed el-Maghraby', 'https://github.com/mahkassem')
     .addServer(config.get('APP_HOST'))
     .build();
 
@@ -26,6 +27,8 @@ export default (app: INestApplication, config: ConfigService) => {
       UserModule,
       AddressModule,
       FileModule,
+      AdditionalInfoModule
+      
     ],
     operationIdFactory,
   });

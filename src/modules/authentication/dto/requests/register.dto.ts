@@ -31,7 +31,7 @@ export class RegisterRequest {
   @IsOptional()
   avatarFile: Express.Multer.File;
 
-  @ApiProperty({ default: Role.CLIENT, enum: [Role.CLIENT, Role.DRIVER] })
+  @ApiProperty({ default: Role.CLIENT, enum: [Role.CLIENT, Role.DOCTOR,Role.PHARMACY] })
   @IsNotEmpty()
   @IsEnum(Role)
   role: Role;

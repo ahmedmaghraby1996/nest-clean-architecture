@@ -57,6 +57,9 @@ export class User extends AuditableEntity {
 
   @Column({ nullable: true, length: 500 })
   fcm_token: string;
+  
+  @Column()
+  birth_date:string
 
   @Column({ type: 'enum', enum: Language, default: Language.EN })
   language: Language;
@@ -64,7 +67,7 @@ export class User extends AuditableEntity {
   @Column({ default: true })
   is_active: boolean;
 
-  @Factory((faker) => faker.helpers.arrayElement([Role.CLIENT, Role.DRIVER]))
+  @Factory((faker) => faker.helpers.arrayElement([Role.CLIENT, Role.DOCTOR]))
   @Column({ type: 'set', enum: Role, default: [Role.CLIENT] })
   roles: Role[];
 
