@@ -23,9 +23,11 @@ export class User extends AuditableEntity {
   @Column({ length: 100, unique: true })
   username: string;
 
-  @Factory((faker, ctx) => faker.name.fullName(ctx.gender))
   @Column({ length: 100 })
-  name: string;
+  first_name: string;
+
+  @Column({ length: 100 })
+  last_name: string;
 
   // @Factory((faker, ctx) => faker.internet.password())
   @Column({ nullable: true, length: 60 })

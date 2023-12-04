@@ -25,7 +25,7 @@ export class UsersSeeder implements Seeder {
 
     // create super admin
     const superAdmin = new User({
-      name: 'Super Admin',
+      first_name: 'Super Admin',
       account: '00000000',
       username: 'superadmin',
       password,
@@ -41,7 +41,7 @@ export class UsersSeeder implements Seeder {
     // create client
     const client = new User({
       id: 'client',
-      name: 'John Doe',
+      first_name: 'John Doe',
       account: '00000001',
       username: '+966555554444',
       phone: '+966555554444',
@@ -54,7 +54,7 @@ export class UsersSeeder implements Seeder {
     // create client reciever
     const client_ = new User({
       id: 'client_',
-      name: 'Jack Row',
+      first_name: 'Jack Row',
       account: '00000002',
       username: '+966555553333',
       phone: '+966555553333',
@@ -65,22 +65,12 @@ export class UsersSeeder implements Seeder {
     });
 
     // create driver reciever
-    const driver = new User({
-      id: 'driver',
-      name: 'Driver',
-      account: '00000003',
-      username: '+966555551111',
-      phone: '+966555551111',
-      phone_verified_at: new Date(),
-      avatar: 'https://i.pravatar.cc/150?img=2',
-      roles: [Role.DOCTOR],
-      gender: Gender.MALE,
-    });
+
 
     users[0] = superAdmin as any;
     users[1] = client as any;
     users[2] = client_ as any;
-    users[3] = driver as any;
+
 
     // Insert into the database with relations.
     return this.user.save(users);

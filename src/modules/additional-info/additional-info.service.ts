@@ -13,16 +13,26 @@ import { Specialization } from 'src/infrastructure/entities/doctor/specializatio
 export class AdditionalInfoService {
   constructor(
     @InjectRepository(Doctor) private readonly doctorRepo: Repository<Doctor>,
+    @InjectRepository(Specialization) private readonly specializationRepo: Repository<Specialization>,
     private readonly context: EntityManager,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
+
+  async getSpecilizations() {
+
+    return await this.specializationRepo.find();
+  }
   async addDoctorInfo(request: DoctorInfoRequest) {
 
 
     const doctor= await this.getDoctor();
 
     doctor.year_of_experience=request.year_of_experience
+    doctor.has_clinc=request.has_clinc
+    if(request.latitude && request.longitude){ 
+    doctor.latitude=Number(request.latitude),
+    doctor.longitude=Number(request.longitude)}
     
     if(request.specializations){
       const specializations= await this.context.find(Specialization,{where:{id: In(request.specializations)  }})

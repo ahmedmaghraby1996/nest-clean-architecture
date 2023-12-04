@@ -7,13 +7,12 @@ import { Specialization } from './specialization.entity';
 
 @Entity()
 export class Doctor extends OwnedEntity {
-  @Column()
-  name: string;
+ 
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
 
-  @Column()
+  @Column({nullable:true})
   year_of_experience: number;
 
   @OneToMany(() => DoctorLicense, (license) => license.doctor)
@@ -25,4 +24,22 @@ export class Doctor extends OwnedEntity {
 
   @OneToMany(() => Reservation, (reservation) => reservation.doctor)
   reservations: Reservation[];
+
+@Column({nullable:true})
+  has_clinc:boolean;
+
+ 
+ @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
+ latitude: number;
+ 
+ @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
+ longitude: number;
+
+
+constructor( data:Partial<Doctor>){
+  super();
+  Object.assign(this,data);
+}
+ 
+
 }
