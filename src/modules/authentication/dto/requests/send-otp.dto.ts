@@ -11,7 +11,5 @@ export class SendOtpRequest {
     @IsNotEmpty() @IsString()
     username: string;
 
-    @ApiProperty({ required: true, enum: Role, description: 'User role', example: Role.CLIENT, default: Role.CLIENT })
-    @IsNotEmpty() @IsEnum(Role)
-    role: Role;
+  
 }

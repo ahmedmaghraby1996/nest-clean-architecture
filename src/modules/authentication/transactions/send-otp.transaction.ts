@@ -31,7 +31,7 @@ export class SendOtpTransaction extends BaseTransaction<
       });
 
       // check if user roles contains the role that we're trying to send otp to
-      if (!user || !user.roles.includes(req.role))
+      if (!user )
         throw new BadRequestException('message.invalid_credentials');
 
       const appEnv = this._config.get('app.env');

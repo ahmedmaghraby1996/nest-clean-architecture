@@ -41,7 +41,7 @@ export class VerifyOtpTransaction extends BaseTransaction<
 
       // find the user
       const user = await this.userService.findOne({ [req.type]: req.username });
-      if (!user || (user && !user.roles.includes(req.role)))
+      if (!user )
         throw new BadRequestException('message.invalid_credentials');
 
       // delete otp
@@ -57,7 +57,7 @@ export class VerifyOtpTransaction extends BaseTransaction<
       const payload = { username: user.username, sub: user.id };
 
       return {
-        ...user,
+        ...user,role:user.roles[0],
         access_token: this.jwtService.sign(payload, jwtSignOptions(this._config)),
       };
     } catch (error) {

@@ -8,7 +8,7 @@ import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
 import { UploadFileRequest } from './dto/requests/upload-file.request';
 import { UploadFileResponse } from './dto/responses/upload-file.response';
-import { FileService } from './file.service';
+    import { FileService } from './file.service';
 
 @ApiTags(Router.Files.ApiTag)
 @ApiHeader({ name: 'Accept-Language', required: false, description: 'Language header: en, ar' })
