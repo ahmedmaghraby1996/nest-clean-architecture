@@ -28,6 +28,10 @@ export class Doctor extends OwnedEntity {
 @Column({nullable:true})
   has_clinc:boolean;
 
+  
+@Column({nullable:true})
+summery:string;
+
  
  @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
  latitude: number;
@@ -35,6 +39,12 @@ export class Doctor extends OwnedEntity {
  @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
  longitude: number;
 
+
+ @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
+ clinc_latitude: number;
+ 
+ @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
+ clinc_longitude: number;
 
 constructor( data:Partial<Doctor>){
   super();

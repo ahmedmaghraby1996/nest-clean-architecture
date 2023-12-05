@@ -10,12 +10,36 @@ specializations:string[]
 @ApiPropertyOptional()
 
 @IsOptional()
+summery :string
+
+@ApiPropertyOptional()
+
+@IsOptional()
 year_of_experience :number
 
 @ApiPropertyOptional()
 
 @IsOptional()
 has_clinc :boolean
+
+@ApiPropertyOptional()
+@IsOptional()
+
+@IsString()
+@Matches(
+  /^(\+|-)?(?:90(?:(?:\.0{1,15})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,15})?))$/,
+  { message: 'invalid value for latitude' },
+)
+clinc_latitude: string;
+
+@ApiPropertyOptional()
+@IsOptional()
+@IsString()
+@Matches(
+  /^(\+|-)?(?:180(?:(?:\.0{1,15})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,15})?))$/,
+  { message: 'invalid value for longitude' },
+)
+clinc_longitude: string;
 
 @ApiPropertyOptional()
 @IsOptional()
