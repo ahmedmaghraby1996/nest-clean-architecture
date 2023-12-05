@@ -14,7 +14,7 @@ export class RegisterRequest {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  fisrt_name: string;
+  first_name: string;
 
   @ApiProperty()
   @IsNotEmpty()
