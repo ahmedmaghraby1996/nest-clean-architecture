@@ -46,6 +46,12 @@ summery:string;
  @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
  clinc_longitude: number;
 
+ @Column({nullable:true})
+ is_verified:boolean;
+ @Column({nullable:true})
+ urgent_doctor:boolean;
+
+
 constructor( data:Partial<Doctor>){
   super();
   Object.assign(this,data);
