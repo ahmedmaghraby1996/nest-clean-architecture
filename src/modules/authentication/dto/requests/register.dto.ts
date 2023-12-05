@@ -9,8 +9,9 @@ import {
 import { Unique } from 'src/core/validators/unique-constraints.validator';
 import { Gender } from 'src/infrastructure/data/enums/gender.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
+import { DoctorInfoRequest } from 'src/modules/additional-info/dto/requests/doctor-info-request';
 
-export class RegisterRequest {
+export class RegisterRequest extends DoctorInfoRequest {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

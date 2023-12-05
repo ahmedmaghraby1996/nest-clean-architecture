@@ -8,12 +8,12 @@ export class DoctorInfoRequest{
 specializations:string[]
 
 @ApiPropertyOptional()
-@IsNumber()
+
 @IsOptional()
 year_of_experience :number
 
 @ApiPropertyOptional()
-@IsBoolean()
+
 @IsOptional()
 has_clinc :boolean
 

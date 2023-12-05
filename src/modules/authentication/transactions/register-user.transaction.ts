@@ -11,6 +11,7 @@ import * as sharp from 'sharp';
 import { StorageManager } from 'src/integration/storage/storage.manager';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class RegisterUserTransaction extends BaseTransaction<
@@ -68,8 +69,8 @@ export class RegisterUserTransaction extends BaseTransaction<
 
       // create driver setting if user is a driver
       if(req.role == Role.DOCTOR){
-
-        const doctor = new Doctor({user_id:user.id})
+const doctordata=plainToInstance(Doctor,req)
+        const doctor = new Doctor({...doctordata,user_id:user.id})
         await context.save(doctor)
       }
 
