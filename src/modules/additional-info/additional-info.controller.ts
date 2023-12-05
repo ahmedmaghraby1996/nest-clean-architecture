@@ -9,10 +9,10 @@ import { RolesGuard } from '../authentication/guards/roles.guard';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 
-@ApiBearerAuth()
+
 @ApiTags("Additonal-info")
 @ApiHeader({ name: 'Accept-Language', required: false, description: 'Language header: en, ar' })
-@UseGuards(JwtAuthGuard, RolesGuard)
+
 @Controller('additional-info')
 export class AdditionalInfoController {
 
@@ -20,12 +20,14 @@ constructor( private readonly additionalInfoService:AdditionalInfoService, @Inje
 
 }
 
-@Roles(Role.DOCTOR)
+
 @Get("specializations")
 async getSpecilizations(){
     const specializations= await this.additionalInfoService.getSpecilizations()
     return new ActionResponse(this._i18nResponse.entity(specializations));
 }
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 @Roles(Role.DOCTOR)
 @Put("doctor")
 async addDoctorInfo(@Body() request:DoctorInfoRequest ){
