@@ -12,6 +12,7 @@ import { StorageManager } from 'src/integration/storage/storage.manager';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { plainToInstance } from 'class-transformer';
+import { ClientInfo } from 'src/infrastructure/entities/client/client.entity';
 
 @Injectable()
 export class RegisterUserTransaction extends BaseTransaction<
@@ -73,6 +74,12 @@ const doctordata=plainToInstance(Doctor,req)
         const doctor = new Doctor({...doctordata,user_id:user.id})
         await context.save(doctor)
       }
+      if(req.role == Role.CLIENT){
+      
+                const client = new ClientInfo({user_id:user.id})
+                console.log(client)
+                await context.save(client)
+              }
 
       // return user
       return savedUser;

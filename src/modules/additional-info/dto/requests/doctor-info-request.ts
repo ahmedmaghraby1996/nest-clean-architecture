@@ -1,11 +1,26 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Matches } from "class-validator";
 
 export class DoctorInfoRequest{
 
-@ApiPropertyOptional({type:[String]})
+  @ApiPropertyOptional()
+ 
+  Video_consultation_price:number;
+  
+  
+  @ApiPropertyOptional()
 
-specializations:string[]
+  voice_consultation_price:number;
+  
+  @ApiPropertyOptional()
+
+  home_consultation_price:number;
+
+
+@ApiPropertyOptional()
+
+specialization_id:string
 
 @ApiPropertyOptional()
 
@@ -20,6 +35,7 @@ year_of_experience :number
 @ApiPropertyOptional()
 
 @IsOptional()
+@Transform(({ value} ) => value === 'true')
 has_clinc :boolean
 
 @ApiPropertyOptional()
@@ -61,8 +77,8 @@ latitude: string;
 longitude: string;
 
 @ApiPropertyOptional({ type: [String], required: false, example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'] })
-@IsOptional() @Matches(/^(?:.*\.(?:png|jpg|jpeg))$/, { each: true, message: 'invalid image format, allowed: png, jpg, jpeg' })
-license_images: string[];
+@IsOptional() 
+license_images: string;
 
 
 

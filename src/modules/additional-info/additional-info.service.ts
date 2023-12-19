@@ -9,76 +9,148 @@ import { plainToInstance } from 'class-transformer';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Specialization } from 'src/infrastructure/entities/doctor/specialization.entity';
+
+import { ClientInfo } from 'src/infrastructure/entities/client/client.entity';
+import { ClientInfoRequest } from './dto/requests/client-info-request';
+import { FamilyMemberRequest } from './dto/requests/family-member.request';
+import { FamilyMember } from 'src/infrastructure/entities/client/family-member.entity';
+import * as sharp from 'sharp';
+import { ImageManager } from 'src/integration/sharp/image.manager';
+import { StorageManager } from  'src/integration/storage/storage.manager';
+import { toUrl } from 'src/core/helpers/file.helper';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
     @InjectRepository(Doctor) private readonly doctorRepo: Repository<Doctor>,
-    @InjectRepository(Specialization) private readonly specializationRepo: Repository<Specialization>,
+    @InjectRepository(Specialization)
+    private readonly specializationRepo: Repository<Specialization>,
     private readonly context: EntityManager,
     @Inject(REQUEST) private readonly request: Request,
+    @Inject(ImageManager) private readonly imageManager: ImageManager,
+    @Inject(StorageManager) private readonly storageManager: StorageManager,
   ) {}
 
-
   async getSpecilizations() {
-
     return await this.specializationRepo.find();
   }
-  async addDoctorInfo(request: DoctorInfoRequest) {
+  async addDoctorInfo(request: DoctorInfoRequest,id?:string) {
 
+    const doctor = await this.getDoctor(id);
 
-    const doctor= await this.getDoctor();
-
-    doctor.year_of_experience=request.year_of_experience
-    doctor.has_clinc=request.has_clinc
-    if(request.latitude && request.longitude){ 
-    doctor.latitude=Number(request.latitude),
-    doctor.longitude=Number(request.longitude)}
+     const docImages=     request.license_images? request.license_images.split(','):[];
+     console.log(docImages)
+    doctor.year_of_experience = Number( request.year_of_experience);
     
-    if(request.specializations){
-      const specializations= await this.context.find(Specialization,{where:{id: In(request.specializations)  }})
-      
-
-     doctor.specializations=specializations;
-     console.log(doctor);
+    doctor.has_clinc = request.has_clinc;
+    if (request.latitude && request.longitude) {
+      (doctor.latitude = Number(request.latitude)),
+        (doctor.longitude = Number(request.longitude));
     }
-if(request.license_images){
-    request.license_images.map((image) => {
-      // check if image exists using fs
-      const exists = fs.existsSync(image);
-      if (!exists) throw new BadRequestException('Image not found');
-    });
 
-    // save shipping order images
-    const images = request.license_images.map((image) => {
-      // create shipping-images folder if not exists
-      if (!fs.existsSync('storage/license-images')) {
-        fs.mkdirSync('storage/license-images');
-      }
-      // store the future path of the image
-      const newPath = image.replace('/tmp/', '/license-images/');
-
-      console.log(newPath)
-      // use fs to move images
-      return plainToInstance(DoctorLicense, {
-        image: newPath,
-        doctor_id: doctor.id,
+    if (request.specialization_id) {
+      const specializations = await this.context.findOne(Specialization, {
+        where: { id: request.specialization_id },
       });
-    });
-    console.log(images);
-    await this.context.save(images);
-    request.license_images.map((image) => {
-      const newPath = image.replace('/tmp/', '/license-images/');
-      fs.renameSync(image, newPath);
-    });}
-    return  await this.doctorRepo.save(doctor);
 
+      doctor.specialization_id = specializations.id;
+    
+    }
+    if (request.license_images) {
+      docImages.map((image) => {
+        // check if image exists using fs
+        const exists = fs.existsSync(image);
+        if (!exists) throw new BadRequestException('Image not found');
+      });
+
+      // save shipping order images
+      const images = docImages.map((image) => {
+        // create shipping-images folder if not exists
+        if (!fs.existsSync('storage/license-images')) {
+          fs.mkdirSync('storage/license-images');
+        }
+        // store the future path of the image
+        const newPath = image.replace('/tmp/', '/license-images/');
+
+        
+        // use fs to move images
+        return plainToInstance(DoctorLicense, {
+          image: newPath,
+          doctor_id: doctor.id,
+        });
+      });
+     
+      await this.context.save(images);
+      docImages.map((image) => {
+        const newPath = image.replace('/tmp/', '/license-images/');
+        fs.renameSync(image, newPath);
+      });
+    }
+    return await this.doctorRepo.save(doctor);
   }
 
- async  getDoctor(){
-  console.log(this.request.user);
+  async getDoctor(id?:string) {
 
-   return await this.doctorRepo.findOneBy({user_id:this.request.user.id})
-
-
+    const doctor= await this.doctorRepo.findOne({where:{ user_id: id==null? this.request.user.id:id },relations:{specialization:true,licenses:true},select:{licenses:{id:true,image:true}}},);
+  
+  if(doctor.licenses)
+  doctor.licenses.map((e)=>e.image=toUrl(e.image))
+    return doctor
   }
+
+async addClientInfo(req:ClientInfoRequest){
+const clinet = await this.getClientInfo();
+ await this.context.update(ClientInfo,clinet.id,plainToInstance(ClientInfo,{
+  user_id:this.request.user.id,
+  ...req
+}))
+return await this.getClientInfo();
+
 }
+
+async addFamilyMembers(req:FamilyMemberRequest){
+  const client= await this.getClientInfo();
+  
+const familyMember= await this.context.save(plainToInstance(FamilyMember,{
+  ...req,client_id:client.id
+}))
+if (req.avatarFile) {
+
+  console.log(req.avatarFile)
+  // resize image to 300x300
+  const resizedImage = await this.imageManager.resize(req.avatarFile, {
+    size: { width: 300, height: 300 },
+    options: {
+      fit: sharp.fit.cover,
+      position: sharp.strategy.entropy
+    },
+  });
+
+  // save image
+  const path = await this.storageManager.store(
+    { buffer: resizedImage, originalname: req.avatarFile.originalname },
+    { path: 'avatars' },
+  );
+
+  // set avatar path
+  familyMember.avatar = path;}
+
+  await this.context.save(familyMember)
+  
+  return familyMember
+}
+
+async getClientInfo(){
+  return await this.context.findOneBy(ClientInfo,{user_id:this.request.user.id},)
+  
+}
+
+
+
+async getFamilyMembers(){
+
+  const client= await this.getClientInfo();
+  return (await this.context.find(FamilyMember,{where:{client_id:client.id}})).map((member)=>{ member.avatar==null?null : member.avatar= toUrl(member.avatar) ;return member
+  })
+}
+}
+

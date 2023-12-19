@@ -16,7 +16,7 @@ name_en:string
 reservations:Reservation[]
 
 
-@ManyToMany(()=>Doctor,doctor=>doctor.specializations)
+@OneToMany(()=>Doctor,doctor=>doctor.specialization)
 doctors:Doctor[]
 
 

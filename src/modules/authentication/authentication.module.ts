@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { VerifyOtpTransaction } from './transactions/verify-otp.transaction';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import JWTSetup from 'src/core/setups/jwt.setup';
+import { AdditionalInfoService } from '../additional-info/additional-info.service';
 
 @Global()
 @Module({
@@ -23,6 +24,7 @@ import JWTSetup from 'src/core/setups/jwt.setup';
         VerifyOtpTransaction,
         JwtService,
         JwtStrategy,
+        AdditionalInfoService
     ],
     exports: [
         AuthenticationService,

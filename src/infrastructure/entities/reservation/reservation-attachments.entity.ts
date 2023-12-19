@@ -15,4 +15,13 @@ export class ReservationAttachments extends AuditableEntity{
 
  @ManyToOne(()=>Reservation,reservation=>reservation.attachments)
  reservation:Reservation
+
+ @Column()
+ reservation_id:string
+
+ constructor(data:Partial<ReservationAttachments>){
+     
+     super()
+     Object.assign(this,data)
+ }
 }

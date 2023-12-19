@@ -9,6 +9,8 @@ import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
 import { FileModule } from './modules/file/file.module';
 import { AdditionalInfoModule } from './modules/additional-info/additional-info.module';
+import { Reservation } from './infrastructure/entities/reservation/reservation.entity';
+import { ReservationModule } from './modules/reservation/reservation.module';
 
 @Module({
   imports: [
@@ -19,7 +21,8 @@ import { AdditionalInfoModule } from './modules/additional-info/additional-info.
     UserModule,             // !Global
     AuthenticationModule,   // !Global
     FileModule,             // !Global
-    AdditionalInfoModule
+    AdditionalInfoModule,
+    ReservationModule
   ],
   controllers: [AppController],
   providers: [AppService],

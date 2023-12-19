@@ -12,15 +12,22 @@ import { SendOtpTransaction } from './transactions/send-otp.transaction';
 import { UserService } from '../user/user.service';
 import { VerifyOtpTransaction } from './transactions/verify-otp.transaction';
 import { jwtSignOptions } from 'src/core/setups/jwt.setup';
+import { AdditionalInfoService } from '../additional-info/additional-info.service';
+import { Role } from 'src/infrastructure/data/enums/role.enum';
+import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @Inject(UserService) private readonly userService: UserService,
+    @InjectRepository(Doctor) private readonly doctorRepo: Repository<Doctor>,
     @Inject(RegisterUserTransaction) private readonly registerUserTransaction: RegisterUserTransaction,
     @Inject(SendOtpTransaction) private readonly sendOtpTransaction: SendOtpTransaction,
     @Inject(VerifyOtpTransaction) private readonly verifyOtpTransaction: VerifyOtpTransaction,
     @Inject(JwtService) private readonly jwtService: JwtService,
+    @Inject(AdditionalInfoService) private readonly additonalService: AdditionalInfoService,
     @Inject(ConfigService) private readonly _config: ConfigService,
   ) { }
 
@@ -54,6 +61,14 @@ export class AuthenticationService {
 
   async register(req: RegisterRequest) {
     const user = await this.registerUserTransaction.run(req);
+    if(req.role == Role.DOCTOR){
+      try{
+      await this.additonalService.addDoctorInfo(req,user.id)}
+      catch(e){
+        await this.userService.delete(user.id)
+        throw new BadRequestException(e)
+      }
+    }
     return user;
   }
 

@@ -6,6 +6,8 @@ import { DoctorLicense } from "../entities/doctor/doctor-license.entity";
 import { Specialization } from "../entities/doctor/specialization.entity";
 import { Reservation } from "../entities/reservation/reservation.entity";
 import { ReservationAttachments } from "../entities/reservation/reservation-attachments.entity";
+import { FamilyMember } from "../entities/client/family-member.entity";
+import { ClientInfo } from "../entities/client/client.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -15,7 +17,9 @@ export const DB_ENTITIES = [
   DoctorLicense,
   Specialization,
   Reservation,
-  ReservationAttachments
+  ReservationAttachments,
+  FamilyMember,
+  ClientInfo
   
 ];
 

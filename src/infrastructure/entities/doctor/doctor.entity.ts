@@ -4,12 +4,13 @@ import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { DoctorLicense } from './doctor-license.entity';
 import { Reservation } from '../reservation/reservation.entity';
 import { Specialization } from './specialization.entity';
+import Decimal from 'decimal.js';
 
 @Entity()
 export class Doctor extends OwnedEntity {
  
-  @OneToOne(() => User)
-  @JoinColumn()
+  @OneToOne(() => User,{onDelete:"CASCADE"})
+  @JoinColumn({})
   user: User;
 
   @Column({nullable:true})
@@ -18,9 +19,12 @@ export class Doctor extends OwnedEntity {
   @OneToMany(() => DoctorLicense, (license) => license.doctor)
   licenses: DoctorLicense[];
 
-  @ManyToMany(()=>Specialization,spec=>spec.doctors)
+  @ManyToOne(()=>Specialization,spec=>spec.doctors)
   @JoinTable()
-  specializations:Specialization[]
+  specialization:Specialization
+
+  @Column({nullable:true})
+  specialization_id:string
 
   @OneToMany(() => Reservation, (reservation) => reservation.doctor)
   reservations: Reservation[];
@@ -48,8 +52,24 @@ summery:string;
 
  @Column({nullable:true})
  is_verified:boolean;
+
+
+ @Column({nullable:true,type:"decimal",precision:10,scale:2})
+Video_consultation_price:number;
+
+
+@Column({nullable:true,type:"decimal",precision:10,scale:2})
+voice_consultation_price:number;
+
+@Column({nullable:true,type:"decimal",precision:10,scale:2})
+home_consultation_price:number;
+
+
+ 
  @Column({nullable:true})
- urgent_doctor:boolean;
+ is_urgent_doctor:boolean;
+
+
 
 
 constructor( data:Partial<Doctor>){

@@ -17,6 +17,8 @@ specialization:Specialization
 @Column()
 specialization_id:string
 
+@Column()
+phone:string
 
 @Column()
 note:string
@@ -26,7 +28,7 @@ attachments:ReservationAttachments[]
 
 
 @Column({ type: 'json', nullable: true })
-rejcted_by: string[];
+nearby_doctors: string[];
 
 
 
@@ -34,5 +36,12 @@ rejcted_by: string[];
 doctor: Doctor;
 @Column({ nullable: true })
 doctor_id?: string;
+
+
+constructor(data: Partial<Reservation>)
+{
+    super();
+    Object.assign(this, data);
+}
 
 }
