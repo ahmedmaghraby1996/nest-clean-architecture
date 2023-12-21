@@ -34,6 +34,10 @@ longitude: string;
 specialization_id:string
 
 @ApiProperty({ required: false })
+
+family_member_id:string
+
+@ApiProperty({ required: false })
 @IsNotEmpty()
 phone:string
 

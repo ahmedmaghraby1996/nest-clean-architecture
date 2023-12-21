@@ -4,10 +4,14 @@ import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { DoctorLicense } from './doctor-license.entity';
 import { Reservation } from '../reservation/reservation.entity';
 import { Specialization } from './specialization.entity';
-import Decimal from 'decimal.js';
+import { Offer } from '../reservation/offers.entity';
+
 
 @Entity()
 export class Doctor extends OwnedEntity {
+
+  @OneToMany(()=>Offer,offer=>offer.doctor)
+  offers: Offer[]
  
   @OneToOne(() => User,{onDelete:"CASCADE"})
   @JoinColumn({})

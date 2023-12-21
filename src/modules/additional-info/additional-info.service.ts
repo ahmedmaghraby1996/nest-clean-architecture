@@ -10,7 +10,7 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Specialization } from 'src/infrastructure/entities/doctor/specialization.entity';
 
-import { ClientInfo } from 'src/infrastructure/entities/client/client.entity';
+import { Client } from 'src/infrastructure/entities/client/client.entity';
 import { ClientInfoRequest } from './dto/requests/client-info-request';
 import { FamilyMemberRequest } from './dto/requests/family-member.request';
 import { FamilyMember } from 'src/infrastructure/entities/client/family-member.entity';
@@ -99,7 +99,7 @@ export class AdditionalInfoService {
 
 async addClientInfo(req:ClientInfoRequest){
 const clinet = await this.getClientInfo();
- await this.context.update(ClientInfo,clinet.id,plainToInstance(ClientInfo,{
+ await this.context.update(Client,clinet.id,plainToInstance(Client,{
   user_id:this.request.user.id,
   ...req
 }))
@@ -140,7 +140,7 @@ if (req.avatarFile) {
 }
 
 async getClientInfo(){
-  return await this.context.findOneBy(ClientInfo,{user_id:this.request.user.id},)
+  return await this.context.findOneBy(Client,{user_id:this.request.user.id},)
   
 }
 

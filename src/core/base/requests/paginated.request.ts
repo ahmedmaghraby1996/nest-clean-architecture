@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsNumber, IsOptional } from 'class-validator';
 import { toRightNumber } from 'src/core/helpers/cast.helper';
 import {
+  ILike,
   LessThan,
   LessThanOrEqual,
   MoreThan,
@@ -85,6 +86,10 @@ export class PaginatedRequest {
 
         const [key, value] = filterPart.split(operator);
         switch (operator) {
+
+          case '#' :
+          whereFilter = { ...whereFilter, [key]: ILike(value) };
+          break;
           case '<':
             whereFilter = { ...whereFilter, [key]: LessThan(value) };
             break;
@@ -163,6 +168,7 @@ export class PaginatedRequest {
   }
 
   private getOperator(statement: string): string {
+    if (statement.includes('#')) return '#';
     if (statement.includes('<=')) return '<=';
     if (statement.includes('>=')) return '>=';
     if (statement.includes('<')) return '<';
