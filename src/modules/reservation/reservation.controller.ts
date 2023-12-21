@@ -40,7 +40,9 @@ console.log((await this.additonalInfoService.getDoctor()).id)
   applyQueryIncludes(query, 'attachments');
   applyQueryIncludes(query, 'family_member');
   applyQueryIncludes(query, 'doctor.user');
+  applyQueryIncludes(query, 'specialization');
 }
+
   
     const reservations =  this._i18nResponse.entity ( await this.reservationService.findAll(query));
     const reservationRespone= reservations.map((e)=>new ReservationResponse(e))
