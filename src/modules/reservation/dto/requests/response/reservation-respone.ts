@@ -44,7 +44,7 @@ id:string
        this.status=data.status
        this.reservationType=data.reservationType
        this.specialization=data.specialization
-       this.attachments=data.attachments.map((e)=>{e.file= toUrl(e.file); return e.file})
+       this.attachments= data.attachments? data.attachments.map((e)=>{e.file= toUrl(e.file); return e.file}):null
 
 
 this.doctor= data.doctor? {

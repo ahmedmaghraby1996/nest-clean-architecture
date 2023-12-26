@@ -18,6 +18,7 @@ export class Reservation extends OwnedEntity{
 reservationType: ReservationType;
 
 @ManyToOne(()=>Specialization,specialization=>specialization.reservations)
+@JoinColumn()
 specialization:Specialization
 
 @Column()
@@ -36,7 +37,7 @@ note:string
 attachments:ReservationAttachments[]    
 
 
-@Column({ type: 'text', nullable: true })
+@Column({ type: 'simple-array', nullable: true })
 nearby_doctors: string[];
 
 

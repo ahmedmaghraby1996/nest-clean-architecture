@@ -48,7 +48,9 @@ constructor(
         where:{is_urgent_doctor:true,specialization_id:request.specialization_id}
         
     })
-
+    console.log(nearby_doctors)
+if (nearby_doctors.length==0)
+throw  new BadRequestException('no availiable doctors')
    reservation.nearby_doctors=nearby_doctors.map((doctor)=>doctor.id) 
 await this._repo.save(reservation)   
     if (request.files) {
