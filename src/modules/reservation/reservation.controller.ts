@@ -15,6 +15,7 @@ import { AdditionalInfoService } from '../additional-info/additional-info.servic
 import { OfferService } from './offer.service';
 import { ReservationResponse } from './dto/requests/response/reservation-respone';
 import { plainToInstance } from 'class-transformer';
+import { ReservationType } from 'src/infrastructure/data/enums/reservation-type';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -30,21 +31,23 @@ export class ReservationController {
 
   @Get()
   async getReservations(@Query() query: PaginatedRequest) {
+    applyQueryIncludes(query, 'doctor');
+    applyQueryIncludes(query, 'attachments');
+    applyQueryIncludes(query, 'family_member');
+    applyQueryIncludes(query, 'doctor.user');
+    applyQueryIncludes(query, 'specialization');
 if(this.reservationService.currentUser.roles.includes(Role.CLIENT)){
   applyQueryFilters(query, `user_id=${this.reservationService.currentUser.id}`);
 }
 if(this.reservationService.currentUser.roles.includes(Role.DOCTOR)){
 console.log((await this.additonalInfoService.getDoctor()).id)
   applyQueryFilters(query, `nearby_doctors#%${ ( (await this.additonalInfoService.getDoctor()).id)}%`);
-  applyQueryIncludes(query, 'doctor');
-  applyQueryIncludes(query, 'attachments');
-  applyQueryIncludes(query, 'family_member');
-  applyQueryIncludes(query, 'doctor.user');
-  applyQueryIncludes(query, 'specialization');
+ 
 }
 
   
     const reservations =  this._i18nResponse.entity ( await this.reservationService.findAll(query));
+
     const reservationRespone= reservations.map((e)=>new ReservationResponse(e))
 
     if (query.page && query.limit) {
@@ -67,7 +70,24 @@ console.log((await this.additonalInfoService.getDoctor()).id)
   @Roles(Role.DOCTOR)
   @Post('urgent/offer/:id')
   async makeOffer(@Param("id") id: string) {
-    return await this.offerService.makeOffer(id);
+    return new ActionResponse( await this.offerService.makeOffer(id));
   }
 
+  @Roles(Role.CLIENT)
+  @Get('urgent/:reservation-id/offer')
+async getOffers(@Param("reservation-id") reservation_id: string) {
+console.log(reservation_id)
+return new ActionResponse( await this.offerService.getOffers(reservation_id));
+
+}
+
+@Roles(Role.CLIENT)
+@Post("urgent/offer-accept/:id")
+async acceptOffer(@Param("id") id: string) {
+  const reservation= await this.reservationService.acceptOffer( id);
+
+  return new ActionResponse(new ReservationResponse(reservation));
+
+
+}
 }

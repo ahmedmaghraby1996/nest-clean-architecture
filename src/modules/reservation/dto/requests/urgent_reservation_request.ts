@@ -1,6 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString, Matches } from "class-validator";
 import { ReservationType } from "src/infrastructure/data/enums/reservation-type";
+
 
 export class urgentReservationRequest{
     @ApiProperty({ default: ReservationType.VEDIO_CALL, enum: [ReservationType.VEDIO_CALL, ReservationType.CALL,ReservationType.MEETING] })
@@ -18,7 +20,8 @@ reservationType:ReservationType
   /^(\+|-)?(?:90(?:(?:\.0{1,15})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,15})?))$/,
   { message: 'invalid value for latitude' },
 )
-latitude: string;
+
+latitude: number;
 
 @ApiPropertyOptional()
 @IsOptional()
@@ -27,7 +30,8 @@ latitude: string;
   /^(\+|-)?(?:180(?:(?:\.0{1,15})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,15})?))$/,
   { message: 'invalid value for longitude' },
 )
-longitude: string;
+@Transform((value) => Number(value))
+longitude: number;
 
 @ApiProperty({ required: false })
 @IsNotEmpty()

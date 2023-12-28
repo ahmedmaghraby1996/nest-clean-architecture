@@ -14,7 +14,7 @@ id:string
 @Expose()
     reservationType: ReservationType;
     @Expose()
-    specialization:Specialization
+    specialization:any
     
 
     @Expose()
@@ -31,7 +31,9 @@ id:string
     
     @Expose()
     doctor: any;
-    
+
+    @Expose()
+agora_token:string    
     
     @Expose()
     family_member: any;
@@ -41,9 +43,10 @@ id:string
         this.id=data.id
        this.note=data.note
        this.phone=data.phone 
+       this.agora_token= data.agora_token? data.agora_token:null
        this.status=data.status
        this.reservationType=data.reservationType
-       this.specialization=data.specialization
+       this.specialization={id:data.specialization.id,name:data.specialization.name}
        this.attachments= data.attachments? data.attachments.map((e)=>{e.file= toUrl(e.file); return e.file}):null
 
 

@@ -10,9 +10,18 @@ import { Offer } from "./offers.entity";
 import { OwnedEntity } from "src/infrastructure/base/owned.entity";
 import { User } from "../user/user.entity";
 import { Client } from "../client/client.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class Reservation extends OwnedEntity{
+
+
+
+    @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
+    latitude: number;
+    
+    @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
+    longitude: number;    
 
 @Column({nullable:true})
 reservationType: ReservationType;
@@ -36,7 +45,7 @@ note:string
 @OneToMany(()=>ReservationAttachments,attachment=>attachment.reservation)
 attachments:ReservationAttachments[]    
 
-
+@Exclude()
 @Column({ type: 'simple-array', nullable: true })
 nearby_doctors: string[];
 
@@ -59,6 +68,9 @@ family_member_id?: string;
 client:Client
 @Column({ nullable: true })
 client_id?: string;
+
+@Column({nullable:true})
+agora_token:string
 
 @OneToMany(()=>Offer,offer=>offer.reservation)
  offers:Offer[]        
