@@ -30,7 +30,7 @@ latitude: number;
   /^(\+|-)?(?:180(?:(?:\.0{1,15})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,15})?))$/,
   { message: 'invalid value for longitude' },
 )
-@Transform((value) => Number(value))
+
 longitude: number;
 
 @ApiProperty({ required: false })

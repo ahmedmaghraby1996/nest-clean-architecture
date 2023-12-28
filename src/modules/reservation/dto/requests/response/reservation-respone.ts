@@ -34,6 +34,11 @@ id:string
 
     @Expose()
 agora_token:string    
+
+@Expose()
+latitude:number
+@Expose()
+longitude:number
     
     @Expose()
     family_member: any;
@@ -43,6 +48,8 @@ agora_token:string
         this.id=data.id
        this.note=data.note
        this.phone=data.phone 
+       this.latitude=data.latitude
+       this.longitude=data.longitude
        this.agora_token= data.agora_token? data.agora_token:null
        this.status=data.status
        this.reservationType=data.reservationType
