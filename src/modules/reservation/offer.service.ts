@@ -42,6 +42,6 @@ return await this.repository.save(offer);
 
   async getOffers(reservation_id:string){
 
-    return await this._repo.find({where:{reservation:{id:reservation_id ,user_id:this.reservationService.currentUser.id,},},relations:{reservation:true}})
+    return await this._repo.find({where:{reservation:{id:reservation_id ,user_id:this.reservationService.currentUser.id,},},})
   }
 }
