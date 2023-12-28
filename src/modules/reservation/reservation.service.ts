@@ -14,6 +14,8 @@ import { BaseUserService } from 'src/core/base/service/user-service.base';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Offer } from 'src/infrastructure/entities/reservation/offers.entity';
 import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-status.eum';
+import { readEnv } from 'src/core/helpers/env.helper';
+
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
   constructor(
@@ -102,9 +104,9 @@ export class ReservationService extends BaseUserService<Reservation> {
   }
 
   async generateRTCtoken(id: string) {
-    const token = RtcTokenBuilder.buildTokenWithAccount(
-      '475c63fb30dc481f92b68be21db9c3d9',
-      'b9f9c98e77964f16b239cbc05436148e',
+    const token = RtcTokenBuilder.buildTokenWithAccount(  
+      readEnv('AGORA_APP_ID' ) as unknown as string,
+      readEnv('AGORA_APP_CERTIFICATE' ) as unknown as string,
       `ch-${id}`,
       id,
       RtcRole.SUBSCRIBER,
@@ -118,8 +120,9 @@ export class ReservationService extends BaseUserService<Reservation> {
     const offer = await this.offer_repository.findOne({ where: { id: id } });
     
     const reservation = await this._repo.findOne({
-      where: { id: offer.reservation_id },
+      where: { id: offer.reservation_id },relations:{specialization:true}
     });
+   
     reservation.doctor = offer.doctor;
     reservation.status = ReservationStatus.ACCEPTED;
     if(reservation.reservationType!=ReservationType.MEETING){
