@@ -15,7 +15,9 @@ import { Exclude } from "class-transformer";
 @Entity()
 export class Reservation extends OwnedEntity{
 
-
+@ManyToOne(()=>User,user=>user.reservations)
+@JoinColumn()
+user:User
 
     @Column({ type: 'float', precision: 10, scale: 6 ,nullable:true})
     latitude: number;

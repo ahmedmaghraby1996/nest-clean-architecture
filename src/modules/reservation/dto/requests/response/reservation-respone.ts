@@ -45,6 +45,7 @@ longitude:number
     
 
     constructor(data: Partial<ReservationResponse>){
+     
         this.id=data.id
        this.note=data.note
        this.phone=data.phone 

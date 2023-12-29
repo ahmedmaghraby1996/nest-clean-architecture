@@ -11,9 +11,13 @@ import { Gender } from 'src/infrastructure/data/enums/gender.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Language } from 'src/infrastructure/data/enums/language.enum';
 import { Address } from './address.entity';
+import { Reservation } from '../reservation/reservation.entity';
 
 @Entity()
 export class User extends AuditableEntity {
+
+  @OneToMany(()=>Reservation,reservation=>reservation.user)
+  reservations:Reservation[]
   // account > unique id generator 10 numbers)
   @Factory((faker) => faker.phone.number('########'))
   @Column({ length: 8, unique: true })

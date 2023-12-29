@@ -120,10 +120,11 @@ export class ReservationService extends BaseUserService<Reservation> {
     const offer = await this.offer_repository.findOne({ where: { id: id } });
     
     const reservation = await this._repo.findOne({
-      where: { id: offer.reservation_id },relations:{specialization:true}
+      where: { id: offer.reservation_id },relations:{specialization:true,doctor:{user:true}},
     });
    
-    reservation.doctor = offer.doctor;
+    reservation.doctor_id = offer.doctor_id ;
+    
     reservation.status = ReservationStatus.ACCEPTED;
     if(reservation.reservationType!=ReservationType.MEETING){
 reservation.agora_token=await this.generateRTCtoken(this.currentUser.id)
