@@ -9,8 +9,7 @@ export class ReservationAttachments extends AuditableEntity{
  @Column()
  file:string
  
- @Column()
- type:string
+ 
 
 
  @ManyToOne(()=>Reservation,reservation=>reservation.attachments)
