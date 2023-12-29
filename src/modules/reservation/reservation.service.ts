@@ -121,7 +121,10 @@ export class ReservationService extends BaseUserService<Reservation> {
 
     const reservation = await this._repo.findOne({
       where: { id: offer.reservation_id },
-      relations: { specialization: true, doctor: { user: {client_info:true}} ,},
+      relations: {
+        specialization: true,
+        doctor: { user: { client_info: true } },
+      },
     });
 
     reservation.doctor_id = offer.doctor_id;
@@ -133,5 +136,17 @@ export class ReservationService extends BaseUserService<Reservation> {
       );
     }
     return await this._repo.save(reservation);
+  }
+
+  async getResevation(id: string) {
+    return await this._repo.findOne({
+      where: { id },
+      relations: {
+        doctor: { user: true },
+        user: { client_info: true },
+        specialization: true,
+        family_member: true,
+      },
+    });
   }
 }

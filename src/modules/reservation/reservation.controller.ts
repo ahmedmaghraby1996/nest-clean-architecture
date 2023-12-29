@@ -115,6 +115,6 @@ console.log(reservations[0])
     const reservation = await this.reservationService.acceptOffer(id);
     console.log(reservation)
     const data = this._i18nResponse.entity(reservation);
-    return new ActionResponse(new ReservationResponse(data));
+    return new ActionResponse(new ReservationResponse(await this.reservationService.getResevation(data.id)));
   }
 }
