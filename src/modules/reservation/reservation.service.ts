@@ -121,7 +121,7 @@ export class ReservationService extends BaseUserService<Reservation> {
 
     const reservation = await this._repo.findOne({
       where: { id: offer.reservation_id },
-      relations: { specialization: true, doctor: { user: true } },
+      relations: { specialization: true, doctor: { user: {client_info:true}} ,},
     });
 
     reservation.doctor_id = offer.doctor_id;
