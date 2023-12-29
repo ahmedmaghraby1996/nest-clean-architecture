@@ -42,11 +42,11 @@ specialization_id:string
 family_member_id:string
 
 @ApiProperty({ required: false })
-@IsNotEmpty()
+
 phone:string
 
 @ApiProperty({ required: false })
-@IsNotEmpty()
+
 note:string
 
 
