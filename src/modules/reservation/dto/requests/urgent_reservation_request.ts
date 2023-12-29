@@ -1,12 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsOptional, IsString, Matches } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches, isEnum } from "class-validator";
 import { ReservationType } from "src/infrastructure/data/enums/reservation-type";
 
 
 export class urgentReservationRequest{
     @ApiProperty({ default: ReservationType.VEDIO_CALL, enum: [ReservationType.VEDIO_CALL, ReservationType.CALL,ReservationType.MEETING] })
     @IsNotEmpty()
+  @IsEnum(ReservationType)
 reservationType:ReservationType
 
 
