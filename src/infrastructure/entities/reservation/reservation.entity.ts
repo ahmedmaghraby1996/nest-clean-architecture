@@ -35,13 +35,13 @@ specialization:Specialization
 @Column()
 specialization_id:string
 
-@Column()
+@Column({nullable:true})
 phone:string
 
 @Column({default:ReservationStatus.CREATED})
 status:ReservationStatus
 
-@Column()
+@Column({nullable:true})
 note:string
 
 @OneToMany(()=>ReservationAttachments,attachment=>attachment.reservation)
