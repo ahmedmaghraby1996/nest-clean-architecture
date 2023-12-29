@@ -104,30 +104,33 @@ export class ReservationService extends BaseUserService<Reservation> {
   }
 
   async generateRTCtoken(id: string) {
-    const token = RtcTokenBuilder.buildTokenWithAccount(  
-      readEnv('AGORA_APP_ID' ) as unknown as string,
-      readEnv('AGORA_APP_CERTIFICATE' ) as unknown as string,
+    const token = RtcTokenBuilder.buildTokenWithAccount(
+      readEnv('AGORA_APP_ID') as unknown as string,
+      readEnv('AGORA_APP_CERTIFICATE') as unknown as string,
       `ch-${id}`,
       id,
       RtcRole.SUBSCRIBER,
       15 * 60 * 60 * 1000,
     );
 
-   return token
+    return token;
   }
 
   async acceptOffer(id: string) {
     const offer = await this.offer_repository.findOne({ where: { id: id } });
-    
+
     const reservation = await this._repo.findOne({
-      where: { id: offer.reservation_id },relations:{specialization:true,doctor:{user:true}},
+      where: { id: offer.reservation_id },
+      relations: { specialization: true, doctor: { user: true } },
     });
-   
-    reservation.doctor_id = offer.doctor_id ;
-    
+
+    reservation.doctor_id = offer.doctor_id;
+    reservation.end_date = new Date(new Date().getTime() + 20 * 60000);
     reservation.status = ReservationStatus.ACCEPTED;
-    if(reservation.reservationType!=ReservationType.MEETING){
-reservation.agora_token=await this.generateRTCtoken(this.currentUser.id)
+    if (reservation.reservationType != ReservationType.MEETING) {
+      reservation.agora_token = await this.generateRTCtoken(
+        this.currentUser.id,
+      );
     }
     return await this._repo.save(reservation);
   }

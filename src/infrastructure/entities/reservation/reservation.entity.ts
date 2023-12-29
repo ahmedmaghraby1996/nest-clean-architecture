@@ -71,11 +71,7 @@ family_member:FamilyMember
 @Column({ nullable: true })
 family_member_id?: string;
 
-@ManyToOne(()=>Client,client=>client.reservations,{cascade:true})
-@JoinColumn()
-client:Client
-@Column({ nullable: true })
-client_id?: string;
+
 
 @Column({nullable:true})
 agora_token:string

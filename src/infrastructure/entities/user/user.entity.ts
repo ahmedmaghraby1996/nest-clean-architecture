@@ -4,6 +4,7 @@ import {
   Column,
   BeforeInsert,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { Factory } from 'nestjs-seeder';
 import { randNum } from 'src/core/helpers/cast.helper';
@@ -12,6 +13,7 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Language } from 'src/infrastructure/data/enums/language.enum';
 import { Address } from './address.entity';
 import { Reservation } from '../reservation/reservation.entity';
+import { Client } from '../client/client.entity';
 
 @Entity()
 export class User extends AuditableEntity {
@@ -30,6 +32,9 @@ export class User extends AuditableEntity {
   @Column({ length: 100 })
   first_name: string;
 
+  @OneToOne(()=>Client,client=>client.user)
+ 
+  client_info:Client
   @Column({ length: 100 })
   last_name: string;
 
