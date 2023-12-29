@@ -30,13 +30,19 @@ summery :string
 @ApiPropertyOptional()
 
 @IsOptional()
+@Transform(({ value} ) => Number( value) )
 year_of_experience :number
 
 @ApiPropertyOptional()
 
 @IsOptional()
-@Transform(({ value} ) => value === 'true')
+@Transform(({ value} ) => value === "true" || value === true)
 has_clinc :boolean
+
+@ApiPropertyOptional()
+@IsOptional()
+@Transform(({ value} ) => value === "true" || value === true)
+is_urgent :boolean
 
 @ApiPropertyOptional()
 @IsOptional()

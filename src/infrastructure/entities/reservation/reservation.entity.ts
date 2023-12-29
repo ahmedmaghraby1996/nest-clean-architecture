@@ -44,8 +44,14 @@ status:ReservationStatus
 @Column({nullable:true})
 note:string
 
+@Column({ nullable: true })
+end_date: Date
+
 @OneToMany(()=>ReservationAttachments,attachment=>attachment.reservation)
 attachments:ReservationAttachments[]    
+
+@OneToMany(()=>ReservationAttachments,attachment=>attachment.reservation)
+doctor_attachments:ReservationAttachments[]  
 
 @Exclude()
 @Column({ type: 'simple-array', nullable: true })
