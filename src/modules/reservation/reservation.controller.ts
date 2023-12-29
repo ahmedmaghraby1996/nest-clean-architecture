@@ -113,6 +113,7 @@ console.log(reservations[0])
   @Post('urgent/offer-accept/:id')
   async acceptOffer(@Param('id') id: string) {
     const reservation = await this.reservationService.acceptOffer(id);
+    console.log(reservation)
     const data = this._i18nResponse.entity(reservation);
     return new ActionResponse(new ReservationResponse(data));
   }

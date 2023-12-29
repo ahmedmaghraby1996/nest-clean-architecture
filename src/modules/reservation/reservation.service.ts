@@ -64,7 +64,7 @@ export class ReservationService extends BaseUserService<Reservation> {
               specialization_id: request.specialization_id,
             },
           });
-    console.log(nearby_doctors);
+
     if (nearby_doctors.length == 0)
       throw new BadRequestException('no availiable doctors');
     reservation.nearby_doctors = nearby_doctors.map((doctor) => doctor.id);
