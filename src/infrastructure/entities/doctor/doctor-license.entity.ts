@@ -10,17 +10,16 @@ export class DoctorLicense extends AuditableEntity {
  @Column()
  image:string
  
- @ManyToOne(()=>Doctor,doctor=>doctor.licenses)
+ @ManyToOne(()=>Doctor,doctor=>doctor.licenses,{cascade:true,onDelete:'CASCADE',onUpdate:'CASCADE'})
  @JoinColumn({name:'doctor_id'})
  doctor:Doctor
 
 
 
- @Column({nullable:true})
+ @Column()
  doctor_id:string
 
- @Column({nullable:true})
- doctors_id:string
+
 
  constructor(data:Partial<DoctorLicense>){
     super() 

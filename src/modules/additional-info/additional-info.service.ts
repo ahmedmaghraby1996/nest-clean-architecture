@@ -18,6 +18,7 @@ import * as sharp from 'sharp';
 import { ImageManager } from 'src/integration/sharp/image.manager';
 import { StorageManager } from 'src/integration/storage/storage.manager';
 import { toUrl } from 'src/core/helpers/file.helper';
+import { User } from 'src/infrastructure/entities/user/user.entity';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
@@ -75,21 +76,33 @@ export class AdditionalInfoService {
         const newPath = image.replace('/tmp/', '/license-images/');
       
         // use fs to move images
-        return new DoctorLicense({doctor_id:doctor.id,image:newPath})
+        return new DoctorLicense({image:newPath,doctor_id:doctor.id})
       });
 
-     
-      await this.context.save(images);
+     await this.context.save(images);
+  
       docImages.map((image) => {
         const newPath = image.replace('/tmp/', '/license-images/');
         fs.renameSync(image, newPath);
       });
     }
-
-    return await this.doctorRepo.save(doctor);
+    await this.doctorRepo.save(doctor);
+    return this.getFullDoctor(id);
   }
 
   async getDoctor(id?: string) {
+    
+    const doctor = await this.doctorRepo.findOne({
+      where: { user_id: id == null ? this.request.user.id : id },
+      // relations: { specialization: true, licenses: true },
+      // select: { licenses: { id: true, image: true } },
+    });
+
+    if (doctor.licenses) doctor.licenses.map((e) => (e.image = toUrl(e.image)));
+    return doctor;
+  }
+  async getFullDoctor(id?: string){
+      
     const doctor = await this.doctorRepo.findOne({
       where: { user_id: id == null ? this.request.user.id : id },
       relations: { specialization: true, licenses: true },
