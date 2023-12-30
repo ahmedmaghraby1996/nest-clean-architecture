@@ -101,11 +101,11 @@ console.log(reservations[0])
   }
 
   @Roles(Role.CLIENT)
-  @Get('urgent/:reservation-id/offer')
-  async getOffers(@Param('reservation-id') reservation_id: string) {
-    console.log(reservation_id);
+  @Get('urgent/:reservation/offer')
+  async getOffers(@Param('reservation') reservation: string) {
+    console.log(reservation);
     return new ActionResponse(
-      await this.offerService.getOffers(reservation_id),
+      await this.offerService.getOffers(reservation),
     );
   }
 
