@@ -14,6 +14,7 @@ import { DoctorLicense } from './doctor-license.entity';
 import { Reservation } from '../reservation/reservation.entity';
 import { Specialization } from './specialization.entity';
 import { Offer } from '../reservation/offers.entity';
+import { DoctorAvaliablity } from './doctor-avaliablity.entity';
 
 @Entity()
 export class Doctor extends OwnedEntity {
@@ -33,6 +34,9 @@ export class Doctor extends OwnedEntity {
   @ManyToOne(() => Specialization, (spec) => spec.doctors)
   @JoinTable()
   specialization: Specialization;
+
+  @OneToMany(()=>DoctorAvaliablity,(availability)=>availability.doctor)
+  avaliablity:DoctorAvaliablity[]
 
   @Column({ nullable: true })
   specialization_id: string;

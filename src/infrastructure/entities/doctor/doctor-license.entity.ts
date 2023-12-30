@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Doctor } from "./doctor.entity";
 import { BaseEntity } from "src/infrastructure/base/base.entity";
 import { AuditableEntity } from "src/infrastructure/base/auditable.entity";
@@ -11,11 +11,16 @@ export class DoctorLicense extends AuditableEntity {
  image:string
  
  @ManyToOne(()=>Doctor,doctor=>doctor.licenses)
+ @JoinColumn({name:'doctor_id'})
  doctor:Doctor
 
- @Column()
+
+
+ @Column({nullable:true})
  doctor_id:string
 
+ @Column({nullable:true})
+ doctors_id:string
 
  constructor(data:Partial<DoctorLicense>){
     super() 

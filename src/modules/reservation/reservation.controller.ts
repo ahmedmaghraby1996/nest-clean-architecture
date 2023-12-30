@@ -25,9 +25,11 @@ import {
 } from 'src/core/helpers/service-related.helper';
 import { AdditionalInfoService } from '../additional-info/additional-info.service';
 import { OfferService } from './offer.service';
-import { ReservationResponse } from './dto/requests/response/reservation-respone';
+import { ReservationResponse } from './dto/response/reservation-respone';
 import { plainToInstance } from 'class-transformer';
 import { ReservationType } from 'src/infrastructure/data/enums/reservation-type';
+import { request } from 'http';
+import { compeleteReservationRequest } from './dto/requests/compelete-reservation-request';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -117,4 +119,17 @@ console.log(reservations[0])
     const data = this._i18nResponse.entity(reservation);
     return new ActionResponse(new ReservationResponse(await this.reservationService.getResevation(data.id)));
   }
+
+@Roles(Role.DOCTOR)
+@Post('/complete')
+async completeReservation(@Body() request: compeleteReservationRequest) {
+  const reservation=  await this.reservationService.compeleteReservation(request)
+
+  const data = this._i18nResponse.entity(reservation);
+  console.log(data)  
+  return new ActionResponse(new ReservationResponse(await this.reservationService.getResevation(data.id)));
+  
+}
+
+
 }

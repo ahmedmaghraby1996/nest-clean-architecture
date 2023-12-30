@@ -15,6 +15,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Offer } from 'src/infrastructure/entities/reservation/offers.entity';
 import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-status.eum';
 import { readEnv } from 'src/core/helpers/env.helper';
+import {  compeleteReservationRequest } from './dto/requests/compelete-reservation-request';
+import { ReservationAttachmentType } from 'src/infrastructure/data/enums/reservation-attachment-type';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -149,4 +151,48 @@ export class ReservationService extends BaseUserService<Reservation> {
       },
     });
   }
+
+async compeleteReservation(request: compeleteReservationRequest) {
+const reservation= await this._repo.findOne({where:{id:request.id}})
+
+reservation.status=ReservationStatus.COMPLETED;
+
+  if (request.files) {
+    request.files.map((file) => {
+      // check if image exists using fs
+      const exists = fs.existsSync(file);
+      if (!exists) throw new BadRequestException('file not found');
+    });
+
+    // save shipping order images
+    const files = request.files.map((file) => {
+      // create shipping-images folder if not exists
+      if (!fs.existsSync('storage/reservation-images')) {
+        fs.mkdirSync('storage/reservation-images');
+      }
+      // store the future path of the image
+      const newPath = file.replace('/tmp/', '/reservation-images/');
+
+      console.log(newPath);
+      // use fs to move images
+      return plainToInstance(ReservationAttachments, {
+        file: newPath,
+        reservation_id: request.id,
+        type:ReservationAttachmentType.DOCTOR
+      });
+    });
+
+    await this.reservtion_attachment_repository.save(files);
+    request.files.map((image) => {
+      const newPath = image.replace('/tmp/', '/reservation-images/');
+      fs.renameSync(image, newPath);
+    });
+  }
+
+  this._repo.save(reservation)  
+return reservation
+  
+}
+
+
 }

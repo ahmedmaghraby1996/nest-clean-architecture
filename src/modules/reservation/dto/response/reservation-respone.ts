@@ -61,7 +61,7 @@ export class ReservationResponse {
     this.attachments = data.attachments
       ? data.attachments.map((e) => {
           e.file = toUrl(e.file);
-          return e.file;
+          return{file: e.file,provider:e.type};
         })
       : null;
 
