@@ -36,12 +36,24 @@ export class OfferService extends BaseService<Offer> {
         break;
     }
 
-const offer = new Offer({ reservation_id: id ,value:value,doctor_id:doctor.id});
-return await this.repository.save(offer);
+    const offer = new Offer({
+      reservation_id: id,
+      value: value,
+      doctor_id: doctor.id,
+    });
+    return await this.repository.save(offer);
   }
 
-  async getOffers(reservation_id:string){
-
-    return await this._repo.find({where:{reservation:{id:reservation_id ,user_id:this.reservationService.currentUser.id,},},})
+  async getOffers(reservation_id: string) {
+    return await this._repo.find({
+      where: {
+        reservation: {
+          id: reservation_id,
+          user_id: this.reservationService.currentUser.id,
+        },
+        
+      },
+      relations:{doctor:{user:true,specialization:true}}
+    });
   }
 }

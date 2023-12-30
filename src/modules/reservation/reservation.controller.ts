@@ -22,6 +22,7 @@ import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import {
   applyQueryFilters,
   applyQueryIncludes,
+  applyQuerySort,
 } from 'src/core/helpers/service-related.helper';
 import { AdditionalInfoService } from '../additional-info/additional-info.service';
 import { OfferService } from './offer.service';
@@ -30,6 +31,7 @@ import { plainToInstance } from 'class-transformer';
 import { ReservationType } from 'src/infrastructure/data/enums/reservation-type';
 import { request } from 'http';
 import { compeleteReservationRequest } from './dto/requests/compelete-reservation-request';
+import { OfferResponse } from './dto/response/offer-respone';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -51,6 +53,7 @@ export class ReservationController {
   @Get()
   async getReservations(@Query() query: PaginatedRequest) {
     applyQueryIncludes(query, 'doctor');
+    applyQuerySort(query,'created_at=desc');
     applyQueryIncludes(query, 'user.client_info');
     applyQueryIncludes(query, 'attachments');
     applyQueryIncludes(query, 'family_member');
@@ -105,9 +108,10 @@ console.log(reservations[0])
   @Roles(Role.CLIENT)
   @Get('urgent/:reservation/offer')
   async getOffers(@Param('reservation') reservation: string) {
-    console.log(reservation);
+    const offers= await this.offerService.getOffers(reservation);
+    const data= this._i18nResponse.entity(offers);
     return new ActionResponse(
-      await this.offerService.getOffers(reservation),
+      data.map((e) => new OfferResponse(e)),
     );
   }
 
