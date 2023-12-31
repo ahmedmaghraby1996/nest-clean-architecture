@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches, isEnum } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches, Validate, isEnum } from "class-validator";
 import { ReservationType } from "src/infrastructure/data/enums/reservation-type";
 
 
@@ -15,6 +15,13 @@ reservationType:ReservationType
 
 @ApiPropertyOptional()
 @IsOptional()
+@Validate((value, args) => {
+  const reservationType = args.object['reservationType'];
+
+  // Custom validation logic
+  if (reservationType === 'MEETING' && value == null) {
+    return false;
+  }})
 
 @IsString()
 @Matches(
@@ -22,10 +29,18 @@ reservationType:ReservationType
   { message: 'invalid value for latitude' },
 )
 
+
 latitude: number;
 
 @ApiPropertyOptional()
 @IsOptional()
+@Validate((value, args) => {
+  const reservationType = args.object['reservationType'];
+
+  // Custom validation logic
+  if (reservationType === 'MEETING' && value == null) {
+    return false;
+  }})
 @IsString()
 @Matches(
   /^(\+|-)?(?:180(?:(?:\.0{1,15})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,15})?))$/,
