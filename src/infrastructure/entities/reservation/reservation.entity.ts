@@ -87,10 +87,10 @@ export class Reservation extends OwnedEntity {
   @OneToMany(() => Offer, (offer) => offer.reservation)
   offers: Offer[];
 
-  @Column()
+  @Column({nullable:true})
   start_day: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2 , nullable: true })
   start_time: number;
 
   constructor(data: Partial<Reservation>) {
