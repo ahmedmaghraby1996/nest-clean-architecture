@@ -5,7 +5,7 @@ import { ReservationType } from "src/infrastructure/data/enums/reservation-type"
 
 
 export class urgentReservationRequest{
-    @ApiProperty({ default: ReservationType.VIEDO_CALL, enum: [ReservationType.VIEDO_CALL, ReservationType.CALL,ReservationType.MEETING] })
+    @ApiProperty({ default: ReservationType.VIDEO_CALL, enum: [ReservationType.VIDEO_CALL, ReservationType.CALL,ReservationType.MEETING] })
     @IsNotEmpty()
   @IsEnum(ReservationType)
 reservationType:ReservationType
