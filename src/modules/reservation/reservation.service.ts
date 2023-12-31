@@ -190,7 +190,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       });
     }
 
-    this._repo.save(reservation);
+ await   this._repo.save(reservation);
     return reservation;
   }
 }
