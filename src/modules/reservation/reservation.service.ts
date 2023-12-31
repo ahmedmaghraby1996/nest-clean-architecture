@@ -17,6 +17,7 @@ import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-sta
 import { readEnv } from 'src/core/helpers/env.helper';
 import { compeleteReservationRequest } from './dto/requests/compelete-reservation-request';
 import { ReservationAttachmentType } from 'src/infrastructure/data/enums/reservation-attachment-type';
+import { getCurrentDate, getCurrentHourAndMinutes } from 'src/core/helpers/service-related.helper';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -128,6 +129,8 @@ export class ReservationService extends BaseUserService<Reservation> {
         doctor: { user: { client_info: true } },
       },
     });
+    reservation.start_time=Number( getCurrentHourAndMinutes());
+    reservation.start_day=getCurrentDate();
     offer.is_accepted = true;
     this.offer_repository.save(offer);
     reservation.doctor_id = offer.doctor_id;

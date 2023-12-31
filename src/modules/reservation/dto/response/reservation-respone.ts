@@ -42,12 +42,19 @@ export class ReservationResponse {
   family_member: any;
 
   @Expose()
+  start_date: Date;
+
+  start_day?:string
+  
+  start_time?:number
+  @Expose()
   client_info: any;
 
   constructor(data: Partial<ReservationResponse>) {
     this.end_date = data.end_date;
     this.id = data.id;
     this.note = data.note;
+    this.start_date = data.start_day? new Date(data.start_day):null
     this.phone = data.phone;
     this.latitude = data.latitude;
     this.longitude = data.longitude;
