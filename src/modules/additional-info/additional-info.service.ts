@@ -19,6 +19,10 @@ import { ImageManager } from 'src/integration/sharp/image.manager';
 import { StorageManager } from 'src/integration/storage/storage.manager';
 import { toUrl } from 'src/core/helpers/file.helper';
 import { User } from 'src/infrastructure/entities/user/user.entity';
+import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-avaliablity.entity';
+import { DoctorAvaliablityRequest } from './dto/requests/doctor-availbility-request';
+import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
+import { Clinc } from 'src/infrastructure/entities/doctor/clinc.entity';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
@@ -36,7 +40,7 @@ export class AdditionalInfoService {
   }
   async addDoctorInfo(request: DoctorInfoRequest, id?: string) {
     const doctor = await this.getDoctor(id);
-
+    console.log(request.avaliablity);
     const docImages = request.license_images
       ? request.license_images.split(',')
       : [];
@@ -44,7 +48,23 @@ export class AdditionalInfoService {
     if (request.year_of_experience)
       doctor.year_of_experience = request.year_of_experience;
     if (request.is_urgent != null) doctor.is_urgent_doctor = request.is_urgent;
-    if (request.has_clinc != null) doctor.has_clinc = request.has_clinc;
+    if (request.clinc != null) {
+      const clinc =
+        typeof request.clinc === 'string'
+          ? plainToInstance(Clinc, JSON.parse(request.clinc))
+          : request.clinc;
+    
+    
+      if (doctor.clinc_id!=null) {
+       await this.context.update(Clinc, doctor.clinc_id, clinc);
+        
+      } else {
+       const new_clinc = await this.context.save(Clinc, clinc);
+        doctor.clinc_id=new_clinc.id
+      }
+    
+   
+    }
     if (request.latitude && request.longitude) {
       (doctor.latitude = Number(request.latitude)),
         (doctor.longitude = Number(request.longitude));
@@ -57,7 +77,7 @@ export class AdditionalInfoService {
 
       doctor.specialization_id = specializations.id;
     }
-  
+
     if (request.license_images) {
       docImages.map((image) => {
         // check if image exists using fs
@@ -66,7 +86,7 @@ export class AdditionalInfoService {
       });
 
       // save shipping order images
-      console.log(docImages)
+      console.log(docImages);
       const images = docImages.map((image) => {
         // create shipping-images folder if not exists
         if (!fs.existsSync('storage/license-images')) {
@@ -74,24 +94,43 @@ export class AdditionalInfoService {
         }
         // store the future path of the image
         const newPath = image.replace('/tmp/', '/license-images/');
-      
+
         // use fs to move images
-        return new DoctorLicense({image:newPath,doctor_id:doctor.id})
+        return new DoctorLicense({ image: newPath, doctor_id: doctor.id });
       });
 
-     await this.context.save(images);
-  
+      await this.context.save(images);
+
       docImages.map((image) => {
         const newPath = image.replace('/tmp/', '/license-images/');
         fs.renameSync(image, newPath);
       });
     }
+
+    if (request.avaliablity) {
+      const doctor_availiablity =
+        typeof request.avaliablity === 'string'
+          ? plainToInstance(DoctorAvaliablity, JSON.parse(request.avaliablity))
+          : request.avaliablity;
+      const availability = Promise.all(
+        (doctor_availiablity as unknown as DoctorAvaliablity[]).map(
+          async (e) =>
+            await this.context.update(
+              DoctorAvaliablity,
+              { doctor_id: doctor.id, day: e.day },
+              new DoctorAvaliablity({ ...e, doctor_id: doctor.id }),
+            ),
+        ),
+      );
+
+      // await this.context.save(DoctorAvaliablity, availability);
+    }
+
     await this.doctorRepo.save(doctor);
     return this.getFullDoctor(id);
   }
 
   async getDoctor(id?: string) {
-    
     const doctor = await this.doctorRepo.findOne({
       where: { user_id: id == null ? this.request.user.id : id },
       // relations: { specialization: true, licenses: true },
@@ -101,12 +140,20 @@ export class AdditionalInfoService {
     if (doctor.licenses) doctor.licenses.map((e) => (e.image = toUrl(e.image)));
     return doctor;
   }
-  async getFullDoctor(id?: string){
-      
+  async getFullDoctor(id?: string) {
     const doctor = await this.doctorRepo.findOne({
       where: { user_id: id == null ? this.request.user.id : id },
-      relations: { specialization: true, licenses: true },
-      select: { licenses: { id: true, image: true } },
+      relations: { specialization: true, licenses: true, avaliablity: true, clinc: true },
+      select: {
+        licenses: { id: true, image: true },
+        avaliablity: {
+          id: true,
+          day: true,
+          start_at: true,
+          end_at: true,
+          is_active: true,
+        },
+      },
     });
 
     if (doctor.licenses) doctor.licenses.map((e) => (e.image = toUrl(e.image)));
@@ -175,5 +222,37 @@ export class AdditionalInfoService {
       member.avatar == null ? null : (member.avatar = toUrl(member.avatar));
       return member;
     });
+  }
+
+  async getDoctorAvailiablity(req: DoctorAvaliablityRequest) {
+    console.log(req);
+    const freeTime = await this.getDoctorAvailiablityDay(req);
+    console.log(freeTime);
+    const busyTimes = await this.getDoctorBusyTimes(req);
+    return {
+      availavility: freeTime,
+      occupied_at: busyTimes,
+    };
+  }
+  async getDoctorAvailiablityDay(query: DoctorAvaliablityRequest) {
+    return await this.context.find(DoctorAvaliablity, {
+      where: { day: query.day, doctor_id: query.doctor_id, is_active: true },
+      select: { start_at: true, end_at: true },
+    });
+  }
+
+  async getDoctorBusyTimes(query: DoctorAvaliablityRequest) {
+    const start_date = query.date.toISOString().split('T')[0];
+    const start_time = query.date.getUTCHours() + query.date.getMinutes() / 60;
+
+    const busyTimes = await this.context.find(Reservation, {
+      where: {
+        start_day: start_date,
+        // start_time: start_time,
+        doctor_id: query.doctor_id,
+      },
+    });
+    const result = busyTimes.map((e) => e.start_time);
+    return result;
   }
 }

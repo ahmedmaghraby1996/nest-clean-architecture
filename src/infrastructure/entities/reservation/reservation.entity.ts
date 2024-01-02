@@ -18,6 +18,7 @@ import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { User } from '../user/user.entity';
 import { Client } from '../client/client.entity';
 import { Exclude } from 'class-transformer';
+import { Address } from '../user/address.entity';
 
 @Entity()
 export class Reservation extends OwnedEntity {
@@ -92,6 +93,18 @@ export class Reservation extends OwnedEntity {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 , nullable: true })
   start_time: number;
+
+  @ManyToOne(() => Address, (address) => address.reservations)
+  @JoinColumn()
+  address: Address;
+  @Column({ nullable: true })
+  address_id: string;
+
+  @Column({ length: 10, unique: true })
+  number: string;
+  @Column()
+  is_urgent: boolean;
+  
 
   constructor(data: Partial<Reservation>) {
     super();

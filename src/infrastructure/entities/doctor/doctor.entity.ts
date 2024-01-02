@@ -15,6 +15,7 @@ import { Reservation } from '../reservation/reservation.entity';
 import { Specialization } from './specialization.entity';
 import { Offer } from '../reservation/offers.entity';
 import { DoctorAvaliablity } from './doctor-avaliablity.entity';
+import { Clinc } from './clinc.entity';
 
 @Entity()
 export class Doctor extends OwnedEntity {
@@ -35,8 +36,8 @@ export class Doctor extends OwnedEntity {
   @JoinTable()
   specialization: Specialization;
 
-  @OneToMany(()=>DoctorAvaliablity,(availability)=>availability.doctor)
-  avaliablity:DoctorAvaliablity[]
+  @OneToMany(() => DoctorAvaliablity, (availability) => availability.doctor)
+  avaliablity: DoctorAvaliablity[];
 
   @Column({ nullable: true })
   specialization_id: string;
@@ -44,8 +45,11 @@ export class Doctor extends OwnedEntity {
   @OneToMany(() => Reservation, (reservation) => reservation.doctor)
   reservations: Reservation[];
 
-  @Column({ default: false })
-  has_clinc: boolean;
+  @ManyToOne(() => Clinc, (clinc) => clinc.doctors)
+  @JoinColumn({ name: 'clinc_id' })
+  clinc: Clinc;
+  @Column({ nullable: true })
+  clinc_id: string;
 
   @Column({ nullable: true })
   summery: string;
@@ -56,11 +60,7 @@ export class Doctor extends OwnedEntity {
   @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
   longitude: number;
 
-  @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
-  clinc_latitude: number;
 
-  @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
-  clinc_longitude: number;
 
   @Column({ nullable: true })
   is_verified: boolean;

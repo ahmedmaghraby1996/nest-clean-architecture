@@ -86,10 +86,9 @@ export class PaginatedRequest {
 
         const [key, value] = filterPart.split(operator);
         switch (operator) {
-
-          case '#' :
-          whereFilter = { ...whereFilter, [key]: ILike(value) };
-          break;
+          case '#':
+            whereFilter = { ...whereFilter, [key]: ILike(value) };
+            break;
           case '<':
             whereFilter = { ...whereFilter, [key]: LessThan(value) };
             break;
@@ -140,6 +139,7 @@ export class PaginatedRequest {
 
   get relations(): IncludesFilter {
     let relations: IncludesFilter;
+
     // convert includes to array if it's a string
     if (this.includes && typeof this.includes === 'string') {
       this.includes = [this.includes];
@@ -158,6 +158,18 @@ export class PaginatedRequest {
 
   // handle sub relations with level limit of x
   private handleSubRelations(include: string): IncludesFilter {
+    if (include.includes('#')) {
+      const key = include.split('#')[0];
+
+      const relations = include.split('#')[1].split('.');
+
+      const resultObject = {};
+      relations.forEach((key) => {
+        resultObject[key] = true;
+      });
+     
+      return { [key]: resultObject };
+    }
     const subRelations = include.split('.');
     if (subRelations.length > 1) {
       const subRelation = subRelations.shift();

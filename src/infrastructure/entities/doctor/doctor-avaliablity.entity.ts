@@ -10,15 +10,24 @@ export class DoctorAvaliablity extends BaseEntity{
 @JoinColumn()
 doctor:Doctor
 
+@Column()
+doctor_id:string
 
 @Column()
-day_id:string
+day:number
 
 @Column({ type: 'decimal', precision: 10, scale: 2 })
-from:number
+start_at:number
 
 @Column({ type: 'decimal', precision: 10, scale: 2 })
-to:number
+end_at:number
 
+@Column({default:false})
+is_active:boolean
+
+constructor(data: Partial<DoctorAvaliablity>) {
+    super();
+    Object.assign(this,data);
+}
 
 }

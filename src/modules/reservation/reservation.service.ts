@@ -17,7 +17,14 @@ import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-sta
 import { readEnv } from 'src/core/helpers/env.helper';
 import { compeleteReservationRequest } from './dto/requests/compelete-reservation-request';
 import { ReservationAttachmentType } from 'src/infrastructure/data/enums/reservation-attachment-type';
-import { getCurrentDate, getCurrentHourAndMinutes } from 'src/core/helpers/service-related.helper';
+import {
+  getCurrentDate,
+  getCurrentHourAndMinutes,
+} from 'src/core/helpers/service-related.helper';
+import { AdditionalInfoService } from '../additional-info/additional-info.service';
+import { DoctorAvaliablityRequest } from '../additional-info/dto/requests/doctor-availbility-request';
+import { SechudedReservationRequest } from './dto/requests/scheduled-reservation-request';
+import { Address } from 'src/infrastructure/entities/user/address.entity';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -28,8 +35,11 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly doctor_repository: Repository<Doctor>,
     @InjectRepository(Reservation)
     private readonly repository: Repository<Reservation>,
+    @InjectRepository(Address)
+    private readonly address_repository: Repository<Address>,
     @InjectRepository(Offer)
     private readonly offer_repository: Repository<Offer>,
+    private readonly additionalInfoService: AdditionalInfoService,
     @Inject(REQUEST) request: Request,
   ) {
     super(repository, request);
@@ -38,6 +48,9 @@ export class ReservationService extends BaseUserService<Reservation> {
   async urgentReservation(request: urgentReservationRequest) {
     const user_id = await super.currentUser.id;
     const reservation = new Reservation({ ...request, user_id: user_id });
+    const address = await this.address_repository.findOneBy({
+      id: request.address_id,
+    });
 
     const nearby_doctors =
       request.reservationType == ReservationType.MEETING
@@ -55,8 +68,8 @@ export class ReservationService extends BaseUserService<Reservation> {
               specialization_id: request.specialization_id,
             })
             .setParameters({
-              latitude: request.latitude,
-              longitude: request.longitude,
+              latitude: address.latitude,
+              longitude: address.longitude,
               radius: 10 * 1000,
             }) // Convert km to meters
             .orderBy('distance', 'ASC')
@@ -71,6 +84,12 @@ export class ReservationService extends BaseUserService<Reservation> {
     if (nearby_doctors.length == 0)
       throw new BadRequestException('no availiable doctors');
     reservation.nearby_doctors = nearby_doctors.map((doctor) => doctor.id);
+    const count = await this._repo
+      .createQueryBuilder('reservation')
+      .where('DATE(reservation.created_at) = CURDATE()')
+      .getCount();
+    reservation.number = generateOrderNumber(count);
+    reservation.is_urgent = true;
     await this._repo.save(reservation);
     if (request.files) {
       request.files.map((file) => {
@@ -129,8 +148,8 @@ export class ReservationService extends BaseUserService<Reservation> {
         doctor: { user: { client_info: true } },
       },
     });
-    reservation.start_time=Number( getCurrentHourAndMinutes());
-    reservation.start_day=getCurrentDate();
+    reservation.start_time = Number(getCurrentHourAndMinutes());
+    reservation.start_day = getCurrentDate();
     offer.is_accepted = true;
     this.offer_repository.save(offer);
     reservation.doctor_id = offer.doctor_id;
@@ -193,7 +212,55 @@ export class ReservationService extends BaseUserService<Reservation> {
       });
     }
 
- await   this._repo.save(reservation);
+    await this._repo.save(reservation);
     return reservation;
   }
+
+  async scheduledReservation(request: SechudedReservationRequest) {
+    const busyTimes = await this.additionalInfoService.getDoctorBusyTimes(
+      new DoctorAvaliablityRequest({
+        doctor_id: request.doctor_id,
+        date: request.start_date,
+      }),
+    );
+    const start_day = request.start_date.toISOString().split('T')[0];
+
+    const start_time =
+      request.start_date.getUTCHours() +
+      request.start_date.getUTCMinutes() / 100;
+
+    console.log(request.start_date.getUTCMinutes());
+    if (busyTimes.filter((e) => e == start_time).length > 0) {
+      throw new BadRequestException('Doctor busy at this time');
+    }
+    const reservation = new Reservation({
+      user_id: this.currentUser.id,
+      ...request,
+      start_day,
+      start_time,
+      end_date: new Date(request.start_date.getTime() + 20 * 60000),
+    });
+    const count = await this._repo
+      .createQueryBuilder('reservation')
+      .where('DATE(reservation.created_at) = CURDATE()')
+      .getCount();
+    reservation.number = generateOrderNumber(count);
+    reservation.is_urgent = false;
+    reservation.status = ReservationStatus.SHEDULED;
+    await this._repo.save(reservation);
+    return this.getResevation(reservation.id);
+  }
 }
+
+export const generateOrderNumber = (count: number) => {
+  // number of digits matches ##-**-@@-&&&&, where ## is 100 - the year last 2 digits, ** is 100 - the month, @@ is 100 - the day, &&&& is the number of the order in that day
+  const date = new Date();
+  const year = date.getFullYear().toString().substr(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  // order number is the count of orders created today + 1 with 4 digits and leading zeros
+  const orderNumber = (count + 1).toString().padStart(4, '0');
+  return `${100 - parseInt(year)}${100 - parseInt(month)}${
+    100 - parseInt(day)
+  }${orderNumber}`;
+};

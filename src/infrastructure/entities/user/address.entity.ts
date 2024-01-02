@@ -8,7 +8,9 @@ import {
   JoinColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
+import { Reservation } from '../reservation/reservation.entity';
 
 @Entity('addresses')
 export class Address extends OwnedEntity {
@@ -31,6 +33,9 @@ export class Address extends OwnedEntity {
   @Factory((faker) => faker.address.streetAddress())
   @Column({ length: 500 })
   address: string;
+
+  @OneToMany(() => Reservation, (reservation) => reservation.address)
+  reservations: Reservation[];
 
   // phone
   @Factory((faker) => faker.phone.number('+218#########'))

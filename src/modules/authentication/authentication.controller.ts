@@ -1,6 +1,6 @@
 import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Inject, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { Router } from 'src/core/base/router';
@@ -12,6 +12,7 @@ import { LoginRequest } from './dto/requests/signin.dto';
 import { VerifyOtpRequest } from './dto/requests/verify-otp.dto';
 import { AuthResponse } from './dto/responses/auth.response';
 import { RegisterResponse } from './dto/responses/register.response';
+import { DoctorInfoRequest } from '../additional-info/dto/requests/doctor-info-request';
 
 @ApiTags(Router.Auth.ApiTag)
 @Controller(Router.Auth.Base)
@@ -33,7 +34,14 @@ export class AuthenticationController {
     return new ActionResponse<AuthResponse>(result);
   }
 
-
+  @ApiBody({
+    type: RegisterRequest,
+    examples: {
+      json: {
+        value: { avaliablity: '{"day": "Monday", "start_at": 8, "end_at": 17}' },
+      },
+    },
+  })
   @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
   @ApiConsumes('multipart/form-data')
   @Post(Router.Auth.Register)
@@ -42,6 +50,7 @@ export class AuthenticationController {
     @UploadedFile(new UploadValidator().build())
     avatarFile: Express.Multer.File,
   ): Promise<ActionResponse<RegisterResponse>> {
+    console.log(req)
     req.avatarFile = avatarFile;
     const user = await this.authService.register(req);
     const result = plainToInstance(RegisterResponse, user, {

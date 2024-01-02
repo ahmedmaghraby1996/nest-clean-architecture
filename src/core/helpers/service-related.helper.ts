@@ -50,7 +50,7 @@ export const applyQueryIncludes = (
   }
 };
 
-export const getCurrentDate =() => {
+export const getCurrentDate = () => {
   const currentDate = new Date();
 
   const year = currentDate.getFullYear();
@@ -59,13 +59,13 @@ export const getCurrentDate =() => {
 
   const formattedDate = `${year}-${month}-${day}`;
   return formattedDate;
-}
-export const getCurrentHourAndMinutes =()   => {
+};
+export const getCurrentHourAndMinutes = () => {
   const currentDate = new Date();
 
   const hours = currentDate.getHours().toString().padStart(2, '0');
   const minutes = currentDate.getMinutes().toString().padStart(2, '0');
 
   const formattedTime = `${hours}.${minutes}`;
-  return  formattedTime;
-}
+  return formattedTime;
+};

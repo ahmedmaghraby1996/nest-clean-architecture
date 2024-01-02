@@ -32,6 +32,8 @@ import { ReservationType } from 'src/infrastructure/data/enums/reservation-type'
 import { request } from 'http';
 import { compeleteReservationRequest } from './dto/requests/compelete-reservation-request';
 import { OfferResponse } from './dto/response/offer-respone';
+import { SechudedReservationRequest } from './dto/requests/scheduled-reservation-request';
+import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -52,12 +54,13 @@ export class ReservationController {
 
   @Get()
   async getReservations(@Query() query: PaginatedRequest) {
-    applyQueryIncludes(query, 'doctor');
-    applyQuerySort(query,'created_at=desc');
+    applyQueryIncludes(query, 'doctor#user.clinc');
+    applyQueryIncludes(query, 'address');
+    applyQuerySort(query, 'created_at=desc');
     applyQueryIncludes(query, 'user.client_info');
     applyQueryIncludes(query, 'attachments');
     applyQueryIncludes(query, 'family_member');
-    applyQueryIncludes(query, 'doctor.user');
+
     applyQueryIncludes(query, 'specialization');
     if (this.reservationService.currentUser.roles.includes(Role.CLIENT)) {
       applyQueryFilters(
@@ -76,7 +79,7 @@ export class ReservationController {
     const reservations = this._i18nResponse.entity(
       await this.reservationService.findAll(query),
     );
-console.log(reservations[0])
+ 
     const reservationRespone = reservations.map(
       (e) => new ReservationResponse(e),
     );
@@ -108,32 +111,47 @@ console.log(reservations[0])
   @Roles(Role.CLIENT)
   @Get('urgent/:reservation/offer')
   async getOffers(@Param('reservation') reservation: string) {
-    const offers= await this.offerService.getOffers(reservation);
-    const data= this._i18nResponse.entity(offers);
-    return new ActionResponse(
-      data.map((e) => new OfferResponse(e)),
-    );
+    const offers = await this.offerService.getOffers(reservation);
+    const data = this._i18nResponse.entity(offers);
+    return new ActionResponse(data.map((e) => new OfferResponse(e)));
   }
 
   @Roles(Role.CLIENT)
   @Post('urgent/offer-accept/:id')
   async acceptOffer(@Param('id') id: string) {
     const reservation = await this.reservationService.acceptOffer(id);
-    console.log(reservation)
+    console.log(reservation);
     const data = this._i18nResponse.entity(reservation);
-    return new ActionResponse(new ReservationResponse(await this.reservationService.getResevation(data.id)));
+    return new ActionResponse(
+      new ReservationResponse(
+        await this.reservationService.getResevation(data.id),
+      ),
+    );
   }
 
-@Roles(Role.DOCTOR)
-@Post('/complete')
-async completeReservation(@Body() request: compeleteReservationRequest) {
-  const reservation=  await this.reservationService.compeleteReservation(request)
+  @Roles(Role.DOCTOR)
+  @Post('/complete')
+  async completeReservation(@Body() request: compeleteReservationRequest) {
+    const reservation = await this.reservationService.compeleteReservation(
+      request,
+    );
 
-  const data = this._i18nResponse.entity(reservation);
-  console.log(data)  
-  return new ActionResponse(new ReservationResponse(await this.reservationService.getResevation(data.id)));
-  
-}
+    const data = this._i18nResponse.entity(reservation);
+    console.log(data);
+    return new ActionResponse(
+      new ReservationResponse(
+        await this.reservationService.getResevation(data.id),
+      ),
+    );
+  }
 
-
+  @Roles(Role.CLIENT)
+  @Post('/scheduled')
+  async secheduledReservation(@Body() request: SechudedReservationRequest) {
+    const reservation = await this.reservationService.scheduledReservation(
+      request,
+    );
+    const data = this._i18nResponse.entity(reservation);
+    return new ActionResponse(new ReservationResponse(data));
+  }
 }

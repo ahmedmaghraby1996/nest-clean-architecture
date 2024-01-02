@@ -13,6 +13,7 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { plainToInstance } from 'class-transformer';
 import { Client } from 'src/infrastructure/entities/client/client.entity';
+import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-avaliablity.entity';
 
 @Injectable()
 export class RegisterUserTransaction extends BaseTransaction<
@@ -43,7 +44,7 @@ export class RegisterUserTransaction extends BaseTransaction<
           size: { width: 300, height: 300 },
           options: {
             fit: sharp.fit.cover,
-            position: sharp.strategy.entropy
+            position: sharp.strategy.entropy,
           },
         });
 
@@ -69,25 +70,36 @@ export class RegisterUserTransaction extends BaseTransaction<
       const savedUser = await context.save(User, user);
 
       // create driver setting if user is a driver
-      if(req.role == Role.DOCTOR){
-const doctordata=plainToInstance(Doctor,req)
-        const doctor = new Doctor({...doctordata,user_id:user.id})
-        await context.save(doctor)
+      if (req.role == Role.DOCTOR) {
+        const doctordata = plainToInstance(Doctor, req);
+        delete doctordata['avaliablity'];
+        const doctor = new Doctor({ ...doctordata, user_id: user.id });
+        
+
+        await context.save(doctor);
+        for (let index = 1; index < 8; index++) {
+          await context.save(DoctorAvaliablity, {
+            doctor_id: doctor.id,
+            day: index,
+            start_time: 0,
+            end_time: 0,
+          });
+          1;
+        }
       }
-      if(req.role == Role.CLIENT){
-      
-                const client = new Client({user_id:user.id})
-                console.log(client)
-                await context.save(client)
-              }
+      if (req.role == Role.CLIENT) {
+        const client = new Client({ user_id: user.id });
+        console.log(client);
+        await context.save(client);
+      }
 
       // return user
       return savedUser;
     } catch (error) {
       throw new BadRequestException(
-        this._config.get('app.env') !== 'prod' ?
-          error :
-          'message.register_failed',
+        this._config.get('app.env') !== 'prod'
+          ? error
+          : 'message.register_failed',
       );
     }
   }

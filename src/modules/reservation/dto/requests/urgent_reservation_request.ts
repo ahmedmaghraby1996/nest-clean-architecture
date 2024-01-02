@@ -1,75 +1,73 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches, Validate, isEnum } from "class-validator";
-import { ReservationType } from "src/infrastructure/data/enums/reservation-type";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  Validate,
+  isEnum,
+} from 'class-validator';
+import { ReservationType } from 'src/infrastructure/data/enums/reservation-type';
 
-
-export class urgentReservationRequest{
-    @ApiProperty({ default: ReservationType.VIDEO_CALL, enum: [ReservationType.VIDEO_CALL, ReservationType.CALL,ReservationType.MEETING] })
-    @IsNotEmpty()
+export class urgentReservationRequest {
+  @ApiProperty({
+    default: ReservationType.VIDEO_CALL,
+    enum: [
+      ReservationType.VIDEO_CALL,
+      ReservationType.CALL,
+      ReservationType.MEETING,
+    ],
+  })
+  @IsNotEmpty()
   @IsEnum(ReservationType)
-reservationType:ReservationType
+  reservationType: ReservationType;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Validate((value, args) => {
+    const reservationType = args.object['reservationType'];
 
+    // Custom validation logic
+    if (reservationType == 'MEETING' && value == null) {
+      return false;
+    }
+  })
+address_id: string
 
+ 
+  
 
-@ApiPropertyOptional()
-@IsOptional()
-@Validate((value, args) => {
-  const reservationType = args.object['reservationType'];
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  specialization_id: string;
 
-  // Custom validation logic
-  if (reservationType === 'MEETING' && value == null) {
-    return false;
-  }})
+  @ApiProperty({ required: false })
+  family_member_id: string;
 
-@IsString()
-@Matches(
-  /^(\+|-)?(?:90(?:(?:\.0{1,15})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,15})?))$/,
-  { message: 'invalid value for latitude' },
-)
+  @ApiProperty({ required: false })
+  phone: string;
 
+  @ApiProperty({ required: false })
+  note: string;
 
-latitude: number;
+  @ApiPropertyOptional({
+    type: [String],
+    required: false,
+    example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'],
+  })
+  @IsOptional()
+  files: string[];
+}
 
-@ApiPropertyOptional()
-@IsOptional()
-@Validate((value, args) => {
-  const reservationType = args.object['reservationType'];
+export class AvaliablityRequest {
+  @ApiProperty()
+  day: number;
 
-  // Custom validation logic
-  if (reservationType === 'MEETING' && value == null) {
-    return false;
-  }})
-@IsString()
-@Matches(
-  /^(\+|-)?(?:180(?:(?:\.0{1,15})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,15})?))$/,
-  { message: 'invalid value for longitude' },
-)
+  @ApiProperty()
+  start_at: number;
 
-longitude: number;
-
-@ApiProperty({ required: false })
-@IsNotEmpty()
-specialization_id:string
-
-@ApiProperty({ required: false })
-
-family_member_id:string
-
-@ApiProperty({ required: false })
-
-phone:string
-
-@ApiProperty({ required: false })
-
-note:string
-
-
-@ApiPropertyOptional({ type: [String], required: false, example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'] })
-@IsOptional() 
-files: string[];
-
-
-
+  @ApiProperty()
+  end_at: number;
 }

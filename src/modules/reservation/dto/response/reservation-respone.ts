@@ -34,9 +34,7 @@ export class ReservationResponse {
   end_date: Date;
 
   @Expose()
-  latitude: number;
-  @Expose()
-  longitude: number;
+  address: any;
 
   @Expose()
   family_member: any;
@@ -44,20 +42,31 @@ export class ReservationResponse {
   @Expose()
   start_date: Date;
 
-  start_day?:string
-  
-  start_time?:number
+  start_day?: string;
+
+  start_time?: number;
   @Expose()
   client_info: any;
+  availability?: any;
+  number?:string
 
   constructor(data: Partial<ReservationResponse>) {
+    const startDate = new Date(data.start_day);
+    console.log(data);
+    if (data.start_time != null) {
+      console.log(data.start_time.toString().split('.'));
+      startDate.setUTCHours(Number(data.start_time.toString().split('.')[0]));
+      startDate.setMinutes(Number(data.start_time.toString().split('.')[1]));
+    }
     this.end_date = data.end_date;
     this.id = data.id;
+    this.number=data.number
     this.note = data.note;
-    this.start_date = data.start_day? new Date(data.start_day):null
+    this.availability = data.availability;
+    this.start_date = startDate;
     this.phone = data.phone;
-    this.latitude = data.latitude;
-    this.longitude = data.longitude;
+
+
     this.agora_token = data.agora_token ? data.agora_token : null;
     this.status = data.status;
     this.reservationType = data.reservationType;
@@ -68,7 +77,7 @@ export class ReservationResponse {
     this.attachments = data.attachments
       ? data.attachments.map((e) => {
           e.file = toUrl(e.file);
-          return{file: e.file,provider:e.type};
+          return { file: e.file, provider: e.type };
         })
       : null;
 
@@ -76,6 +85,8 @@ export class ReservationResponse {
       ? {
           id: data.doctor.id,
           name: data.doctor.user.first_name + ' ' + data.doctor.user.last_name,
+          avatar: data.doctor.user.avatar ? toUrl(data.doctor.user.avatar) : null,
+          clinc: data.doctor.clinc
         }
       : null;
 
@@ -95,12 +106,22 @@ export class ReservationResponse {
 
     this.client_info = data['user'].client_info
       ? {
+          name: data['user'].first_name + ' ' + data['user'].last_name,
+          avatar: data['user'].avatar ? toUrl(data['user'].avatar) : null,
           height: data['user'].client_info.height,
           weight: data['user'].client_info.weight,
 
           allergic_reactions: data['user'].client_info.allergic_reactions,
 
           notes: data['user'].client_info.notes,
+          address: data.address
+            ? {
+                name: data.address.name,
+                address: data.address.address,
+                lat: data.address.latitude,
+                lng: data.address.longitude,
+              }
+            : null,
         }
       : null;
   }
