@@ -15,7 +15,7 @@ import { Reservation } from '../reservation/reservation.entity';
 import { Specialization } from './specialization.entity';
 import { Offer } from '../reservation/offers.entity';
 import { DoctorAvaliablity } from './doctor-avaliablity.entity';
-import { Clinc } from './clinc.entity';
+import { Clinic } from './clinc.entity';
 
 @Entity()
 export class Doctor extends OwnedEntity {
@@ -45,11 +45,11 @@ export class Doctor extends OwnedEntity {
   @OneToMany(() => Reservation, (reservation) => reservation.doctor)
   reservations: Reservation[];
 
-  @ManyToOne(() => Clinc, (clinc) => clinc.doctors)
-  @JoinColumn({ name: 'clinc_id' })
-  clinc: Clinc;
+  @ManyToOne(() => Clinic, (clinc) => clinc.doctors)
+  @JoinColumn({ name: 'clinic_id' })
+  clinic: Clinic;
   @Column({ nullable: true })
-  clinc_id: string;
+  clinic_id: string;
 
   @Column({ nullable: true })
   summery: string;
@@ -66,7 +66,7 @@ export class Doctor extends OwnedEntity {
   is_verified: boolean;
 
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
-  Video_consultation_price: number;
+  video_consultation_price: number;
 
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   voice_consultation_price: number;

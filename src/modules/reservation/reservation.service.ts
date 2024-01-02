@@ -246,7 +246,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       .getCount();
     reservation.number = generateOrderNumber(count);
     reservation.is_urgent = false;
-    reservation.status = ReservationStatus.SHEDULED;
+    reservation.status = ReservationStatus.SCHEDULED;
     await this._repo.save(reservation);
     return this.getResevation(reservation.id);
   }

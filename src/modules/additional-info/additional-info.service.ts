@@ -22,7 +22,7 @@ import { User } from 'src/infrastructure/entities/user/user.entity';
 import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-avaliablity.entity';
 import { DoctorAvaliablityRequest } from './dto/requests/doctor-availbility-request';
 import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
-import { Clinc } from 'src/infrastructure/entities/doctor/clinc.entity';
+import { Clinic } from 'src/infrastructure/entities/doctor/clinc.entity';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
@@ -51,16 +51,16 @@ export class AdditionalInfoService {
     if (request.clinc != null) {
       const clinc =
         typeof request.clinc === 'string'
-          ? plainToInstance(Clinc, JSON.parse(request.clinc))
+          ? plainToInstance(Clinic, JSON.parse(request.clinc))
           : request.clinc;
     
     
-      if (doctor.clinc_id!=null) {
-       await this.context.update(Clinc, doctor.clinc_id, clinc);
+      if (doctor.clinic_id!=null) {
+       await this.context.update(Clinic, doctor.clinic_id, clinc);
         
       } else {
-       const new_clinc = await this.context.save(Clinc, clinc);
-        doctor.clinc_id=new_clinc.id
+       const new_clinc = await this.context.save(Clinic, clinc);
+        doctor.clinic_id=new_clinc.id
       }
     
    
@@ -143,7 +143,7 @@ export class AdditionalInfoService {
   async getFullDoctor(id?: string) {
     const doctor = await this.doctorRepo.findOne({
       where: { user_id: id == null ? this.request.user.id : id },
-      relations: { specialization: true, licenses: true, avaliablity: true, clinc: true },
+      relations: { specialization: true, licenses: true, avaliablity: true, clinic: true },
       select: {
         licenses: { id: true, image: true },
         avaliablity: {

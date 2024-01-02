@@ -26,7 +26,7 @@ export class OfferService extends BaseService<Offer> {
         value = doctor.home_consultation_price;
         break;
       case ReservationType.VIDEO_CALL:
-        value = doctor.Video_consultation_price;
+        value = doctor.video_consultation_price;
         break;
       case ReservationType.VOICE_CALL:
         value = doctor.voice_consultation_price;

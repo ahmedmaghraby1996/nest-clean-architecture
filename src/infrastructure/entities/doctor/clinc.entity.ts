@@ -2,7 +2,7 @@ import { BaseEntity } from 'src/infrastructure/base/base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Doctor } from './doctor.entity';
 @Entity()
-export class Clinc extends BaseEntity {
+export class Clinic extends BaseEntity {
 
 @Column()
 name:string
@@ -21,7 +21,7 @@ longitude: number;
 @Column({default:true})
 is_active:boolean
 
-@OneToMany(()=>Doctor,(doctor)=>doctor.clinc)
+@OneToMany(()=>Doctor,(doctor)=>doctor.clinic)
 doctors:Doctor[]
 
 }
