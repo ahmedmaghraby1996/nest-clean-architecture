@@ -13,7 +13,7 @@ import {
 
 export class DoctorInfoRequest {
   @ApiPropertyOptional()
-  Video_consultation_price: number;
+  video_consultation_price: number;
 
   @ApiPropertyOptional()
   voice_consultation_price: number;
