@@ -81,8 +81,8 @@ export class RegisterUserTransaction extends BaseTransaction<
           await context.save(DoctorAvaliablity, {
             doctor_id: doctor.id,
             day: index,
-            start_time: 0,
-            end_time: 0,
+            start_at: 0,
+            emd_at: 0,
           });
           1;
         }
