@@ -22,7 +22,7 @@ export class DoctorInfoRequest {
   home_consultation_price: number;
   
   @ApiPropertyOptional()
-  clinc_consultation_price: number;
+  clinic_consultation_price: number;
 
   @ApiPropertyOptional()
   specialization_id: string;
@@ -89,7 +89,7 @@ export class DoctorInfoRequest {
   @IsOptional()
   // @IsArray()
   // @ValidateNested({ each: true })
-  clinc: string;
+  clinic: string;
 }
 export class AvaliablityRequest {
   @ApiProperty()
