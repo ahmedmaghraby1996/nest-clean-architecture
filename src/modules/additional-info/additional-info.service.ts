@@ -48,11 +48,11 @@ export class AdditionalInfoService {
     if (request.year_of_experience)
       doctor.year_of_experience = request.year_of_experience;
     if (request.is_urgent != null) doctor.is_urgent_doctor = request.is_urgent;
-    if (request.clinc != null) {
+    if (request.clinic != null) {
       const clinc =
-        typeof request.clinc === 'string'
-          ? plainToInstance(Clinic, JSON.parse(request.clinc))
-          : request.clinc;
+        typeof request.clinic === 'string'
+          ? plainToInstance(Clinic, JSON.parse(request.clinic))
+          : request.clinic;
     
     
       if (doctor.clinic_id!=null) {
