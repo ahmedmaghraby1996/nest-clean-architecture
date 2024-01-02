@@ -66,7 +66,7 @@ export class AdditionalInfoController {
   @Get('doctor/info')
   async getDoctorInfo() {
     return new ActionResponse(
-      this._i18nResponse.entity(await this.additionalInfoService.getDoctor()),
+      this._i18nResponse.entity(await this.additionalInfoService.getFullDoctor()),
     );
   }
 
