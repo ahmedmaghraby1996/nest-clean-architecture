@@ -82,7 +82,7 @@ export class RegisterUserTransaction extends BaseTransaction<
             doctor_id: doctor.id,
             day: index,
             start_at: 0,
-            emd_at: 0,
+            end_at: 0,
           });
           1;
         }
