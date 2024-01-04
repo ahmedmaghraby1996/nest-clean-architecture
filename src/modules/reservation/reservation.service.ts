@@ -25,6 +25,7 @@ import { AdditionalInfoService } from '../additional-info/additional-info.servic
 import { DoctorAvaliablityRequest } from '../additional-info/dto/requests/doctor-availbility-request';
 import { SechudedReservationRequest } from './dto/requests/scheduled-reservation-request';
 import { Address } from 'src/infrastructure/entities/user/address.entity';
+import { where } from 'sequelize';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -154,12 +155,21 @@ export class ReservationService extends BaseUserService<Reservation> {
     this.offer_repository.save(offer);
     reservation.doctor_id = offer.doctor_id;
     reservation.end_date = new Date(new Date().getTime() + 20 * 60000);
-    reservation.status = ReservationStatus.ACCEPTED;
+    reservation.status = ReservationStatus.STARTED;
     if (reservation.reservationType != ReservationType.MEETING) {
       reservation.agora_token = await this.generateRTCtoken(
         this.currentUser.id,
       );
     }
+    const doctor = await this.doctor_repository.findOne({
+      where: {
+        id: reservation.doctor_id,
+      },
+    });
+    doctor.is_busy = true;
+
+    await this.doctor_repository.save(doctor);
+
     return await this._repo.save(reservation);
   }
 
@@ -211,6 +221,11 @@ export class ReservationService extends BaseUserService<Reservation> {
         fs.renameSync(image, newPath);
       });
     }
+    const doctor = await this.doctor_repository.findOne({
+      where: { id: reservation.doctor_id },
+    });
+    doctor.is_busy = false;
+    await this.doctor_repository.save(doctor);
 
     await this._repo.save(reservation);
     return reservation;
@@ -249,6 +264,25 @@ export class ReservationService extends BaseUserService<Reservation> {
     reservation.status = ReservationStatus.SCHEDULED;
     await this._repo.save(reservation);
     return this.getResevation(reservation.id);
+  }
+
+  async startReservation(id: string) {
+    const reservation = await this._repo.findOne({
+      where: { id },
+    });
+    if (reservation.status == ReservationStatus.SCHEDULED) {
+      reservation.status = ReservationStatus.STARTED;
+      reservation.agora_token = await this.generateRTCtoken(
+        reservation.user_id,
+      );
+      const doctor = await this.doctor_repository.findOne({
+        where: { id: reservation.doctor_id },
+      });
+      doctor.is_busy = true;
+      await this.doctor_repository.save(doctor);
+
+      return await this._repo.save(reservation);
+    }
   }
 }
 

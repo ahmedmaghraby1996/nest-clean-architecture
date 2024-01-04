@@ -72,7 +72,7 @@ export class DoctorInfoRequest {
 
   @ApiPropertyOptional({
     required: false,
-    type: 'string',
+    type: '[String]',
     example: [{"day": 1, "start_at": 10, "end_at": 12, "is_active": true }],
   })
   @IsOptional()

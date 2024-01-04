@@ -47,7 +47,13 @@ export class AdditionalInfoService {
 
     if (request.year_of_experience)
       doctor.year_of_experience = request.year_of_experience;
-    if (request.is_urgent != null) doctor.is_urgent_doctor = request.is_urgent;
+    if (request.is_urgent != null){ 
+      if(doctor.is_busy==true) {
+        throw new BadRequestException('Doctor is busy');
+      }
+      else
+      doctor.is_urgent_doctor = request.is_urgent;
+      }
     if (request.clinic != null) {
       const clinc =
         typeof request.clinic === 'string'
@@ -255,4 +261,7 @@ export class AdditionalInfoService {
     const result = busyTimes.map((e) => e.start_time);
     return result;
   }
+
+
+  
 }

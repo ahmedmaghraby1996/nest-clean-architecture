@@ -3,7 +3,7 @@ export enum ReservationStatus {
     // CONFIRMED = 'CONFIRMED',
     CREATED = 'CREATED',
     CANCELED = 'CANCELED',
-    ACCEPTED="ACCEPTED",
+    STARTED="STARTED",
     COMPLETED='COMPLETED',
     SCHEDULED='SCHEDULED'
 

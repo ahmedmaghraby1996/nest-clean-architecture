@@ -26,6 +26,8 @@ export class Doctor extends OwnedEntity {
   @JoinColumn({})
   user: User;
 
+  @Column({ default: false })
+  is_busy: boolean;
   @Column({ nullable: true })
   year_of_experience: number;
 
@@ -73,6 +75,10 @@ export class Doctor extends OwnedEntity {
 
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   home_consultation_price: number;
+
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
+  clinic_consultation_price: number;
+  
 
   @Column({ default: false })
   is_urgent_doctor: boolean;

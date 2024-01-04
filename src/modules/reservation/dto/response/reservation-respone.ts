@@ -45,7 +45,7 @@ export class ReservationResponse {
   start_day?: string;
 
   start_time?: number;
-  @Expose()
+  @Expose() 
   client_info: any;
   availability?: any;
   number?:string
@@ -86,7 +86,7 @@ export class ReservationResponse {
           id: data.doctor.id,
           name: data.doctor.user.first_name + ' ' + data.doctor.user.last_name,
           avatar: data.doctor.user.avatar ? toUrl(data.doctor.user.avatar) : null,
-          clinc: data.doctor.clinc
+          clinic: data.doctor.clinic
         }
       : null;
 

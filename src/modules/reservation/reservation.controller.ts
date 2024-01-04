@@ -54,7 +54,7 @@ export class ReservationController {
 
   @Get()
   async getReservations(@Query() query: PaginatedRequest) {
-    applyQueryIncludes(query, 'doctor#user.clinc');
+    applyQueryIncludes(query, 'doctor#user.clinic');
     applyQueryIncludes(query, 'address');
     applyQuerySort(query, 'created_at=desc');
     applyQueryIncludes(query, 'user.client_info');
@@ -70,16 +70,16 @@ export class ReservationController {
     }
     if (this.reservationService.currentUser.roles.includes(Role.DOCTOR)) {
       console.log((await this.additonalInfoService.getDoctor()).id);
-      applyQueryFilters(
-        query,
-        `nearby_doctors#%${(await this.additonalInfoService.getDoctor()).id}%`,
-      );
+      // applyQueryFilters(
+      //   query,
+      //   `nearby_doctors#%${(await this.additonalInfoService.getDoctor()).id}%`,
+      // );
     }
 
     const reservations = this._i18nResponse.entity(
       await this.reservationService.findAll(query),
     );
- 
+
     const reservationRespone = reservations.map(
       (e) => new ReservationResponse(e),
     );
@@ -145,6 +145,19 @@ export class ReservationController {
     );
   }
 
+  @Roles(Role.DOCTOR)
+  @Post('/start/:id')
+  async startReservation(@Param("id") id: string) {
+    const reservation = await this.reservationService.startReservation(id);
+
+    const data = this._i18nResponse.entity(reservation);
+    console.log(data);
+    return new ActionResponse(
+      new ReservationResponse(
+        await this.reservationService.getResevation(data.id),
+      ),
+    );
+  }
   @Roles(Role.CLIENT)
   @Post('/scheduled')
   async secheduledReservation(@Body() request: SechudedReservationRequest) {
