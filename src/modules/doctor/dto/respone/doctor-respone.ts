@@ -15,7 +15,7 @@ export class DoctorResopone {
  experience: number;
   clinic: any;
   constructor(data: Partial<Doctor>) {
-    this.id = data.user.id;
+    this.id = data.id;
     this.avatar = data.user.avatar ? toUrl(data.user.avatar) : null;
     this.name = data.user.first_name + ' ' + data.user.last_name;
     this.experience = data.year_of_experience;
