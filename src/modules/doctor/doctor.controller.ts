@@ -23,7 +23,7 @@ export class DoctorController {
     const data = this._i18nResponse.entity(doctors);
     const doctorsReposonse = data.map((doctor) =>
      
-      new DoctorResopone({user:doctor.user,specialization:doctor.specialization}));
+      new DoctorResopone({id:doctor.id,user:doctor.user,specialization:doctor.specialization}));
     
     if (query.page && query.limit) {
       const total = await this.doctorService.count();
