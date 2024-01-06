@@ -26,6 +26,7 @@ import { DoctorAvaliablityRequest } from '../additional-info/dto/requests/doctor
 import { SechudedReservationRequest } from './dto/requests/scheduled-reservation-request';
 import { Address } from 'src/infrastructure/entities/user/address.entity';
 import { where } from 'sequelize';
+import { boolean } from 'joi';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -126,6 +127,15 @@ export class ReservationService extends BaseUserService<Reservation> {
     return reservation;
   }
 
+  override  async findOne(column: string | Partial<Reservation>): Promise<Reservation> {
+    return await this._repo.findOne({
+      where:{
+        id:column as string
+      },relations:{
+       offers:true
+      }
+    })
+  }
   async generateRTCtoken(id: string) {
     const token = RtcTokenBuilder.buildTokenWithAccount(
       readEnv('AGORA_APP_ID') as unknown as string,
@@ -139,6 +149,12 @@ export class ReservationService extends BaseUserService<Reservation> {
     return token;
   }
 
+
+ async hasOffer(reservation_id: string,doctor_id :string) {
+    const offer= await this.offer_repository.findOne({ where: { reservation_id, doctor_id } });
+    console.log(offer)
+    return offer==null?false:true
+  }
   async acceptOffer(id: string) {
     const offer = await this.offer_repository.findOne({ where: { id: id } });
 
@@ -149,6 +165,8 @@ export class ReservationService extends BaseUserService<Reservation> {
         doctor: { user: { client_info: true } },
       },
     });
+    if(reservation.status != ReservationStatus.CREATED)
+      throw new BadRequestException('reservation already started');
     reservation.start_time = Number(getCurrentHourAndMinutes());
     reservation.start_day = getCurrentDate();
     offer.is_accepted = true;

@@ -8,8 +8,10 @@ import {
   IsOptional,
   IsString,
   Matches,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { Roles } from 'src/modules/authentication/guards/roles.decorator';
 
 export class DoctorInfoRequest {
   @ApiPropertyOptional()
@@ -19,6 +21,7 @@ export class DoctorInfoRequest {
   voice_consultation_price: number;
 
   @ApiPropertyOptional()
+
   home_consultation_price: number;
   
   @ApiPropertyOptional()
@@ -88,6 +91,7 @@ export class DoctorInfoRequest {
   })
   @IsOptional()
   // @IsArray()
+ 
   // @ValidateNested({ each: true })
   clinic: string;
 }

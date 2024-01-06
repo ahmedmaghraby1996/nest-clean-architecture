@@ -69,7 +69,7 @@ export class ReservationController {
       );
     }
     if (this.reservationService.currentUser.roles.includes(Role.DOCTOR)) {
-      console.log((await this.additonalInfoService.getDoctor()).id);
+  
       // applyQueryFilters(
       //   query,
       //   `nearby_doctors#%${(await this.additonalInfoService.getDoctor()).id}%`,
@@ -80,9 +80,19 @@ export class ReservationController {
       await this.reservationService.findAll(query),
     );
 
-    const reservationRespone = reservations.map(
-      (e) => new ReservationResponse(e),
-    );
+    const reservationRespone = await Promise.all( reservations.map(
+       async (e) =>{
+        if (this.reservationService.currentUser.roles.includes(Role.DOCTOR)){
+        const doctor_id=(await this.additonalInfoService.getDoctor()).id
+    const has_offer=  await  this.reservationService.hasOffer(e.id,doctor_id)
+
+        return new ReservationResponse({...e,sent_offer:doctor_id==null?false: has_offer});}
+      
+        return new ReservationResponse({...e});
+      
+      },
+    ));
+
 
     if (query.page && query.limit) {
       const total = await this.reservationService.count();

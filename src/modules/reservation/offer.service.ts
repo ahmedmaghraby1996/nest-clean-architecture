@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseService } from 'src/core/base/service/service.base';
 import { Offer } from 'src/infrastructure/entities/reservation/offers.entity';
@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { AdditionalInfoService } from '../additional-info/additional-info.service';
 import { ReservationService } from './reservation.service';
 import { ReservationType } from 'src/infrastructure/data/enums/reservation-type';
+import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-status.eum';
 
 @Injectable()
 export class OfferService extends BaseService<Offer> {
@@ -20,6 +21,14 @@ export class OfferService extends BaseService<Offer> {
   async makeOffer(id: string) {
     const doctor = await this.additonalService.getDoctor();
     const reservation = await this.reservationService.findOne(id);
+    if(reservation.status != ReservationStatus.CREATED)
+    throw new BadRequestException("you can't make an offer for started reservation")
+    if(reservation.offers)
+    reservation.offers.map((offer) => {
+      if (offer.doctor_id == doctor.id) {
+        throw new BadRequestException("you already made an offer");
+      }
+    })
     let value = 0;
     switch (reservation.reservationType) {
       case ReservationType.MEETING:
