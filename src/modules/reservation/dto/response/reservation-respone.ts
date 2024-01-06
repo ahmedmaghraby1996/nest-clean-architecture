@@ -50,6 +50,8 @@ export class ReservationResponse {
   availability?: any;
   number?:string
 
+  is_urgent: boolean;
+
   constructor(data: Partial<ReservationResponse>) {
     const startDate = new Date(data.start_day);
     console.log(data);
@@ -61,6 +63,7 @@ export class ReservationResponse {
     this.end_date = data.end_date;
     this.id = data.id;
     this.number=data.number
+    this.is_urgent = data.is_urgent;
     this.note = data.note;
     this.availability = data.availability;
     this.start_date = startDate;
