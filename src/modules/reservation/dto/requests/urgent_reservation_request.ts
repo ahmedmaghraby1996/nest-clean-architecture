@@ -19,6 +19,7 @@ export class urgentReservationRequest {
       ReservationType.VIDEO_CALL,
       ReservationType.CALL,
       ReservationType.MEETING,
+      ReservationType.CLINIC,
     ],
   })
   @IsNotEmpty()

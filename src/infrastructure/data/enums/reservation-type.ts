@@ -3,6 +3,7 @@ export enum ReservationType {
     CALL = 'CALL',
     VIDEO_CALL = 'VIDEO_CALL',
     MEETING = 'MEETING',
+    CLINIC='CLINIC'
 
   }
   
