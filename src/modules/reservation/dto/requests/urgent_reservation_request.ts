@@ -7,6 +7,7 @@ import {
   IsString,
   Matches,
   Validate,
+  ValidateIf,
   isEnum,
 } from 'class-validator';
 import { ReservationType } from 'src/infrastructure/data/enums/reservation-type';
@@ -24,20 +25,12 @@ export class urgentReservationRequest {
   @IsEnum(ReservationType)
   reservationType: ReservationType;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Validate((value, args) => {
-    const reservationType = args.object['reservationType'];
-
-    // Custom validation logic
-    if (reservationType == 'MEETING' && value == null) {
-      return false;
-    }
-  })
-address_id: string
-
- 
-  
+  @ApiPropertyOptional({required: false})
+  // @IsOptional()
+    @IsNotEmpty()
+      @IsString()
+  @ValidateIf((obj) => obj.reservationType === ReservationType.MEETING)
+  address_id: string;
 
   @ApiProperty({ required: false })
   @IsNotEmpty()
