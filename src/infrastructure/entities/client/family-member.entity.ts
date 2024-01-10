@@ -34,10 +34,10 @@ export class FamilyMember extends AuditableEntity {
   @Column({ nullable: true, type: 'enum', enum: Gender })
   gender: Gender;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   height: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   weight: number;
 
   @Column({ nullable: true, type: 'text' })

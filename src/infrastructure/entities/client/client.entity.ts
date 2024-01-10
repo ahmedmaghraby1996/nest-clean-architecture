@@ -5,13 +5,13 @@ import { FamilyMember } from './family-member.entity';
 import { Reservation } from '../reservation/reservation.entity';
 @Entity()
 export class Client extends OwnedEntity {
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   height: number;
 
   @OneToMany(() => FamilyMember, (familyMember) => familyMember.client)
   familyMembers: FamilyMember[];
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   weight: number;
 
   @Column({ nullable: true, type: 'text' })

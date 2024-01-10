@@ -209,9 +209,11 @@ export class AdditionalInfoService {
       familyMember.avatar = path;
     }
 
-    await this.context.save(familyMember);
+  const savedMember =  await this.context.save(familyMember);
 
-    return familyMember;
+    return await this.context.findOneBy(FamilyMember, {
+      id: savedMember.id,
+    });
   }
 
   async getClientInfo() {
