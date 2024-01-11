@@ -142,7 +142,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       readEnv('AGORA_APP_CERTIFICATE') as unknown as string,
       `ch-${id}`,
       id,
-      RtcRole.SUBSCRIBER,
+      RtcRole.PUBLISHER,
       15 * 60 * 60 * 1000,
     );
 
