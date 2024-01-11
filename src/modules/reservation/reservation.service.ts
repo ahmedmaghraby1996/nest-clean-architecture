@@ -136,16 +136,17 @@ export class ReservationService extends BaseUserService<Reservation> {
       }
     })
   }
-  async generateRTCtoken(id: string) {
-    const token = RtcTokenBuilder.buildTokenWithAccount(
+  async generateRTCtoken(id: string,reservation_id:string) {
+    const token = RtcTokenBuilder.buildTokenWithUid(
       readEnv('AGORA_APP_ID') as unknown as string,
       readEnv('AGORA_APP_CERTIFICATE') as unknown as string,
-      `ch-${id}`,
-      id,
+      `ch-${reservation_id}`,
+      123,
       RtcRole.PUBLISHER,
       15 * 60 * 60 * 1000,
     );
-
+    console.log( `ch-${reservation_id}`)
+console.log(token)
     return token;
   }
 
@@ -176,7 +177,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     reservation.status = ReservationStatus.STARTED;
     if (reservation.reservationType != ReservationType.MEETING) {
       reservation.agora_token = await this.generateRTCtoken(
-        this.currentUser.id,
+        this.currentUser.id,reservation.id
       );
     }
     const doctor = await this.doctor_repository.findOne({
@@ -291,7 +292,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     if (reservation.status == ReservationStatus.SCHEDULED) {
       reservation.status = ReservationStatus.STARTED;
       reservation.agora_token = await this.generateRTCtoken(
-        reservation.user_id,
+        reservation.user_id,reservation.id
       );
       const doctor = await this.doctor_repository.findOne({
         where: { id: reservation.doctor_id },
