@@ -40,7 +40,7 @@ export class AdditionalInfoService {
   }
   async addDoctorInfo(request: DoctorInfoRequest, id?: string) {
     const doctor = await this.getDoctor(id);
-    console.log(request.avaliablity);
+    
     const docImages = request.license_images
       ? request.license_images.split(',')
       : [];
@@ -92,7 +92,7 @@ export class AdditionalInfoService {
       });
 
       // save shipping order images
-      console.log(docImages);
+    
       const images = docImages.map((image) => {
         // create shipping-images folder if not exists
         if (!fs.existsSync('storage/license-images')) {
@@ -189,7 +189,7 @@ export class AdditionalInfoService {
       }),
     );
     if (req.avatarFile) {
-      console.log(req.avatarFile);
+     
       // resize image to 300x300
       const resizedImage = await this.imageManager.resize(req.avatarFile, {
         size: { width: 300, height: 300 },
@@ -233,9 +233,9 @@ export class AdditionalInfoService {
   }
 
   async getDoctorAvailiablity(req: DoctorAvaliablityRequest) {
-    console.log(req);
+
     const freeTime = await this.getDoctorAvailiablityDay(req);
-    console.log(freeTime);
+    
     const busyTimes = await this.getDoctorBusyTimes(req);
     return {
       availavility: freeTime,

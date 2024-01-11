@@ -109,7 +109,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         // store the future path of the image
         const newPath = file.replace('/tmp/', '/reservation-images/');
 
-        console.log(newPath);
+       
         // use fs to move images
         return plainToInstance(ReservationAttachments, {
           file: newPath,
@@ -145,6 +145,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       RtcRole.PUBLISHER,
       15 * 60 * 60 * 1000,
     );
+    
     console.log( `ch-${reservation_id}`)
 console.log(token)
     return token;
@@ -153,7 +154,7 @@ console.log(token)
 
  async hasOffer(reservation_id: string,doctor_id :string) {
     const offer= await this.offer_repository.findOne({ where: { reservation_id, doctor_id } });
-    console.log(offer)
+    
     return offer==null?false:true
   }
   async acceptOffer(id: string) {
@@ -225,7 +226,7 @@ console.log(token)
         // store the future path of the image
         const newPath = file.replace('/tmp/', '/reservation-images/');
 
-        console.log(newPath);
+       
         // use fs to move images
         return plainToInstance(ReservationAttachments, {
           file: newPath,
@@ -263,7 +264,7 @@ console.log(token)
       request.start_date.getUTCHours() +
       request.start_date.getUTCMinutes() / 100;
 
-    console.log(request.start_date.getUTCMinutes());
+    
     if (busyTimes.filter((e) => e == start_time).length > 0) {
       throw new BadRequestException('Doctor busy at this time');
     }

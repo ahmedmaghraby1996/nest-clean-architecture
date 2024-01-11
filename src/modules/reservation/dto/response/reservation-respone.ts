@@ -55,9 +55,9 @@ export class ReservationResponse {
 
   constructor(data: Partial<ReservationResponse>) {
     const startDate = new Date(data.start_day);
-    console.log(data);
+
     if (data.start_time != null) {
-      console.log(data.start_time.toString().split('.'));
+    
       startDate.setUTCHours(Number(data.start_time.toString().split('.')[0]));
       startDate.setMinutes(Number(data.start_time.toString().split('.')[1]));
     }

@@ -130,7 +130,7 @@ export class ReservationController {
   @Post('urgent/offer-accept/:id')
   async acceptOffer(@Param('id') id: string) {
     const reservation = await this.reservationService.acceptOffer(id);
-    console.log(reservation);
+
     const data = this._i18nResponse.entity(reservation);
     return new ActionResponse(
       new ReservationResponse(
@@ -147,7 +147,7 @@ export class ReservationController {
     );
 
     const data = this._i18nResponse.entity(reservation);
-    console.log(data);
+   
     return new ActionResponse(
       new ReservationResponse(
         await this.reservationService.getResevation(data.id),
@@ -161,7 +161,7 @@ export class ReservationController {
     const reservation = await this.reservationService.startReservation(id);
 
     const data = this._i18nResponse.entity(reservation);
-    console.log(data);
+   
     return new ActionResponse(
       new ReservationResponse(
         await this.reservationService.getResevation(data.id),
