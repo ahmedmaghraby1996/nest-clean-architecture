@@ -18,7 +18,7 @@ reservation:Reservation;
 @Column()
 reservation_id:string;
 
-@Column()
+@Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
 value:number;
 
 @Column({default:false})
