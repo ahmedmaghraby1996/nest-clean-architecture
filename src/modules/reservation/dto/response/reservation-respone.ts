@@ -29,7 +29,9 @@ export class ReservationResponse {
   doctor: any;
 
   @Expose()
-  agora_token: string;
+  client_agora_token: string;
+  @Expose()
+  doctor_agora_token: string;
   @Expose()
   end_date: Date;
 
@@ -72,8 +74,8 @@ export class ReservationResponse {
     this.start_date = startDate;
     this.phone = data.phone;
 
-
-    this.agora_token = data.agora_token ? data.agora_token : null;
+    this.doctor_agora_token = data.doctor_agora_token ? data.doctor_agora_token : null;
+    this.client_agora_token = data.client_agora_token ? data.client_agora_token : null;
     this.status = data.status;
     this.reservationType = data.reservationType;
     this.specialization = {
