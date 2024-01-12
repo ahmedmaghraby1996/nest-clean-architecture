@@ -176,7 +176,7 @@ console.log(token)
     reservation.start_time = Number(getCurrentHourAndMinutes());
     reservation.start_day = getCurrentDate();
     offer.is_accepted = true;
-    this.offer_repository.save(offer);
+    this.offer_repository.update(offer.id,offer);
     reservation.doctor_id = offer.doctor_id;
     reservation.end_date = new Date(new Date().getTime() + 20 * 60000);
     reservation.status = ReservationStatus.STARTED;
