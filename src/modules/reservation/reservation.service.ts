@@ -138,14 +138,15 @@ export class ReservationService extends BaseUserService<Reservation> {
     })
   }
   async generateRTCtoken(id: string,reservation_id:string) {
-    const expirationTime = new Date().getTime() + 15 * 60 * 60 * 1000;
+    const currentTime = Math.floor(Date.now() / 1000);
+    const privilegeExpireTime = currentTime + 3600;
     const token = RtcTokenBuilder.buildTokenWithAccount(
       readEnv('AGORA_APP_ID') as unknown as string,
       readEnv('AGORA_APP_CERTIFICATE') as unknown as string,
       reservation_id,
       id,
       RtcRole.PUBLISHER,
-      expirationTime
+      privilegeExpireTime
     );
     
     console.log( `ch-${reservation_id}`)
