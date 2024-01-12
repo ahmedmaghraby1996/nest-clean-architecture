@@ -83,7 +83,10 @@ export class Reservation extends OwnedEntity {
   family_member_id?: string;
 
   @Column({ nullable: true })
-  agora_token: string;
+  client_agora_token: string;
+
+  @Column({ nullable: true })
+  doctor_agora_token: string;
 
   @OneToMany(() => Offer, (offer) => offer.reservation)
   offers: Offer[];

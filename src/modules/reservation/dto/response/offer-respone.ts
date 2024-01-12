@@ -19,6 +19,8 @@ export class OfferResponse {
     @Expose()
     doctor:any
 
+    created_at: Date;
+
 
 
 
@@ -28,6 +30,8 @@ export class OfferResponse {
   this.is_accepted=data.is_accepted;
   this.reservation_id = data.reservation_id;
   this.value=data.value;
+  this.created_at=data.created_at
+  
 
 
     this.doctor = data.doctor

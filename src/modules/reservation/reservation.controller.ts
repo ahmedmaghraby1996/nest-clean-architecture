@@ -122,7 +122,9 @@ export class ReservationController {
   @Get('urgent/:reservation/offer')
   async getOffers(@Param('reservation') reservation: string) {
     const offers = await this.offerService.getOffers(reservation);
+    console.log(offers)
     const data = this._i18nResponse.entity(offers);
+    console.log(data)
     return new ActionResponse(data.map((e) => new OfferResponse(e)));
   }
 

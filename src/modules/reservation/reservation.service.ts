@@ -66,6 +66,7 @@ export class ReservationService extends BaseUserService<Reservation> {
               `ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(doctor.longitude, doctor.latitude)) <= :radius`,
             )
             .andWhere(`doctor.is_urgent_doctor=1`)
+            .andWhere(`doctor.is_busy=0`)
             .andWhere(`doctor.specialization_id=:specialization_id`, {
               specialization_id: request.specialization_id,
             })
@@ -151,6 +152,8 @@ console.log(token)
     return token;
   }
 
+  
+
 
  async hasOffer(reservation_id: string,doctor_id :string) {
     const offer= await this.offer_repository.findOne({ where: { reservation_id, doctor_id } });
@@ -177,15 +180,19 @@ console.log(token)
     reservation.end_date = new Date(new Date().getTime() + 20 * 60000);
     reservation.status = ReservationStatus.STARTED;
     if (reservation.reservationType != ReservationType.MEETING) {
-      reservation.agora_token = await this.generateRTCtoken(
+      reservation.client_agora_token = await this.generateRTCtoken(
         this.currentUser.id,reservation.id
       );
+  
     }
     const doctor = await this.doctor_repository.findOne({
       where: {
         id: reservation.doctor_id,
       },
     });
+    reservation.doctor_agora_token = await this.generateRTCtoken(
+     doctor.user_id,reservation.id
+    );
     doctor.is_busy = true;
 
     await this.doctor_repository.save(doctor);
@@ -289,15 +296,20 @@ console.log(token)
   async startReservation(id: string) {
     const reservation = await this._repo.findOne({
       where: { id },
+      
     });
     if (reservation.status == ReservationStatus.SCHEDULED) {
       reservation.status = ReservationStatus.STARTED;
-      reservation.agora_token = await this.generateRTCtoken(
+      reservation.client_agora_token = await this.generateRTCtoken(
         reservation.user_id,reservation.id
       );
+   
       const doctor = await this.doctor_repository.findOne({
         where: { id: reservation.doctor_id },
       });
+      reservation.doctor_agora_token = await this.generateRTCtoken(
+     doctor.user_id,reservation.id
+      );
       doctor.is_busy = true;
       await this.doctor_repository.save(doctor);
 
