@@ -107,7 +107,7 @@ export class ReservationController {
   @Roles(Role.CLIENT)
   @Get('/:id')
  async findOne(@Param('id') id: string) {
-    return new ActionResponse(this._i18nResponse.entity(await this.reservationService.findOne(id)));
+    return new ActionResponse(this._i18nResponse.entity(new ReservationResponse( await this.reservationService.findOne(id))));
   }
 
 
