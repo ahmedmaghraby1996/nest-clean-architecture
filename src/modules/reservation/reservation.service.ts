@@ -172,16 +172,18 @@ export class ReservationService extends BaseUserService<Reservation> {
       },
     });
   }
-  async generateRTCtoken(id: string, reservation_id: string) {
+  async generateRTCtoken(id: number,reservation_id:string) {
     const currentTime = Math.floor(Date.now() / 1000);
     const privilegeExpireTime = currentTime + 3600;
-    const token = RtcTokenBuilder.buildTokenWithAccount(
+
+    
+    const token = RtcTokenBuilder.buildTokenWithUid(
       readEnv('AGORA_APP_ID') as unknown as string,
       readEnv('AGORA_APP_CERTIFICATE') as unknown as string,
       reservation_id,
       id,
-      RtcRole.PUBLISHER,
-      privilegeExpireTime,
+      RtcRole.SUBSCRIBER,
+      privilegeExpireTime
     );
 
     console.log(`ch-${reservation_id}`);
@@ -217,7 +219,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     reservation.status = ReservationStatus.STARTED;
     if (reservation.reservationType != ReservationType.MEETING) {
       reservation.client_agora_token = await this.generateRTCtoken(
-        this.currentUser.id,
+        1,
         reservation.id,
       );
     }
@@ -227,7 +229,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       },
     });
     reservation.doctor_agora_token = await this.generateRTCtoken(
-      doctor.user_id,
+     2,
       reservation.id,
     );
     doctor.is_busy = true;
@@ -374,7 +376,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     if (reservation.status == ReservationStatus.SCHEDULED) {
       reservation.status = ReservationStatus.STARTED;
       reservation.client_agora_token = await this.generateRTCtoken(
-        reservation.user_id,
+        1,
         reservation.id,
       );
 
@@ -382,7 +384,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         where: { id: reservation.doctor_id },
       });
       reservation.doctor_agora_token = await this.generateRTCtoken(
-        doctor.user_id,
+       2,
         reservation.id,
       );
       doctor.is_busy = true;
