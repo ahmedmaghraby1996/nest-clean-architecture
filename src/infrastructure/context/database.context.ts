@@ -12,6 +12,7 @@ import { Offer } from "../entities/reservation/offers.entity";
 import { DoctorAvaliablity } from "../entities/doctor/doctor-avaliablity.entity";
 import { WeekDays } from "../entities/week-days/week-days.entity";
 import { Clinic } from "../entities/doctor/clinc.entity";
+import { NotificationEntity } from "../entities/notification/notification.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -27,7 +28,8 @@ export const DB_ENTITIES = [
   Client,
   DoctorAvaliablity,
   WeekDays,
-  Clinic
+  Clinic,
+  NotificationEntity
   
 ];
 

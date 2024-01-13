@@ -31,7 +31,8 @@ export default (app: INestApplication, config: ConfigService) => {
       FileModule,
       AdditionalInfoModule,
       ReservationModule,
-      DoctorModule
+      DoctorModule,
+      UserModule
       
       
     ],

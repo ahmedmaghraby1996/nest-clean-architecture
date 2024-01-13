@@ -1,11 +1,12 @@
 import { UserService } from './user.service';
 import { Module } from '@nestjs/common';
 import { Global } from '@nestjs/common/decorators';
+import { UserController } from './user.controller';
 
 @Global()
 @Module({
     imports: [],
-    controllers: [],
+    controllers: [UserController],
     providers: [UserService],
     exports: [UserService]
 })

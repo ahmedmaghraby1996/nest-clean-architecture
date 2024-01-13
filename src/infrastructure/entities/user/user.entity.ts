@@ -14,7 +14,7 @@ import { Language } from 'src/infrastructure/data/enums/language.enum';
 import { Address } from './address.entity';
 import { Reservation } from '../reservation/reservation.entity';
 import { Client } from '../client/client.entity';
-
+import {NotificationEntity} from '../notification/notification.entity'
 @Entity()
 export class User extends AuditableEntity {
 
@@ -24,6 +24,9 @@ export class User extends AuditableEntity {
   @Factory((faker) => faker.phone.number('########'))
   @Column({ length: 8, unique: true })
   account: string;
+
+  @OneToMany(()=>NotificationEntity,notification=>notification.user)
+  notifications:NotificationEntity[]
 
   @Factory((faker) => faker.helpers.unique(faker.internet.domainName))
   @Column({ length: 100, unique: true })

@@ -12,6 +12,7 @@ import { AdditionalInfoModule } from './modules/additional-info/additional-info.
 import { Reservation } from './infrastructure/entities/reservation/reservation.entity';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -22,9 +23,8 @@ import { DoctorModule } from './modules/doctor/doctor.module';
     UserModule,             // !Global
     AuthenticationModule,   // !Global
     FileModule,             // !Global
-    AdditionalInfoModule,
-    ReservationModule,
-    DoctorModule
+  
+  
   ],
   controllers: [AppController],
   providers: [AppService],

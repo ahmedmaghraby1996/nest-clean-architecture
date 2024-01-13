@@ -27,6 +27,11 @@ import { SechudedReservationRequest } from './dto/requests/scheduled-reservation
 import { Address } from 'src/infrastructure/entities/user/address.entity';
 import { where } from 'sequelize';
 import { boolean } from 'joi';
+import { ReservationGateway } from 'src/integration/gateways/reservation.gateway';
+import { ReservationResponse } from './dto/response/reservation-respone';
+import { NotificationService } from '../notification/services/notification.service';
+import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
+import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -43,6 +48,9 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly offer_repository: Repository<Offer>,
     private readonly additionalInfoService: AdditionalInfoService,
     @Inject(REQUEST) request: Request,
+    private readonly reservationGateway: ReservationGateway,
+    @Inject(NotificationService)
+    public readonly notificationService: NotificationService,
   ) {
     super(repository, request);
   }
@@ -66,7 +74,7 @@ export class ReservationService extends BaseUserService<Reservation> {
               `ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(doctor.longitude, doctor.latitude)) <= :radius`,
             )
             .andWhere(`doctor.is_urgent_doctor=1`)
-            .andWhere(`doctor.is_busy=0`)
+            .andWhere('doctor.is_busy=0')
             .andWhere(`doctor.specialization_id=:specialization_id`, {
               specialization_id: request.specialization_id,
             })
@@ -81,6 +89,7 @@ export class ReservationService extends BaseUserService<Reservation> {
             where: {
               is_urgent_doctor: true,
               specialization_id: request.specialization_id,
+              is_busy: false,
             },
           });
 
@@ -110,7 +119,6 @@ export class ReservationService extends BaseUserService<Reservation> {
         // store the future path of the image
         const newPath = file.replace('/tmp/', '/reservation-images/');
 
-       
         // use fs to move images
         return plainToInstance(ReservationAttachments, {
           file: newPath,
@@ -125,19 +133,46 @@ export class ReservationService extends BaseUserService<Reservation> {
       });
     }
 
+    for (let index = 0; index < nearby_doctors.length; index++) {
+      this.reservationGateway.server.emit(
+        `urgent-reservation-${nearby_doctors[index].id}`,
+        new ReservationResponse(await this.findOne(reservation.id)),
+      );
+      await this.notificationService.create(
+        new NotificationEntity({
+          user_id: nearby_doctors[index].user_id,
+          url: nearby_doctors[index].user_id,
+          type: NotificationTypes.RESERVATION,
+          title_ar: 'حالة طارئة جديدة',
+          title_en: 'new urgent case',
+          text_ar: 'حالة طارئة جديدة',
+          text_en: 'new urgent case',
+        }),
+      );
+    }
+
     return reservation;
   }
 
-  override  async findOne(column: string | Partial<Reservation>): Promise<Reservation> {
+  override async findOne(
+    column: string | Partial<Reservation>,
+  ): Promise<Reservation> {
     return await this._repo.findOne({
-      where:{
-        id:column as string
-      },relations:{
-       offers:true
-      }
-    })
+      where: {
+        id: column as string,
+      },
+      relations: {
+        offers: true,
+        address: true,
+        doctor: { user: true, clinic: true },
+        attachments: true,
+        family_member: true,
+        specialization: true,
+        user: { client_info: true },
+      },
+    });
   }
-  async generateRTCtoken(id: string,reservation_id:string) {
+  async generateRTCtoken(id: string, reservation_id: string) {
     const currentTime = Math.floor(Date.now() / 1000);
     const privilegeExpireTime = currentTime + 3600;
     const token = RtcTokenBuilder.buildTokenWithAccount(
@@ -146,21 +181,20 @@ export class ReservationService extends BaseUserService<Reservation> {
       reservation_id,
       id,
       RtcRole.PUBLISHER,
-      privilegeExpireTime
+      privilegeExpireTime,
     );
-    
-    console.log( `ch-${reservation_id}`)
-console.log(token)
+
+    console.log(`ch-${reservation_id}`);
+    console.log(token);
     return token;
   }
 
-  
+  async hasOffer(reservation_id: string, doctor_id: string) {
+    const offer = await this.offer_repository.findOne({
+      where: { reservation_id, doctor_id },
+    });
 
-
- async hasOffer(reservation_id: string,doctor_id :string) {
-    const offer= await this.offer_repository.findOne({ where: { reservation_id, doctor_id } });
-    
-    return offer==null?false:true
+    return offer == null ? false : true;
   }
   async acceptOffer(id: string) {
     const offer = await this.offer_repository.findOne({ where: { id: id } });
@@ -172,20 +206,20 @@ console.log(token)
         doctor: { user: { client_info: true } },
       },
     });
-    if(reservation.status != ReservationStatus.CREATED)
+    if (reservation.status != ReservationStatus.CREATED)
       throw new BadRequestException('reservation already started');
     reservation.start_time = Number(getCurrentHourAndMinutes());
     reservation.start_day = getCurrentDate();
     offer.is_accepted = true;
-    this.offer_repository.update(offer.id,offer);
+    this.offer_repository.update(offer.id, offer);
     reservation.doctor_id = offer.doctor_id;
     reservation.end_date = new Date(new Date().getTime() + 20 * 60000);
     reservation.status = ReservationStatus.STARTED;
     if (reservation.reservationType != ReservationType.MEETING) {
       reservation.client_agora_token = await this.generateRTCtoken(
-        this.currentUser.id,reservation.id
+        this.currentUser.id,
+        reservation.id,
       );
-  
     }
     const doctor = await this.doctor_repository.findOne({
       where: {
@@ -193,13 +227,30 @@ console.log(token)
       },
     });
     reservation.doctor_agora_token = await this.generateRTCtoken(
-     doctor.user_id,reservation.id
+      doctor.user_id,
+      reservation.id,
     );
     doctor.is_busy = true;
 
     await this.doctor_repository.save(doctor);
+    
+    new NotificationEntity({
+      user_id: doctor.user_id,
+      url: doctor.user_id,
+      type: NotificationTypes.RESERVATION,
+      title_ar: 'تم الموافقه على عرضك',
+      title_en: ' your offer has been approved',
+      text_ar: 'تم الموافقه على عرضك',
+      text_en: ' your offer has been approved',
+    });
+  
 
-    return await this._repo.save(reservation);
+    const savedReservation = await this._repo.save(reservation);
+    this.reservationGateway.server.emit(
+      `urgent-reservation-${doctor.id}`,
+      new ReservationResponse(await this.findOne(reservation.id)),
+    );
+    return savedReservation;
   }
 
   async getResevation(id: string) {
@@ -235,7 +286,6 @@ console.log(token)
         // store the future path of the image
         const newPath = file.replace('/tmp/', '/reservation-images/');
 
-       
         // use fs to move images
         return plainToInstance(ReservationAttachments, {
           file: newPath,
@@ -256,6 +306,15 @@ console.log(token)
     doctor.is_busy = false;
     await this.doctor_repository.save(doctor);
 
+    new NotificationEntity({
+      user_id: reservation.user_id,
+      url: reservation.user_id,
+      type: NotificationTypes.RESERVATION,
+      title_ar: 'تم انتهاء الحجز',
+      title_en: ' your reservation has ended',
+      text_ar: 'تم انتهاء الحجز',
+      text_en: ' your reservation has edned',
+    });
     await this._repo.save(reservation);
     return reservation;
   }
@@ -273,7 +332,6 @@ console.log(token)
       request.start_date.getUTCHours() +
       request.start_date.getUTCMinutes() / 100;
 
-    
     if (busyTimes.filter((e) => e == start_time).length > 0) {
       throw new BadRequestException('Doctor busy at this time');
     }
@@ -292,29 +350,53 @@ console.log(token)
     reservation.is_urgent = false;
     reservation.status = ReservationStatus.SCHEDULED;
     await this._repo.save(reservation);
+    const doctor = await this.doctor_repository.findOne({
+      where: { id: request.doctor_id },
+    });
+    await this.notificationService.create(
+      new NotificationEntity({
+        user_id: doctor.user_id,
+        url: doctor.user_id,
+        type: NotificationTypes.RESERVATION,
+        title_ar: 'لديك حجز جديد',
+        title_en: 'you have a new reservation',
+        text_ar: 'لديك حجز جديد',
+        text_en: 'you have a new reservation',
+      }),
+    );
     return this.getResevation(reservation.id);
   }
 
   async startReservation(id: string) {
     const reservation = await this._repo.findOne({
       where: { id },
-      
     });
     if (reservation.status == ReservationStatus.SCHEDULED) {
       reservation.status = ReservationStatus.STARTED;
       reservation.client_agora_token = await this.generateRTCtoken(
-        reservation.user_id,reservation.id
+        reservation.user_id,
+        reservation.id,
       );
-   
+
       const doctor = await this.doctor_repository.findOne({
         where: { id: reservation.doctor_id },
       });
       reservation.doctor_agora_token = await this.generateRTCtoken(
-     doctor.user_id,reservation.id
+        doctor.user_id,
+        reservation.id,
       );
       doctor.is_busy = true;
       await this.doctor_repository.save(doctor);
 
+      new NotificationEntity({
+        user_id: reservation.user_id,
+        url: reservation.user_id,
+        type: NotificationTypes.RESERVATION,
+        title_ar: 'تم بدأ الحجز',
+        title_en: ' your reservation has started',
+        text_ar: 'تم بدأ الحجز',
+        text_en: ' your reservation has started',
+      });
       return await this._repo.save(reservation);
     }
   }

@@ -103,6 +103,13 @@ export class ReservationController {
       return new ActionResponse(reservationRespone);
     }
   }
+  
+  @Roles(Role.CLIENT)
+  @Get('/:id')
+ async findOne(@Param('id') id: string) {
+    return new ActionResponse(this._i18nResponse.entity(await this.reservationService.findOne(id)));
+  }
+
 
   @Roles(Role.CLIENT)
   @Post('urgent')
