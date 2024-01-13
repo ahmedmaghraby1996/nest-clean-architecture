@@ -5,4 +5,7 @@ import { RegisterResponse } from "./register.response";
 export class AuthResponse extends PartialType(RegisterResponse) {
     @ApiProperty()
     @Expose() access_token: string;
+    @Expose() doctor_id: string;
+
+
 }

@@ -6,9 +6,11 @@ import { BaseTransaction } from 'src/core/base/database/base.transaction';
 import { jwtSignOptions } from 'src/core/setups/jwt.setup';
 import { Otp } from 'src/infrastructure/entities/auth/otp.entity';
 import { UserService } from 'src/modules/user/user.service';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { VerifyOtpRequest } from '../dto/requests/verify-otp.dto';
 import { AuthResponse } from '../dto/responses/auth.response';
+import { Role } from 'src/infrastructure/data/enums/role.enum';
+import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 
 @Injectable()
 export class VerifyOtpTransaction extends BaseTransaction<
@@ -27,7 +29,8 @@ export class VerifyOtpTransaction extends BaseTransaction<
 
   // the important thing here is to use the manager that we've created in the base class
   protected async execute(
-    req: VerifyOtpRequest
+    req: VerifyOtpRequest,
+    context:EntityManager
   ): Promise<AuthResponse> {
     try {
       // find otp
@@ -55,9 +58,9 @@ export class VerifyOtpTransaction extends BaseTransaction<
 
       if (!user) throw new BadRequestException('message.invalid_credentials');
       const payload = { username: user.username, sub: user.id };
-
+const doctor_id= (await context.findOne(Doctor,{where:{user_id:user.id}})).id
       return {
-        ...user,role:user.roles[0],
+        ...user,role:user.roles[0],doctor_id:doctor_id,
         access_token: this.jwtService.sign(payload, jwtSignOptions(this._config)),
       };
     } catch (error) {
