@@ -6,6 +6,7 @@ import { AddressModule } from 'src/modules/address/address.module';
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
 import { DoctorModule } from 'src/modules/doctor/doctor.module';
 import { FileModule } from 'src/modules/file/file.module';
+import { NotificationModule } from 'src/modules/notification/notification.module';
 import { ReservationModule } from 'src/modules/reservation/reservation.module';
 import { UserModule } from 'src/modules/user/user.module';
 
@@ -32,7 +33,8 @@ export default (app: INestApplication, config: ConfigService) => {
       AdditionalInfoModule,
       ReservationModule,
       DoctorModule,
-      UserModule
+      UserModule,
+      NotificationModule
       
       
     ],
