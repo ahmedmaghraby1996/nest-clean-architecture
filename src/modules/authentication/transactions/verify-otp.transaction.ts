@@ -58,9 +58,9 @@ export class VerifyOtpTransaction extends BaseTransaction<
 
       if (!user) throw new BadRequestException('message.invalid_credentials');
       const payload = { username: user.username, sub: user.id };
-const doctor_id= (await context.findOne(Doctor,{where:{user_id:user.id}})).id
+const doctor= (await context.findOne(Doctor,{where:{user_id:user.id}}))
       return {
-        ...user,role:user.roles[0],doctor_id:doctor_id,
+        ...user,role:user.roles[0],doctor_id:doctor==null?  null:doctor.id,
         access_token: this.jwtService.sign(payload, jwtSignOptions(this._config)),
       };
     } catch (error) {
