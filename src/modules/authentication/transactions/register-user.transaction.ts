@@ -53,7 +53,7 @@ export class RegisterUserTransaction extends BaseTransaction<
           { buffer: resizedImage, originalname: req.avatarFile.originalname },
           { path: 'avatars' },
         );
-
+console.log(path)
         // set avatar path
         user.avatar = path;
       }
