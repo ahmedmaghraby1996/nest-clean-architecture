@@ -253,7 +253,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     const savedReservation = await this._repo.save(reservation);
     this.reservationGateway.server.emit(
       `urgent-reservation-${doctor.id}`,
-      new ReservationResponse( this._i18nResponse.entity( await this.findOne(reservation.id))),
+ this._i18nResponse.entity(     new ReservationResponse(  await this.findOne(reservation.id))),
     );
     return savedReservation;
   }
