@@ -351,6 +351,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     reservation.number = generateOrderNumber(count);
     reservation.is_urgent = false;
     reservation.status = ReservationStatus.SCHEDULED;
+    await this._repo.save(reservation);
     if (request.files) {
       request.files.map((file) => {
         // check if image exists using fs
@@ -381,7 +382,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       });
     }
 
-    await this._repo.save(reservation);
+    
     const doctor = await this.doctor_repository.findOne({
       where: { id: request.doctor_id },
     });

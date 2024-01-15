@@ -12,38 +12,33 @@ export class OfferResponse {
   id: string;
   @Expose()
   reservation_id: string;
-    @Expose()
-    value:number
-    @Expose()
-    is_accepted:boolean
-    @Expose()
-    doctor:any
+  @Expose()
+  value: number;
+  @Expose()
+  is_accepted: boolean;
+  @Expose()
+  doctor: any;
 
-    created_at: Date;
-
-
-
+  created_at: Date;
 
   constructor(data: Partial<OfferResponse>) {
-   
     this.id = data.id;
-  this.is_accepted=data.is_accepted;
-  this.reservation_id = data.reservation_id;
-  this.value=data.value;
-  this.created_at=data.created_at
-  
-
+    this.is_accepted = data.is_accepted;
+    this.reservation_id = data.reservation_id;
+    this.value = data.value;
+    this.created_at = data.created_at;
 
     this.doctor = data.doctor
       ? {
           id: data.doctor.id,
           name: data.doctor.user.first_name + ' ' + data.doctor.user.last_name,
-          avatar:data.doctor.user.avatar ? toUrl(data.doctor.user.avatar):null,
-          summery:data.doctor.summery,
-          experience:data.doctor.year_of_experience,
-          specialization:data.doctor.specialization
+          avatar: data.doctor.user.avatar
+            ? toUrl(data.doctor.user.avatar)
+            : null,
+          summery: data.doctor.summery,
+          experience: data.doctor.year_of_experience,
+          specialization: data.doctor.specialization,
         }
       : null;
-
-
-}}
+  }
+}
