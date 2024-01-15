@@ -165,7 +165,6 @@ export class ReservationService extends BaseUserService<Reservation> {
         id: column as string,
       },
       relations: {
-      
         address: true,
         doctor: { user: true, clinic: true },
         attachments: true,
@@ -175,18 +174,17 @@ export class ReservationService extends BaseUserService<Reservation> {
       },
     });
   }
-  async generateRTCtoken(id: number,reservation_id:string) {
+  async generateRTCtoken(id: number, reservation_id: string) {
     const currentTime = Math.floor(Date.now() / 1000);
     const privilegeExpireTime = currentTime + 3600;
 
-    
     const token = RtcTokenBuilder.buildTokenWithUid(
       readEnv('AGORA_APP_ID') as unknown as string,
       readEnv('AGORA_APP_CERTIFICATE') as unknown as string,
       reservation_id,
       id,
       RtcRole.SUBSCRIBER,
-      privilegeExpireTime
+      privilegeExpireTime,
     );
 
     console.log(`ch-${reservation_id}`);
@@ -232,13 +230,13 @@ export class ReservationService extends BaseUserService<Reservation> {
       },
     });
     reservation.doctor_agora_token = await this.generateRTCtoken(
-     2,
+      2,
       reservation.id,
     );
     doctor.is_busy = true;
 
     await this.doctor_repository.save(doctor);
-    
+
     new NotificationEntity({
       user_id: doctor.user_id,
       url: doctor.user_id,
@@ -248,13 +246,9 @@ export class ReservationService extends BaseUserService<Reservation> {
       text_ar: 'تم الموافقه على عرضك',
       text_en: ' your offer has been approved',
     });
-  
 
     const savedReservation = await this._repo.save(reservation);
-    this.reservationGateway.server.emit(
-      `urgent-reservation-${doctor.id}`,
- this._i18nResponse.entity(     new ReservationResponse(  await this.findOne(reservation.id))),
-    );
+   
     return savedReservation;
   }
 
@@ -262,7 +256,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     return await this._repo.findOne({
       where: { id },
       relations: {
-        doctor: { user: true ,clinic:true},
+        doctor: { user: true, clinic: true },
         user: { client_info: true },
         specialization: true,
         family_member: true,
@@ -385,7 +379,6 @@ export class ReservationService extends BaseUserService<Reservation> {
       });
     }
 
-    
     const doctor = await this.doctor_repository.findOne({
       where: { id: request.doctor_id },
     });
@@ -418,7 +411,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         where: { id: reservation.doctor_id },
       });
       reservation.doctor_agora_token = await this.generateRTCtoken(
-       2,
+        2,
         reservation.id,
       );
       doctor.is_busy = true;

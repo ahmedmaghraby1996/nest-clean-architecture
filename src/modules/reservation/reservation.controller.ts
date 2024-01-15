@@ -34,6 +34,8 @@ import { compeleteReservationRequest } from './dto/requests/compelete-reservatio
 import { OfferResponse } from './dto/response/offer-respone';
 import { SechudedReservationRequest } from './dto/requests/scheduled-reservation-request';
 import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
+import { NotificationService } from '../notification/services/notification.service';
+import { ReservationGateway } from 'src/integration/gateways/reservation.gateway';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -50,6 +52,10 @@ export class ReservationController {
     private readonly offerService: OfferService,
     private readonly additonalInfoService: AdditionalInfoService,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
+    @Inject(NotificationService)
+    public readonly notificationService: NotificationService,
+    private readonly reservationGateway: ReservationGateway,
+    
   ) {}
 
   @Get()
@@ -69,7 +75,6 @@ export class ReservationController {
       );
     }
     if (this.reservationService.currentUser.roles.includes(Role.DOCTOR)) {
-  
       // applyQueryFilters(
       //   query,
       //   `nearby_doctors#%${(await this.additonalInfoService.getDoctor()).id}%`,
@@ -80,19 +85,24 @@ export class ReservationController {
       await this.reservationService.findAll(query),
     );
 
-    const reservationRespone = await Promise.all( reservations.map(
-       async (e) =>{
-        if (this.reservationService.currentUser.roles.includes(Role.DOCTOR)){
-        const doctor_id=(await this.additonalInfoService.getDoctor()).id
-    const has_offer=  await  this.reservationService.hasOffer(e.id,doctor_id)
+    const reservationRespone = await Promise.all(
+      reservations.map(async (e) => {
+        if (this.reservationService.currentUser.roles.includes(Role.DOCTOR)) {
+          const doctor_id = (await this.additonalInfoService.getDoctor()).id;
+          const has_offer = await this.reservationService.hasOffer(
+            e.id,
+            doctor_id,
+          );
 
-        return new ReservationResponse({...e,sent_offer:doctor_id==null?false: has_offer});}
-      
-        return new ReservationResponse({...e});
-      
-      },
-    ));
+          return new ReservationResponse({
+            ...e,
+            sent_offer: doctor_id == null ? false : has_offer,
+          });
+        }
 
+        return new ReservationResponse({ ...e });
+      }),
+    );
 
     if (query.page && query.limit) {
       const total = await this.reservationService.count();
@@ -103,13 +113,16 @@ export class ReservationController {
       return new ActionResponse(reservationRespone);
     }
   }
-  
+
   @Roles(Role.CLIENT)
   @Get('/:id')
- async findOne(@Param('id') id: string) {
-    return new ActionResponse(this._i18nResponse.entity(new ReservationResponse( await this.reservationService.findOne(id))));
+  async findOne(@Param('id') id: string) {
+    return new ActionResponse(
+      this._i18nResponse.entity(
+        new ReservationResponse(await this.reservationService.findOne(id)),
+      ),
+    );
   }
-
 
   @Roles(Role.CLIENT)
   @Post('urgent')
@@ -129,9 +142,9 @@ export class ReservationController {
   @Get('urgent/:reservation/offer')
   async getOffers(@Param('reservation') reservation: string) {
     const offers = await this.offerService.getOffers(reservation);
-    console.log(offers)
+    console.log(offers);
     const data = this._i18nResponse.entity(offers);
-    console.log(data)
+    console.log(data);
     return new ActionResponse(data.map((e) => new OfferResponse(e)));
   }
 
@@ -141,6 +154,12 @@ export class ReservationController {
     const reservation = await this.reservationService.acceptOffer(id);
 
     const data = this._i18nResponse.entity(reservation);
+    this.reservationGateway.server.emit(
+      `urgent-reservation-${reservation.doctor_id}`,
+      this._i18nResponse.entity(
+        new ReservationResponse(await this.reservationService.findOne(reservation.id)),
+      ),
+    );
     return new ActionResponse(
       new ReservationResponse(
         await this.reservationService.getResevation(data.id),
@@ -156,7 +175,7 @@ export class ReservationController {
     );
 
     const data = this._i18nResponse.entity(reservation);
-   
+
     return new ActionResponse(
       new ReservationResponse(
         await this.reservationService.getResevation(data.id),
@@ -166,11 +185,11 @@ export class ReservationController {
 
   @Roles(Role.DOCTOR)
   @Post('/start/:id')
-  async startReservation(@Param("id") id: string) {
+  async startReservation(@Param('id') id: string) {
     const reservation = await this.reservationService.startReservation(id);
 
     const data = this._i18nResponse.entity(reservation);
-   
+
     return new ActionResponse(
       new ReservationResponse(
         await this.reservationService.getResevation(data.id),
