@@ -351,6 +351,36 @@ export class ReservationService extends BaseUserService<Reservation> {
     reservation.number = generateOrderNumber(count);
     reservation.is_urgent = false;
     reservation.status = ReservationStatus.SCHEDULED;
+    if (request.files) {
+      request.files.map((file) => {
+        // check if image exists using fs
+        const exists = fs.existsSync(file);
+        if (!exists) throw new BadRequestException('file not found');
+      });
+
+      // save shipping order images
+      const files = request.files.map((file) => {
+        // create shipping-images folder if not exists
+        if (!fs.existsSync('storage/reservation-images')) {
+          fs.mkdirSync('storage/reservation-images');
+        }
+        // store the future path of the image
+        const newPath = file.replace('/tmp/', '/reservation-images/');
+
+        // use fs to move images
+        return plainToInstance(ReservationAttachments, {
+          file: newPath,
+          reservation_id: reservation.id,
+        });
+      });
+
+      await this.reservtion_attachment_repository.save(files);
+      request.files.map((image) => {
+        const newPath = image.replace('/tmp/', '/reservation-images/');
+        fs.renameSync(image, newPath);
+      });
+    }
+
     await this._repo.save(reservation);
     const doctor = await this.doctor_repository.findOne({
       where: { id: request.doctor_id },

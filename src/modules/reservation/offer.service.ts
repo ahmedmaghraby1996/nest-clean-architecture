@@ -29,14 +29,16 @@ export class OfferService extends BaseService<Offer> {
   async makeOffer(id: string) {
     const doctor = await this.additonalService.getDoctor();
     const reservation = await this.reservationService.findOne(id);
-    if(reservation.status != ReservationStatus.CREATED)
-    throw new BadRequestException("you can't make an offer for started reservation")
-    if(reservation.offers)
-    reservation.offers.map((offer) => {
-      if (offer.doctor_id == doctor.id) {
-        throw new BadRequestException("you already made an offer");
-      }
-    })
+    if (reservation.status != ReservationStatus.CREATED)
+      throw new BadRequestException(
+        "you can't make an offer for started reservation",
+      );
+    if (reservation.offers)
+      reservation.offers.map((offer) => {
+        if (offer.doctor_id == doctor.id) {
+          throw new BadRequestException('you already made an offer');
+        }
+      });
     let value = 0;
     switch (reservation.reservationType) {
       case ReservationType.MEETING:
@@ -58,7 +60,7 @@ export class OfferService extends BaseService<Offer> {
       value: value,
       doctor_id: doctor.id,
     });
-    this.reservationGateway.server.emit(`urgent-offer-${ reservation.id}`, new OfferResponse(offer));
+
     await this.notificationService.create(
       new NotificationEntity({
         user_id: reservation.user_id,
@@ -66,11 +68,16 @@ export class OfferService extends BaseService<Offer> {
         type: NotificationTypes.RESERVATION,
         title_ar: 'لديك عرض جديد',
         title_en: 'you have new offer ',
-        text_ar: "لديك عرض جديد",
+        text_ar: 'لديك عرض جديد',
         text_en: 'you have new offer',
       }),
     );
-    return await this.repository.save(offer);
+    const saved_offer = await this.repository.save(offer);
+    this.reservationGateway.server.emit(
+      `urgent-offer-${reservation.id}`,
+      new OfferResponse(await this.getSingleOffer(saved_offer.id)),
+    );
+    return saved_offer;
   }
 
   async getOffers(reservation_id: string) {
@@ -80,9 +87,19 @@ export class OfferService extends BaseService<Offer> {
           id: reservation_id,
           user_id: this.reservationService.currentUser.id,
         },
-        
       },
-      relations:{doctor:{user:true,specialization:true}}
+      relations: { doctor: { user: true, specialization: true } },
+    });
+  }
+
+  async getSingleOffer(id: string) {
+    return await this._repo.findOne({
+      where: {
+        reservation: {
+          offers: { id },
+        },
+      },
+      relations: { doctor: { user: true, specialization: true } },
     });
   }
 }
