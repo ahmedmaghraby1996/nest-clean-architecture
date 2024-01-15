@@ -26,12 +26,14 @@ import { DoctorAvaliablityRequest } from '../additional-info/dto/requests/doctor
 import { SechudedReservationRequest } from './dto/requests/scheduled-reservation-request';
 import { Address } from 'src/infrastructure/entities/user/address.entity';
 import { where } from 'sequelize';
+
 import { boolean } from 'joi';
 import { ReservationGateway } from 'src/integration/gateways/reservation.gateway';
 import { ReservationResponse } from './dto/response/reservation-respone';
 import { NotificationService } from '../notification/services/notification.service';
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
+import { I18nResponse } from 'src/core/helpers/i18n.helper';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -51,6 +53,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly reservationGateway: ReservationGateway,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
+    @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
   ) {
     super(repository, request);
   }
@@ -250,7 +253,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     const savedReservation = await this._repo.save(reservation);
     this.reservationGateway.server.emit(
       `urgent-reservation-${doctor.id}`,
-      new ReservationResponse(await this.findOne(reservation.id)),
+      new ReservationResponse( this._i18nResponse.entity( await this.findOne(reservation.id))),
     );
     return savedReservation;
   }
