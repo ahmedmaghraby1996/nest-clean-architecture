@@ -12,6 +12,7 @@ import { NotificationService } from '../notification/services/notification.servi
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 import { OfferResponse } from './dto/response/offer-respone';
+import { I18nResponse } from 'src/core/helpers/i18n.helper';
 
 @Injectable()
 export class OfferService extends BaseService<Offer> {
@@ -22,6 +23,7 @@ export class OfferService extends BaseService<Offer> {
     private readonly reservationGateway: ReservationGateway,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
+    @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
   ) {
     super(repository);
   }
@@ -75,7 +77,8 @@ export class OfferService extends BaseService<Offer> {
     const saved_offer = await this.repository.save(offer);
     this.reservationGateway.server.emit(
       `urgent-offer-${reservation.id}`,
-      new OfferResponse(await this.getSingleOffer(saved_offer.id)),
+       
+    this._i18nResponse.entity(  new OfferResponse( await this.getSingleOffer(saved_offer.id))),
     );
     return saved_offer;
   }
