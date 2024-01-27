@@ -1,8 +1,10 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { PharmacyService } from './pharmacy.service';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
+import { query } from 'express';
+import { FindDrugQuery } from './dto/request/find-drug-query';
 
 @ApiHeader({
     name: 'Accept-Language',
@@ -18,6 +20,10 @@ export class PharmacyController {
       @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,  
     ){}
 
+    @Get('/drugs')
+async getDrugs(@Query() query:FindDrugQuery) {
+    return new ActionResponse(   await this.pharmacyService.getDrugs(query));
+}
 
 @Get('/categories')
 async getDrugCategories() {

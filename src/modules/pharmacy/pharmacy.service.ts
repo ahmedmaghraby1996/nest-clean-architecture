@@ -4,13 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Pharmacy } from 'src/infrastructure/entities/pharmacy/pharmacy.entity';
 import { ImageManager } from 'src/integration/sharp/image.manager';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreatePharamcyRequest } from './dto/request/create-pharamcy-request';
 import { PharmacyAttachments } from 'src/infrastructure/entities/pharmacy/pharmacy-attachments.entity';
 import * as fs from 'fs';
 import { PharmacyAttachmentType } from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
 import { Request } from 'express';
 import { DrugCategory } from 'src/infrastructure/entities/pharmacy/drug-category.entity';
+import { FindDrugQuery } from './dto/request/find-drug-query';
+import { Drug } from 'src/infrastructure/entities/pharmacy/drug.entity';
 @Injectable()
 export class PharmacyService {
   constructor(
@@ -18,6 +20,8 @@ export class PharmacyService {
     private drugCategoryRepository: Repository<DrugCategory>,
     @InjectRepository(Pharmacy)
     private pharmacyRepository: Repository<Pharmacy>,
+    @InjectRepository(Drug)
+    private drugRepository: Repository<Drug>,
     @InjectRepository(PharmacyAttachments)
     private pharmacyAttachmentRepository: Repository<PharmacyAttachments>,
     @Inject(REQUEST) private readonly request: Request,
@@ -26,7 +30,11 @@ export class PharmacyService {
   ) {}
 
 
+async getDrugs(query:FindDrugQuery){
 
+const drugs = await this.drugRepository.find({where:{category_id:query.category_id,name:Like(`%${query.name}%`)}})
+return drugs; 
+}
 
   async getDrugCategories() {
     return await this.drugCategoryRepository.find();
