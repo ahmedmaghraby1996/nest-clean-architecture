@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, MIN, MinLength } from "class-validator";
 
 export class FindDrugQuery {
 
@@ -10,6 +10,7 @@ category_id:string
 
 @ApiProperty ()
 @IsString()
+@MinLength(3)
 @IsNotEmpty()
 name:string
 
