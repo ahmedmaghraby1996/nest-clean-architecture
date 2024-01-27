@@ -11,7 +11,7 @@ import { Gender } from 'src/infrastructure/data/enums/gender.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { DoctorInfoRequest } from 'src/modules/additional-info/dto/requests/doctor-info-request';
 
-export class RegisterRequest extends DoctorInfoRequest {
+export class RegisterRequest {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

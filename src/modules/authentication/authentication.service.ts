@@ -17,19 +17,25 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PharmacyService } from '../pharmacy/pharmacy.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @Inject(UserService) private readonly userService: UserService,
     @InjectRepository(Doctor) private readonly doctorRepo: Repository<Doctor>,
-    @Inject(RegisterUserTransaction) private readonly registerUserTransaction: RegisterUserTransaction,
-    @Inject(SendOtpTransaction) private readonly sendOtpTransaction: SendOtpTransaction,
-    @Inject(VerifyOtpTransaction) private readonly verifyOtpTransaction: VerifyOtpTransaction,
+    @Inject(RegisterUserTransaction)
+    private readonly registerUserTransaction: RegisterUserTransaction,
+    @Inject(SendOtpTransaction)
+    private readonly sendOtpTransaction: SendOtpTransaction,
+    @Inject(VerifyOtpTransaction)
+    private readonly verifyOtpTransaction: VerifyOtpTransaction,
     @Inject(JwtService) private readonly jwtService: JwtService,
-    @Inject(AdditionalInfoService) private readonly additonalService: AdditionalInfoService,
+    @Inject(PharmacyService) private readonly pharmacyService: PharmacyService,
+    @Inject(AdditionalInfoService)
+    private readonly additonalService: AdditionalInfoService,
     @Inject(ConfigService) private readonly _config: ConfigService,
-  ) { }
+  ) {}
 
   async validateUser(req: LoginRequest): Promise<any> {
     const user = await this.userService.findOne([
@@ -59,14 +65,24 @@ export class AuthenticationService {
     };
   }
 
-  async register(req: RegisterRequest) {
+  async register(req: any) {
     const user = await this.registerUserTransaction.run(req);
-    if(req.role == Role.DOCTOR){
-      try{
-      await this.additonalService.addDoctorInfo(req,user.id)}
-      catch(e){
-        await this.userService.delete(user.id)
-        throw new BadRequestException(e)
+    if (req.role == Role.DOCTOR) {
+      try {
+        await this.additonalService.addDoctorInfo(req, user.id);
+      } catch (e) {
+        await this.userService.delete(user.id);
+
+        throw new BadRequestException(e);
+      }
+    }
+    if (req.role == Role.PHARMACY) {
+      try {
+        await this.pharmacyService.addPharmacyInfo(req, user.id);
+      } catch (e) {
+        await this.userService.delete(user.id);
+
+        throw new BadRequestException(e);
       }
     }
     return user;

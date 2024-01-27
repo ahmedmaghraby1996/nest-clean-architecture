@@ -5,6 +5,7 @@ import { AdditionalInfoModule } from './additional-info/additional-info.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { NotificationModule } from './notification/notification.module';
 import { DoctorModule } from './doctor/doctor.module';
+import { PharmacyModule } from './pharmacy/pharmacy.module';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import { DoctorModule } from './doctor/doctor.module';
         ReservationModule,
         NotificationModule,
         DoctorModule,
+        PharmacyModule,
         
     ],
     exports: [

@@ -6,7 +6,8 @@ import { ActionResponse } from 'src/core/base/responses/action.response';
 import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 import { DoctorResopone } from './dto/respone/doctor-respone';
 import { applyQueryIncludes } from 'src/core/helpers/service-related.helper';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags("Doctor")
 @Controller('doctor')
 export class DoctorController {
   constructor(

@@ -13,6 +13,13 @@ import { DoctorAvaliablity } from "../entities/doctor/doctor-avaliablity.entity"
 import { WeekDays } from "../entities/week-days/week-days.entity";
 import { Clinic } from "../entities/doctor/clinc.entity";
 import { NotificationEntity } from "../entities/notification/notification.entity";
+import { Pharmacy } from "../entities/pharmacy/pharmacy.entity";
+import { PhOrderAttachments } from "../entities/pharmacy/ph-order-attachments.entity";
+import { PhOrder } from "../entities/pharmacy/ph-order.entity";
+import { PhReply } from "../entities/pharmacy/ph-reply.entity";
+import { PharmacyAttachments } from "../entities/pharmacy/pharmacy-attachments.entity";
+import { Drug } from "../entities/pharmacy/drug.entity";
+import { DrugCategory } from "../entities/pharmacy/drug-category.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -29,7 +36,14 @@ export const DB_ENTITIES = [
   DoctorAvaliablity,
   WeekDays,
   Clinic,
-  NotificationEntity
+  NotificationEntity,
+  Pharmacy,
+  PhOrderAttachments,
+  PhOrder,
+  PhReply,
+  PharmacyAttachments,
+  Drug,
+  DrugCategory
   
 ];
 

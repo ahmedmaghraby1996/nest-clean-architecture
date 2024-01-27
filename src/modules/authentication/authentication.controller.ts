@@ -1,4 +1,13 @@
-import { Body, ClassSerializerInterceptor, Controller, HttpStatus, Inject, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  HttpStatus,
+  Inject,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
@@ -13,13 +22,15 @@ import { VerifyOtpRequest } from './dto/requests/verify-otp.dto';
 import { AuthResponse } from './dto/responses/auth.response';
 import { RegisterResponse } from './dto/responses/register.response';
 import { DoctorInfoRequest } from '../additional-info/dto/requests/doctor-info-request';
+import { CreatePharamcyRequest } from '../pharmacy/dto/request/create-pharamcy-request';
 
 @ApiTags(Router.Auth.ApiTag)
 @Controller(Router.Auth.Base)
 export class AuthenticationController {
   constructor(
-    @Inject(AuthenticationService) private readonly authService: AuthenticationService,
-  ) { }
+    @Inject(AuthenticationService)
+    private readonly authService: AuthenticationService,
+  ) {}
 
   @Post(Router.Auth.Signin)
   async signin(
@@ -35,22 +46,62 @@ export class AuthenticationController {
   }
 
   @ApiBody({
-    type: RegisterRequest,
+    type: DoctorInfoRequest,
     examples: {
       json: {
-        value: { avaliablity: '{"day": "Monday", "start_at": 8, "end_at": 17}' },
+        value: {
+          avaliablity: '{"day": "Monday", "start_at": 8, "end_at": 17}',
+        },
       },
     },
   })
   @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
   @ApiConsumes('multipart/form-data')
-  @Post(Router.Auth.Register)
+  @Post(Router.Auth.Register+"/doctor")
+  async registerDoctor(
+    @Body() req: DoctorInfoRequest,
+    @UploadedFile(new UploadValidator().build())
+    avatarFile: Express.Multer.File,
+  ): Promise<ActionResponse<RegisterResponse>> {
+    console.log(req);
+    req.avatarFile = avatarFile;
+    const user = await this.authService.register(req);
+    const result = plainToInstance(RegisterResponse, user, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse<RegisterResponse>(result, {
+      statusCode: HttpStatus.CREATED,
+    });
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
+  @ApiConsumes('multipart/form-data')
+  @Post(Router.Auth.Register+"/client")
   async register(
     @Body() req: RegisterRequest,
     @UploadedFile(new UploadValidator().build())
     avatarFile: Express.Multer.File,
   ): Promise<ActionResponse<RegisterResponse>> {
-    console.log(req)
+    console.log(req);
+    req.avatarFile = avatarFile;
+    const user = await this.authService.register(req);
+    const result = plainToInstance(RegisterResponse, user, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse<RegisterResponse>(result, {
+      statusCode: HttpStatus.CREATED,
+    });
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
+  @ApiConsumes('multipart/form-data')
+  @Post(Router.Auth.Register+"/pharmacy")
+  async registerPharmacy(
+    @Body() req: CreatePharamcyRequest,
+    @UploadedFile(new UploadValidator().build())
+    avatarFile: Express.Multer.File,
+  ): Promise<ActionResponse<RegisterResponse>> {
+    console.log(req);
     req.avatarFile = avatarFile;
     const user = await this.authService.register(req);
     const result = plainToInstance(RegisterResponse, user, {

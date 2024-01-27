@@ -15,6 +15,7 @@ import { Address } from './address.entity';
 import { Reservation } from '../reservation/reservation.entity';
 import { Client } from '../client/client.entity';
 import {NotificationEntity} from '../notification/notification.entity'
+import { PhOrder } from '../pharmacy/ph-order.entity';
 @Entity()
 export class User extends AuditableEntity {
 
@@ -64,6 +65,9 @@ export class User extends AuditableEntity {
   @Factory((faker) => faker.internet.avatar())
   @Column({ nullable: true, length: 500 })
   avatar: string;
+
+  @OneToMany(() => PhOrder, (phOrder) => phOrder.user)
+  ph_orders: PhOrder[]
 
   @Factory((faker) => faker.helpers.arrayElement(Object.values(Gender)))
   @Column({ nullable: true, type: 'enum', enum: Gender })

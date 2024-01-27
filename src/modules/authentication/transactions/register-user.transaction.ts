@@ -18,6 +18,7 @@ import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-ava
 @Injectable()
 export class RegisterUserTransaction extends BaseTransaction<
   RegisterRequest,
+  
   User
 > {
   constructor(
@@ -32,6 +33,7 @@ export class RegisterUserTransaction extends BaseTransaction<
   // the important thing here is to use the manager that we've created in the base class
   protected async execute(
     req: RegisterRequest,
+ 
     context: EntityManager,
   ): Promise<User> {
     try {
@@ -53,7 +55,7 @@ export class RegisterUserTransaction extends BaseTransaction<
           { buffer: resizedImage, originalname: req.avatarFile.originalname },
           { path: 'avatars' },
         );
-console.log(path)
+        console.log(path);
         // set avatar path
         user.avatar = path;
       }
@@ -74,7 +76,6 @@ console.log(path)
         const doctordata = plainToInstance(Doctor, req);
         delete doctordata['avaliablity'];
         const doctor = new Doctor({ ...doctordata, user_id: user.id });
-        
 
         await context.save(doctor);
         for (let index = 1; index < 8; index++) {

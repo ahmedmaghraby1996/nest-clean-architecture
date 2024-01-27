@@ -11,41 +11,48 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+import { RegisterRequest } from 'src/modules/authentication/dto/requests/register.dto';
 import { Roles } from 'src/modules/authentication/guards/roles.decorator';
 
-export class DoctorInfoRequest {
-  @ApiPropertyOptional()
+export class DoctorInfoRequest extends RegisterRequest {
+  @ApiProperty()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
   video_consultation_price: number;
 
-  @ApiPropertyOptional()
+  @ApiProperty()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
   voice_consultation_price: number;
 
-  @ApiPropertyOptional()
-
+  @ApiProperty()
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
   home_consultation_price: number;
-  
-  @ApiPropertyOptional()
+
+  @ApiProperty()
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
   clinic_consultation_price: number;
 
-  @ApiPropertyOptional()
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   specialization_id: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   summery: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @Transform(({ value }) => Number(value))
   year_of_experience: number;
-
-
 
   @ApiPropertyOptional()
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   is_urgent: boolean;
-
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -76,22 +83,27 @@ export class DoctorInfoRequest {
   @ApiPropertyOptional({
     required: false,
     type: '[String]',
-    example: [{"day": 1, "start_at": 10, "end_at": 12, "is_active": true }],
+    example: [{ day: 1, start_at: 10, end_at: 12, is_active: true }],
   })
   @IsOptional()
   // @IsArray()
   // @ValidateNested({ each: true })
   avaliablity: string;
 
-
   @ApiPropertyOptional({
     required: false,
     type: 'string',
-    example: {"latitude": "latitude", "longitude": "longitude", "address": "address", "name": "name", "is_active": true },
+    example: {
+      latitude: 'latitude',
+      longitude: 'longitude',
+      address: 'address',
+      name: 'name',
+      is_active: true,
+    },
   })
   @IsOptional()
   // @IsArray()
- 
+
   // @ValidateNested({ each: true })
   clinic: string;
 }
@@ -109,15 +121,13 @@ export class AvaliablityRequest {
   is_active: boolean;
 }
 
-
 export class ClincRequest {
-
   @ApiPropertyOptional()
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)
   is_active: boolean;
 
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
   @IsString()
   name: string;
 
@@ -143,6 +153,4 @@ export class ClincRequest {
     { message: 'invalid value for longitude' },
   )
   longitude: string;
-
- 
 }
