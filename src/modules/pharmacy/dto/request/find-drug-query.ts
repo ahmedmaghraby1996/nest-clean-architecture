@@ -10,7 +10,7 @@ category_id:string
 
 @ApiProperty ()
 @IsString()
-@MinLength(3)
+// @MinLength(3)
 @IsNotEmpty()
 name:string
 

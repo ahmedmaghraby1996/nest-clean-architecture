@@ -25,23 +25,21 @@ export class PharmacyService {
     @InjectRepository(PharmacyAttachments)
     private pharmacyAttachmentRepository: Repository<PharmacyAttachments>,
     @Inject(REQUEST) private readonly request: Request,
-   
-  
   ) {}
 
-
-async getDrugs(query:FindDrugQuery){
-
-const drugs = await this.drugRepository.find({where:{category_id:query.category_id,name:Like(`%${query.name}%`)}})
-return drugs; 
-}
+  async getDrugs(query: FindDrugQuery) {
+    const drugs = await this.drugRepository.find({
+      where: { category_id: query.category_id, name: Like(`%${query.name}%`) },take:50
+    });
+    return drugs;
+  }
 
   async getDrugCategories() {
     return await this.drugCategoryRepository.find();
   }
 
   async addPharmacyInfo(request: CreatePharamcyRequest, user_id: string) {
-    const pharmacy = plainToInstance(Pharmacy, {...request,user_id});
+    const pharmacy = plainToInstance(Pharmacy, { ...request, user_id });
     await this.pharmacyRepository.save(pharmacy);
 
     if (request.license_images) {
@@ -76,39 +74,34 @@ return drugs;
     }
 
     if (request.logo_images) {
-        request.logo_images.split(',').map((file) => {
-          // check if image exists using fs
-          const exists = fs.existsSync(file);
-          if (!exists) throw new BadRequestException('file not found');
+      request.logo_images.split(',').map((file) => {
+        // check if image exists using fs
+        const exists = fs.existsSync(file);
+        if (!exists) throw new BadRequestException('file not found');
+      });
+
+      // save shipping order images
+      const logo_images = request.logo_images.split(',').map((file) => {
+        // create shipping-images folder if not exists
+        if (!fs.existsSync('storage/pharmacy-logo')) {
+          fs.mkdirSync('storage/pharmacy-logo');
+        }
+        // store the future path of the image
+        const newPath = file.replace('/tmp/', '/pharmacy-logo/');
+
+        // use fs to move images
+        return plainToInstance(PharmacyAttachments, {
+          file: newPath,
+          pharmacy_id: pharmacy.id,
+          type: PharmacyAttachmentType.LOGO,
         });
-  
-        // save shipping order images
-        const logo_images = request.logo_images.split(',').map((file) => {
-          // create shipping-images folder if not exists
-          if (!fs.existsSync('storage/pharmacy-logo')) {
-            fs.mkdirSync('storage/pharmacy-logo');
-          }
-          // store the future path of the image
-          const newPath = file.replace('/tmp/', '/pharmacy-logo/');
-  
-          // use fs to move images
-          return plainToInstance(PharmacyAttachments, {
-            file: newPath,
-            pharmacy_id: pharmacy.id,
-            type: PharmacyAttachmentType.LOGO,
-          });
-        });
-  
-        await this.pharmacyAttachmentRepository.save(logo_images);
-        request.logo_images.split(',').map((image) => {
-          const newPath = image.replace('/tmp/', '/pharmacy-logo/');
-          fs.renameSync(image, newPath);
-        });
-      }
+      });
+
+      await this.pharmacyAttachmentRepository.save(logo_images);
+      request.logo_images.split(',').map((image) => {
+        const newPath = image.replace('/tmp/', '/pharmacy-logo/');
+        fs.renameSync(image, newPath);
+      });
+    }
   }
-
-
-
-
-
 }
