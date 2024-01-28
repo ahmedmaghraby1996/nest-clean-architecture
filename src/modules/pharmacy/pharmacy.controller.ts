@@ -1,10 +1,15 @@
-import { Controller, Get, Inject, Query } from '@nestjs/common';
-import { ApiHeader, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Inject, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { PharmacyService } from './pharmacy.service';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { query } from 'express';
 import { FindDrugQuery } from './dto/request/find-drug-query';
+import { makeOrderRequest } from './dto/request/make-order-request';
+import { Roles } from '../authentication/guards/roles.decorator';
+import { Role } from 'src/infrastructure/data/enums/role.enum';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
+import { RolesGuard } from '../authentication/guards/roles.guard';
 
 @ApiHeader({
     name: 'Accept-Language',
@@ -23,6 +28,13 @@ export class PharmacyController {
     @Get('/drugs')
 async getDrugs(@Query() query:FindDrugQuery) {
     return new ActionResponse(   await this.pharmacyService.getDrugs(query));
+}
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+@Roles(Role.CLIENT)
+@Post('/order')
+async makeOrder(@Body() request: makeOrderRequest){
+    return new ActionResponse(  await this.pharmacyService.makeOrder(request));
 }
 
 @Get('/categories')
