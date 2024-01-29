@@ -13,7 +13,7 @@ export enum PhOrderAttachmentType {
 
 export enum PhOrderReplyType {
   AVAILIABLE = 'AVAILIABLE',
-  VOICE = 'VOICE',
+  ALTERNATIVE = 'ALTERNATIVE',
 }
 
 export enum PhOrderStatus {
