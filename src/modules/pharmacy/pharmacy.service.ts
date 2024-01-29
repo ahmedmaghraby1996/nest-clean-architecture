@@ -242,7 +242,7 @@ export class PharmacyService {
 
     const orders = await this.orderRepository.find({
       where: this.request.user.roles.includes(Role.PHARMACY)
-        ? { nearby_pharmacies: ILike(pharamcy.id) }
+        ? { nearby_pharmacies: ILike(`%${pharamcy.id}%`) }
         : { user_id: this.request.user.id },
       relations: {
         ph_order_attachments: true,

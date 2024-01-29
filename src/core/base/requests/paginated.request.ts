@@ -87,7 +87,7 @@ export class PaginatedRequest {
         const [key, value] = filterPart.split(operator);
         switch (operator) {
           case '#':
-            whereFilter = { ...whereFilter, [key]: ILike(value) };
+            whereFilter = { ...whereFilter, [key]: ILike(`%${value}%`) };
             break;
           case '<':
             whereFilter = { ...whereFilter, [key]: LessThan(value) };
