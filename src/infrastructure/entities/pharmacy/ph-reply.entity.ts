@@ -1,10 +1,27 @@
-import { Entity, OneToMany } from "typeorm";
-import { PhOrder } from "./ph-order.entity";
-import { AuditableEntity } from "src/infrastructure/base/auditable.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { PhOrder } from './ph-order.entity';
+import { AuditableEntity } from 'src/infrastructure/base/auditable.entity';
+import { PhOrderReplyType } from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
+import { Pharmacy } from './pharmacy.entity';
 
 @Entity()
 export class PhReply extends AuditableEntity {
-    
-    @OneToMany(()=>PhOrder,order=>order.ph_replies)
-    orders:PhOrder
+  @ManyToOne(() => PhOrder, (order) => order.ph_replies)
+  order: PhOrder;
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.replies)
+  @JoinColumn({ name: 'pharmacy_id' })
+  pharmacy: Pharmacy;
+  @Column()
+  pharmacy_id: string;
+
+  @Column()
+  order_id: string;
+
+  @Column()
+  note: string;
+
+  @Column()
+  price: string;
+  @Column()
+  availability: PhOrderReplyType;
 }

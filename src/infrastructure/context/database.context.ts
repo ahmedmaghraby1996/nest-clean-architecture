@@ -43,7 +43,7 @@ export const DB_ENTITIES = [
   PhReply,
   PharmacyAttachments,
   Drug,
-  DrugCategory
+  DrugCategory,
   
 ];
 

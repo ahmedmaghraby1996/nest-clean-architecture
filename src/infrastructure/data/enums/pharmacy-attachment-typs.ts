@@ -9,3 +9,14 @@ export enum PhOrderAttachmentType {
   VOICE = 'VOICE',
 }
 
+
+
+export enum PhOrderReplyType {
+  AVAILIABLE = 'AVAILIABLE',
+  VOICE = 'VOICE',
+}
+
+export enum PhOrderStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+}

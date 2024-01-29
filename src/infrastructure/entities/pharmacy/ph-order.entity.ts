@@ -5,6 +5,7 @@ import { PhOrderAttachments } from './ph-order-attachments.entity';
 import { Drug } from './drug.entity';
 import { PhReply } from './ph-reply.entity';
 import { Address } from '../user/address.entity';
+import { PhOrderStatus } from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
 
 @Entity()
 export class PhOrder extends OwnedEntity {
@@ -15,6 +16,9 @@ export class PhOrder extends OwnedEntity {
   address: Address;
   @Column({nullable:true})
   address_id: string;
+
+  @Column({default:PhOrderStatus.PENDING})
+  status:PhOrderStatus
 
   @Column({ type: 'simple-array', nullable: true })
   drugs: string[];
@@ -32,6 +36,6 @@ export class PhOrder extends OwnedEntity {
     (phOrderAttachments) => phOrderAttachments.ph_order,
   )
   ph_order_attachments: PhOrderAttachments[];
-  @OneToMany(() => PhReply, (phReply) => phReply.orders)
+  @OneToMany(() => PhReply, (phReply) => phReply.order)
   ph_replies: PhReply[];
 }

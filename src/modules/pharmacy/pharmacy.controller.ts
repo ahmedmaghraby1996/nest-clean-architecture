@@ -10,6 +10,7 @@ import { Roles } from '../authentication/guards/roles.decorator';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
+import { PhOrderReplyRequest } from './dto/request/ph-order-replay-request';
 
 @ApiHeader({
     name: 'Accept-Language',
@@ -46,6 +47,14 @@ async getDrugCategories() {
 @Get('/order')
 async getOrders() {
     return new ActionResponse(  await this.pharmacyService.getOrders());
+}
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+@Roles(Role.PHARMACY)
+@Post('/order/reply')
+async orderReply(@Body() request:PhOrderReplyRequest) {
+    return new ActionResponse(  await this.pharmacyService.orderReply(request));
 }
 
 }

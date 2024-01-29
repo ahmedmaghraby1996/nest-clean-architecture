@@ -24,6 +24,8 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { PhOrderResponse } from './dto/respone/ph-order-response';
 import { or } from 'sequelize';
 import { toUrl } from 'src/core/helpers/file.helper';
+import { PhOrderReplyRequest } from './dto/request/ph-order-replay-request';
+import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
 
 @Injectable()
 export class PharmacyService {
@@ -43,6 +45,9 @@ export class PharmacyService {
     private orderAttachmentRepository: Repository<PhOrderAttachments>,
     @InjectRepository(PharmacyAttachments)
     private pharmacyAttachmentRepository: Repository<PharmacyAttachments>,
+
+    @InjectRepository(PhReply)
+    private replyRepository: Repository<PhReply>,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
@@ -233,14 +238,36 @@ export class PharmacyService {
   async getOrders() {
     const pharamcy = await this.pharmacyRepository.findOne({
       where: { user_id: this.request.user.id },
-  
     });
 
     const orders = await this.orderRepository.find({
       where: this.request.user.roles.includes(Role.PHARMACY)
         ? { nearby_pharmacies: ILike(pharamcy.id) }
         : { user_id: this.request.user.id },
-        relations: { ph_order_attachments: true },
+      relations: {
+        ph_order_attachments: true,
+        ph_replies: { pharmacy: { user: true } },
+      },
+      select: {
+        ph_replies: {
+          id: true,
+          note: true,
+          created_at: true,
+          availability: true,
+          pharmacy_id: true,
+          pharmacy: {
+            id: true,
+            expierence: true,
+            open_time: true,
+            close_time: true,
+            address: true,
+
+            user: {
+              phone: true,
+            },
+          },
+        },
+      },
     });
 
     const result = await Promise.all(
@@ -248,14 +275,36 @@ export class PharmacyService {
         const drugs = await this.drugRepository.find({
           where: { id: In(order.drugs) },
         });
-       order.ph_order_attachments=order.ph_order_attachments.map((attachment)=>{
-         attachment.file=toUrl(attachment.file)
-         return attachment
-       })
-        return plainToInstance(PhOrderResponse, {
-          ...order,
-          drugs: drugs,
-        }, { excludeExtraneousValues: true });}));
+        order.ph_order_attachments = order.ph_order_attachments.map(
+          (attachment) => {
+            attachment.file = toUrl(attachment.file);
+            return attachment;
+          },
+        );
+        return plainToInstance(
+          PhOrderResponse,
+          {
+            ...order,
+            drugs: drugs,
+          },
+          { excludeExtraneousValues: true },
+        );
+      }),
+    );
     return result;
+  }
+
+  async orderReply(request: PhOrderReplyRequest) {
+    const pharamcy = await this.pharmacyRepository.findOne({
+      where: { user_id: this.request.user.id },
+    });
+
+    const reply = plainToInstance(PhReply, {
+      ...request,
+      pharmacy_id: pharamcy.id,
+    });
+    console.log(reply);
+
+    return await this.replyRepository.save(reply);
   }
 }

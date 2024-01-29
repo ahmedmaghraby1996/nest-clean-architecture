@@ -24,6 +24,9 @@ export class CreatePharamcyRequest extends RegisterRequest {
 
   @ApiProperty()
   @IsString()
+  address: string;
+  @ApiProperty()
+  @IsString()
   open_time: string;
   @ApiProperty()
   @IsString()

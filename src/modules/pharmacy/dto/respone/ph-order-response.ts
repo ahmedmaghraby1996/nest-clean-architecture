@@ -2,6 +2,7 @@ import { Expose, Transform, plainToInstance } from 'class-transformer';
 import { PhOrderAttachmentType } from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
 import { Drug } from 'src/infrastructure/entities/pharmacy/drug.entity';
 import { PhOrderAttachments } from 'src/infrastructure/entities/pharmacy/ph-order-attachments.entity';
+import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
 import { Address } from 'src/infrastructure/entities/user/address.entity';
 
 export class PhOrderResponse {
@@ -20,6 +21,7 @@ export class PhOrderResponse {
   drugs: Drug[];
   @Expose()
   notes: string;
+
   @Expose()
   @Transform((value) =>
     plainToInstance(
@@ -32,12 +34,16 @@ export class PhOrderResponse {
   attachments: PhOrderAttachments[];
   @Expose()
   @Transform((value) =>
-  plainToInstance(
-    PhOrderAttachments,
-    value.obj.ph_order_attachments.filter(
-      (attachment) => attachment.type === PhOrderAttachmentType.VOICE,
+    plainToInstance(
+      PhOrderAttachments,
+      value.obj.ph_order_attachments.filter(
+        (attachment) => attachment.type === PhOrderAttachmentType.VOICE,
+      ),
     ),
-  ),
-)
+  )
   voice_recording: PhOrderAttachments[];
+
+  @Expose()
+  @Transform((value) => plainToInstance(PhReply, value.obj.ph_replies))
+  replies: any[];
 }
