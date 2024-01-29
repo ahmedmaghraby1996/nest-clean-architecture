@@ -6,12 +6,11 @@ export class makeOrderRequest {
   @ApiProperty({
     type: [String],
 
-    example: ['category1_id', 'category1_id'],
+    
   })
   @IsOptional()
   categories: string;
-  @ApiProperty()
-  deliver_to_home: boolean;
+
 
   @ApiPropertyOptional({
     type: [String],

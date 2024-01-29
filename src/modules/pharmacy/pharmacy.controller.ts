@@ -41,5 +41,11 @@ async makeOrder(@Body() request: makeOrderRequest){
 async getDrugCategories() {
     return new ActionResponse( this._i18nResponse.entity(  await this.pharmacyService.getDrugCategories()));
 }
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+@Get('/order')
+async getOrders() {
+    return new ActionResponse(  await this.pharmacyService.getOrders());
+}
 
 }

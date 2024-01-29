@@ -11,6 +11,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Reservation } from '../reservation/reservation.entity';
+import { PhOrder } from '../pharmacy/ph-order.entity';
 
 @Entity('addresses')
 export class Address extends OwnedEntity {
@@ -23,6 +24,9 @@ export class Address extends OwnedEntity {
 
   @Column()
   user_id: string;
+
+  @OneToMany(() => PhOrder, (phOrder) => phOrder.address)
+  ph_orders: PhOrder[];
 
   // address name e.g. home, work, etc.
   @Factory((faker) => faker.helpers.arrayElement(['home', 'work', 'other']))

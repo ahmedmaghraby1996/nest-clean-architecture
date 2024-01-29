@@ -30,9 +30,9 @@ export class DoctorInfoRequest extends RegisterRequest {
   @IsNumber()
   home_consultation_price: number;
 
-  @ApiProperty()
+  @ApiProperty({required:false})
   @Transform(({ value }) => Number(value))
-  @IsNumber()
+
   clinic_consultation_price: number;
 
   @ApiProperty()

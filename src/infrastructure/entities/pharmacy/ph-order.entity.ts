@@ -4,17 +4,17 @@ import { User } from '../user/user.entity';
 import { PhOrderAttachments } from './ph-order-attachments.entity';
 import { Drug } from './drug.entity';
 import { PhReply } from './ph-reply.entity';
+import { Address } from '../user/address.entity';
 
 @Entity()
 export class PhOrder extends OwnedEntity {
   @ManyToOne(() => User, (user) => user.ph_orders)
   user: User;
 
-  @Column({ default: true })
-  deliver_to_home: boolean;
-
-  @Column()
-  address: string;
+  @ManyToOne(() => Address, (address) => address.ph_orders)
+  address: Address;
+  @Column({nullable:true})
+  address_id: string;
 
   @Column({ type: 'simple-array', nullable: true })
   drugs: string[];

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Pharmacy } from 'src/infrastructure/entities/pharmacy/pharmacy.entity';
 import { ImageManager } from 'src/integration/sharp/image.manager';
-import { Like, Repository } from 'typeorm';
+import { ILike, In, Like, Repository } from 'typeorm';
 import { CreatePharamcyRequest } from './dto/request/create-pharamcy-request';
 import { PharmacyAttachments } from 'src/infrastructure/entities/pharmacy/pharmacy-attachments.entity';
 import * as fs from 'fs';
@@ -19,6 +19,12 @@ import { Drug } from 'src/infrastructure/entities/pharmacy/drug.entity';
 import { PhOrder } from 'src/infrastructure/entities/pharmacy/ph-order.entity';
 import { makeOrderRequest } from './dto/request/make-order-request';
 import { PhOrderAttachments } from 'src/infrastructure/entities/pharmacy/ph-order-attachments.entity';
+import { Address } from 'src/infrastructure/entities/user/address.entity';
+import { Role } from 'src/infrastructure/data/enums/role.enum';
+import { PhOrderResponse } from './dto/respone/ph-order-response';
+import { or } from 'sequelize';
+import { toUrl } from 'src/core/helpers/file.helper';
+
 @Injectable()
 export class PharmacyService {
   constructor(
@@ -30,6 +36,9 @@ export class PharmacyService {
     private pharmacyRepository: Repository<Pharmacy>,
     @InjectRepository(Drug)
     private drugRepository: Repository<Drug>,
+
+    @InjectRepository(Address)
+    private addressRepository: Repository<Address>,
     @InjectRepository(PhOrderAttachments)
     private orderAttachmentRepository: Repository<PhOrderAttachments>,
     @InjectRepository(PharmacyAttachments)
@@ -42,6 +51,40 @@ export class PharmacyService {
       ...request,
       user_id: this.request.user.id,
     });
+
+    const address = await this.addressRepository.findOne({
+      where: {
+        id: request.address_id,
+      },
+    });
+
+    const nearby_pharmacies = await this.pharmacyRepository
+      .createQueryBuilder('pharmacy')
+      .select('pharmacy.*')
+      .addSelect(
+        `ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(pharmacy.longitude, pharmacy.latitude)) as distance`,
+      )
+      .where(
+        `ST_Distance_Sphere(POINT(:longitude, :latitude), POINT(pharmacy.longitude, pharmacy.latitude)) <= :radius`,
+      )
+
+      // .andWhere('pharmacy.categories LIKE %${categories}%', {
+      //   categories: request.categories,
+      // })
+
+      .setParameters({
+        latitude: address.latitude,
+        longitude: address.longitude,
+        radius: 10 * 1000,
+      }) // Convert km to meters
+      .orderBy('distance', 'ASC')
+      .getRawMany();
+    if (nearby_pharmacies.length == 0) {
+      throw new BadRequestException('no nearby pharmacies');
+    }
+    ph_order.nearby_pharmacies = nearby_pharmacies.map(
+      (pharmacy) => pharmacy.id,
+    );
     await this.orderRepository.save(ph_order);
 
     if (request.attachments) {
@@ -185,5 +228,34 @@ export class PharmacyService {
         fs.renameSync(image, newPath);
       });
     }
+  }
+
+  async getOrders() {
+    const pharamcy = await this.pharmacyRepository.findOne({
+      where: { user_id: this.request.user.id },
+  
+    });
+
+    const orders = await this.orderRepository.find({
+      where: this.request.user.roles.includes(Role.PHARMACY)
+        ? { nearby_pharmacies: ILike(pharamcy.id) }
+        : { user_id: this.request.user.id },
+        relations: { ph_order_attachments: true },
+    });
+
+    const result = await Promise.all(
+      orders.map(async (order) => {
+        const drugs = await this.drugRepository.find({
+          where: { id: In(order.drugs) },
+        });
+       order.ph_order_attachments=order.ph_order_attachments.map((attachment)=>{
+         attachment.file=toUrl(attachment.file)
+         return attachment
+       })
+        return plainToInstance(PhOrderResponse, {
+          ...order,
+          drugs: drugs,
+        }, { excludeExtraneousValues: true });}));
+    return result;
   }
 }
