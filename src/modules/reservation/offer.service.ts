@@ -77,8 +77,10 @@ export class OfferService extends BaseService<Offer> {
     const saved_offer = await this.repository.save(offer);
     this.reservationGateway.server.emit(
       `urgent-offer-${reservation.id}`,
-       
-    this._i18nResponse.entity(  new OfferResponse( await this.getSingleOffer(saved_offer.id))),
+
+      this._i18nResponse.entity(
+        new OfferResponse(await this.getSingleOffer(saved_offer.id)),
+      ),
     );
     return saved_offer;
   }
@@ -98,9 +100,8 @@ export class OfferService extends BaseService<Offer> {
   async getSingleOffer(id: string) {
     return await this._repo.findOne({
       where: {
-        reservation: {
-          offers: { id },
-        },
+       id:id,
+        
       },
       relations: { doctor: { user: true, specialization: true } },
     });
