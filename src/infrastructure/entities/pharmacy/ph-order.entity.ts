@@ -23,8 +23,7 @@ export class PhOrder extends OwnedEntity {
   @Column({ type: 'simple-array', nullable: true })
   drugs: string[];
 
-  @Column()
-  category_id: string;
+
   @Column()
   notes: string;
 
