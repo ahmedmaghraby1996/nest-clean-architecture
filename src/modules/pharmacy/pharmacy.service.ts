@@ -26,6 +26,9 @@ import { or } from 'sequelize';
 import { toUrl } from 'src/core/helpers/file.helper';
 import { PhOrderReplyRequest } from './dto/request/ph-order-replay-request';
 import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
+import { skip } from 'rxjs';
+import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
+import { generateOrderNumber } from '../reservation/reservation.service';
 
 @Injectable()
 export class PharmacyService {
@@ -56,6 +59,11 @@ export class PharmacyService {
       ...request,
       user_id: this.request.user.id,
     });
+    const count = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('DATE(order.created_at) = CURDATE()')
+      .getCount();
+    ph_order.number = generateOrderNumber(count);
 
     const address = await this.addressRepository.findOne({
       where: {
@@ -170,6 +178,7 @@ export class PharmacyService {
 
   async addPharmacyInfo(request: CreatePharamcyRequest, user_id: string) {
     const pharmacy = plainToInstance(Pharmacy, { ...request, user_id });
+
     await this.pharmacyRepository.save(pharmacy);
 
     if (request.license_images) {
@@ -235,7 +244,10 @@ export class PharmacyService {
     }
   }
 
-  async getOrders() {
+  async getOrders(query: PaginatedRequest) {
+    let { page, limit } = query;
+    limit = limit || 20;
+    page = page || 1;
     const pharamcy = await this.pharmacyRepository.findOne({
       where: { user_id: this.request.user.id },
     });
@@ -246,7 +258,7 @@ export class PharmacyService {
         : { user_id: this.request.user.id },
       relations: {
         ph_order_attachments: true,
-        ph_replies: { pharmacy: { user: true } },
+        ph_replies: { pharmacy: { user: true, attachments: true } },
       },
       select: {
         ph_replies: {
@@ -259,22 +271,41 @@ export class PharmacyService {
             id: true,
             expierence: true,
             open_time: true,
+            ph_name: true,
             close_time: true,
             address: true,
-
+            attachments: true,
             user: {
               phone: true,
             },
           },
         },
       },
+      take: limit,
+      skip: (page - 1) * limit,
     });
+    const orders_count = await this.orderRepository.countBy(
+      this.request.user.roles.includes(Role.PHARMACY)
+        ? { nearby_pharmacies: ILike(`%${pharamcy.id}%`) }
+        : { user_id: this.request.user.id },
+    );
 
     const result = await Promise.all(
       orders.map(async (order) => {
-        const drugs = await this.drugRepository.find({
-          where: { id: In(order.drugs) },
-        });
+   
+        if (this.request.user.roles.includes(Role.PHARMACY)) {
+          order.ph_replies.filter((reply) => {
+            if (reply.pharmacy.user_id == pharamcy.id) {
+              return reply;
+            }
+          });
+        }
+        const drugs =
+          order.drugs == null
+            ? null
+            : await this.drugRepository.find({
+                where: { id: In(order.drugs) },
+              });
         order.ph_order_attachments = order.ph_order_attachments.map(
           (attachment) => {
             attachment.file = toUrl(attachment.file);
@@ -291,7 +322,7 @@ export class PharmacyService {
         );
       }),
     );
-    return result;
+    return { orders: result, count: orders_count };
   }
 
   async orderReply(request: PhOrderReplyRequest) {

@@ -1,5 +1,8 @@
 import { Expose, Transform, plainToInstance } from 'class-transformer';
-import { PhOrderAttachmentType } from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
+import {
+  PhOrderAttachmentType,
+  PharmacyAttachmentType,
+} from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
 import { Drug } from 'src/infrastructure/entities/pharmacy/drug.entity';
 import { PhOrderAttachments } from 'src/infrastructure/entities/pharmacy/ph-order-attachments.entity';
 import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
@@ -12,6 +15,8 @@ export class PhOrderResponse {
   status: string;
   @Expose()
   created_at: string;
+  @Expose()
+  number: string;
   @Expose()
   user_id: string;
   @Expose()
@@ -44,6 +49,15 @@ export class PhOrderResponse {
   voice_recording: PhOrderAttachments[];
 
   @Expose()
-  @Transform((value) => plainToInstance(PhReply, value.obj.ph_replies))
+  @Transform((value) =>
+    plainToInstance(
+      PhReply,
+      value.obj.ph_replies.map((reply) =>
+        reply.pharmacy.attachments.filter(
+          (attachment) => attachment.type === PharmacyAttachmentType.LOGO,
+        ),
+      ),
+    ),
+  )
   replies: any[];
 }

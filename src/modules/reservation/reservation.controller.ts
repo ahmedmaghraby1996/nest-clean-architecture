@@ -153,15 +153,15 @@ export class ReservationController {
     const reservation = await this.reservationService.acceptOffer(id);
 
     const data = this._i18nResponse.entity(reservation);
-    const full_reservation=  this._i18nResponse.entity(
+    const full_reservation = this._i18nResponse.entity(
       new ReservationResponse(
         await this.reservationService.findOne(reservation.id),
       ),
     );
-    console.log(full_reservation)
+    console.log(full_reservation);
     this.reservationGateway.server.emit(
       `urgent-reservation-${reservation.doctor_id}`,
-    full_reservation
+      full_reservation,
     );
     return new ActionResponse(
       new ReservationResponse(

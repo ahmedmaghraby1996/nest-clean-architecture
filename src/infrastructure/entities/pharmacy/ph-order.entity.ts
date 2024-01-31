@@ -24,12 +24,15 @@ export class PhOrder extends OwnedEntity {
   drugs: string[];
 
 
-  @Column()
+  @Column({nullable:true})
   notes: string;
 
   @Column({ type: 'simple-array', nullable: true })
   nearby_pharmacies: string[];
 
+  @Column({ length: 10, unique: true })
+  number: string;
+  
   @OneToMany(
     () => PhOrderAttachments,
     (phOrderAttachments) => phOrderAttachments.ph_order,

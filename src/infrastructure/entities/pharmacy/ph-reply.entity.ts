@@ -17,7 +17,7 @@ export class PhReply extends AuditableEntity {
   @Column()
   order_id: string;
 
-  @Column()
+  @Column({nullable:true})
   note: string;
 
   @Column()

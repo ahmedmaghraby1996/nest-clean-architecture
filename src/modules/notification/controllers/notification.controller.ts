@@ -51,7 +51,7 @@ export class NotificationController {
       excludeExtraneousValues: true,
     });
     if (query.page && query.limit) {
-      const total = await this.notificationService.count();
+      const total = await this.notificationService.count(query);
       return new PaginatedResponse<NotificationResponse[]>(response, {
         meta: { total, ...query },
       });

@@ -9,8 +9,8 @@ export class PhOrderReplyRequest {
     @IsString()
     order_id: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
+    @ApiProperty({required: false})
+  
     @IsString()
     note: string;
 
