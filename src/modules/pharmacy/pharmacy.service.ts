@@ -292,13 +292,12 @@ export class PharmacyService {
 
     const result = await Promise.all(
       orders.map(async (order) => {
-   
+        
+        
         if (this.request.user.roles.includes(Role.PHARMACY)) {
-          order.ph_replies.filter((reply) => {
-            if (reply.pharmacy.user_id == pharamcy.id) {
-              return reply;
-            }
-          });
+          order.ph_replies = order.ph_replies.filter(
+            (reply) => reply.pharmacy_id == pharamcy.id,
+          );
         }
         const drugs =
           order.drugs == null

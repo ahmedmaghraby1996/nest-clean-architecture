@@ -1,4 +1,5 @@
 import { Expose, Transform, plainToInstance } from 'class-transformer';
+import { toUrl } from 'src/core/helpers/file.helper';
 import {
   PhOrderAttachmentType,
   PharmacyAttachmentType,
@@ -52,11 +53,18 @@ export class PhOrderResponse {
   @Transform((value) =>
     plainToInstance(
       PhReply,
-      value.obj.ph_replies.map((reply) =>
-        reply.pharmacy.attachments.filter(
-          (attachment) => attachment.type === PharmacyAttachmentType.LOGO,
-        ),
-      ),
+      value.obj.ph_replies.map((reply) => {
+        reply.pharmacy.attachments = reply.pharmacy.attachments.filter(
+          (attachment) => {
+            if (attachment.type === PharmacyAttachmentType.LOGO) {
+              attachment.file = toUrl(attachment.file);
+
+              return attachment;
+            }
+          },
+        );
+        return reply;
+      }),
     ),
   )
   replies: any[];
