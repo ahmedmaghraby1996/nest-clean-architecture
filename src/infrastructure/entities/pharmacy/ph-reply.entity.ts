@@ -17,11 +17,15 @@ export class PhReply extends AuditableEntity {
   @Column()
   order_id: string;
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   note: string;
 
   @Column()
   price: string;
+  @Column()
+  address: string;
+  @Column()
+  phone: string;
   @Column()
   availability: PhOrderReplyType;
 }

@@ -8,6 +8,7 @@ import { Drug } from 'src/infrastructure/entities/pharmacy/drug.entity';
 import { PhOrderAttachments } from 'src/infrastructure/entities/pharmacy/ph-order-attachments.entity';
 import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
 import { Address } from 'src/infrastructure/entities/user/address.entity';
+import { User } from 'src/infrastructure/entities/user/user.entity';
 
 export class PhOrderResponse {
   @Expose()
@@ -20,6 +21,14 @@ export class PhOrderResponse {
   number: string;
   @Expose()
   user_id: string;
+  @Expose()
+  @Transform((value) => {
+    return {
+      name: value.obj.user.first_name + value.obj.user.last_name,
+      avatar: toUrl(value.obj.user.avatar),
+    };
+  })
+  user: any;
   @Expose()
   address: Address;
   @Expose()

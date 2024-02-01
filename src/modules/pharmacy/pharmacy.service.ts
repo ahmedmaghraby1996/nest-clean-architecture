@@ -257,16 +257,22 @@ export class PharmacyService {
         ? { nearby_pharmacies: ILike(`%${pharamcy.id}%`) }
         : { user_id: this.request.user.id },
       relations: {
+        user: true,
         ph_order_attachments: true,
         ph_replies: { pharmacy: { user: true, attachments: true } },
       },
       select: {
+        user: { first_name: true, last_name: true, phone:true, avatar:true },
+
         ph_replies: {
           id: true,
           note: true,
           created_at: true,
           availability: true,
           pharmacy_id: true,
+          address: true,
+          phone: true,
+          price: true,
           pharmacy: {
             id: true,
             expierence: true,
@@ -275,6 +281,7 @@ export class PharmacyService {
             close_time: true,
             address: true,
             attachments: true,
+
             user: {
               phone: true,
             },
@@ -292,8 +299,6 @@ export class PharmacyService {
 
     const result = await Promise.all(
       orders.map(async (order) => {
-        
-        
         if (this.request.user.roles.includes(Role.PHARMACY)) {
           order.ph_replies = order.ph_replies.filter(
             (reply) => reply.pharmacy_id == pharamcy.id,
