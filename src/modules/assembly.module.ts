@@ -7,6 +7,7 @@ import { NotificationModule } from './notification/notification.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { PharmacyModule } from './pharmacy/pharmacy.module';
 import { StaticPageModule } from './static-page/static-page.module';
+import { ContactUsModule } from './contact-us/contact-us.module';
 
 @Module({
     imports: [
@@ -16,7 +17,8 @@ import { StaticPageModule } from './static-page/static-page.module';
         NotificationModule,
         DoctorModule,
         PharmacyModule,
-        StaticPageModule
+        StaticPageModule,
+        ContactUsModule
         
     ],
     exports: [

@@ -5,6 +5,7 @@ import { Pharmacy } from 'src/infrastructure/entities/pharmacy/pharmacy.entity';
 import { AdditionalInfoModule } from 'src/modules/additional-info/additional-info.module';
 import { AddressModule } from 'src/modules/address/address.module';
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
+import { ContactUsModule } from 'src/modules/contact-us/contact-us.module';
 import { DoctorModule } from 'src/modules/doctor/doctor.module';
 import { FileModule } from 'src/modules/file/file.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
@@ -39,7 +40,8 @@ export default (app: INestApplication, config: ConfigService) => {
       UserModule,
       NotificationModule,
       PharmacyModule,
-      StaticPageModule
+      StaticPageModule,
+      ContactUsModule
       
       
     ],
