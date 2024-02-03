@@ -20,6 +20,7 @@ import { PhReply } from "../entities/pharmacy/ph-reply.entity";
 import { PharmacyAttachments } from "../entities/pharmacy/pharmacy-attachments.entity";
 import { Drug } from "../entities/pharmacy/drug.entity";
 import { DrugCategory } from "../entities/pharmacy/drug-category.entity";
+import { StaticPage } from "../entities/static-pages/static-pages.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -44,6 +45,7 @@ export const DB_ENTITIES = [
   PharmacyAttachments,
   Drug,
   DrugCategory,
+  StaticPage
   
 ];
 

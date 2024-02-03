@@ -10,6 +10,7 @@ import { FileModule } from 'src/modules/file/file.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 import { PharmacyModule } from 'src/modules/pharmacy/pharmacy.module';
 import { ReservationModule } from 'src/modules/reservation/reservation.module';
+import { StaticPageModule } from 'src/modules/static-page/static-page.module';
 import { UserModule } from 'src/modules/user/user.module';
 
 export default (app: INestApplication, config: ConfigService) => {
@@ -37,7 +38,8 @@ export default (app: INestApplication, config: ConfigService) => {
       DoctorModule,
       UserModule,
       NotificationModule,
-      PharmacyModule
+      PharmacyModule,
+      StaticPageModule
       
       
     ],

@@ -6,6 +6,7 @@ import { ReservationModule } from './reservation/reservation.module';
 import { NotificationModule } from './notification/notification.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { PharmacyModule } from './pharmacy/pharmacy.module';
+import { StaticPageModule } from './static-page/static-page.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { PharmacyModule } from './pharmacy/pharmacy.module';
         NotificationModule,
         DoctorModule,
         PharmacyModule,
+        StaticPageModule
         
     ],
     exports: [
