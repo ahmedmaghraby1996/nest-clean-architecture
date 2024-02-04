@@ -1,3 +1,4 @@
+import { FaqSeeder } from "src/modules/faq/faq/data/faq.seeder";
 import { AddressSeeder } from "./address.seeder";
 import { drugCategorySeeder } from "./drug-categories.seeders";
 import { drugSeeder } from "./dug.seeder";
@@ -11,5 +12,6 @@ export const DB_SEEDERS = [
   // SpecializationSeeder
   // drugCategorySeeder,
   // drugSeeder
-  StaticPageSeeder
+  // StaticPageSeeder,
+  FaqSeeder
 ];

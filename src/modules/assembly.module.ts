@@ -10,6 +10,7 @@ import { StaticPageModule } from './static-page/static-page.module';
 import { ContactUsModule } from './contact-us/contact-us.module';
 import { SuggestionsComplaints } from 'src/infrastructure/entities/suggestions-complaints/suggestions-complaints.entity';
 import { SuggestionsComplaintsModule } from './suggestions-complaints/suggestions-complaints.module';
+import { FaqModule } from './faq/faq.module';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import { SuggestionsComplaintsModule } from './suggestions-complaints/suggestion
         PharmacyModule,
         StaticPageModule,
         ContactUsModule,
-        SuggestionsComplaintsModule
+        SuggestionsComplaintsModule,
+        FaqModule
         
     ],
     exports: [

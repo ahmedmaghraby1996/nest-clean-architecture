@@ -23,6 +23,7 @@ import { DrugCategory } from "../entities/pharmacy/drug-category.entity";
 import { StaticPage } from "../entities/static-pages/static-pages.entity";
 import { ContactUs } from "../entities/contact-us/contact-us.entity";
 import { SuggestionsComplaints } from "../entities/suggestions-complaints/suggestions-complaints.entity";
+import { FaqModule } from "src/modules/faq/faq.module";
 
 export const DB_ENTITIES = [
   User,
@@ -49,7 +50,8 @@ export const DB_ENTITIES = [
   DrugCategory,
   StaticPage,
   ContactUs ,
-  SuggestionsComplaints
+  SuggestionsComplaints,
+  FaqModule
   
 ];
 

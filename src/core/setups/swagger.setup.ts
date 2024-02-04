@@ -8,6 +8,7 @@ import { AddressModule } from 'src/modules/address/address.module';
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
 import { ContactUsModule } from 'src/modules/contact-us/contact-us.module';
 import { DoctorModule } from 'src/modules/doctor/doctor.module';
+import { FaqModule } from 'src/modules/faq/faq.module';
 import { FileModule } from 'src/modules/file/file.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 import { PharmacyModule } from 'src/modules/pharmacy/pharmacy.module';
@@ -44,7 +45,8 @@ export default (app: INestApplication, config: ConfigService) => {
       PharmacyModule,
       StaticPageModule,
       ContactUsModule,
-      SuggestionsComplaintsModule
+      SuggestionsComplaintsModule,
+      FaqModule
       
       
     ],
