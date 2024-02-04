@@ -8,39 +8,33 @@ import { FaqQuestion } from '../faq_question';
 @Injectable()
 export class FaqSeeder implements Seeder {
   constructor(
-    @InjectRepository(FaqCategory)
-    private readonly faq: Repository<FaqCategory>,
+ 
     @InjectRepository(FaqQuestion)
     private readonly question: Repository<FaqQuestion>,
   ) {}
   async seed(): Promise<any> {
-    const faqs = [
-      new FaqCategory({ name_ar: 'قطاع 1', name_en: 'category 1' }),
-      new FaqCategory({ name_ar: 'قطاع 2', name_en: 'category 2' }),
-    ];
-    await this.faq.save(faqs);
-    const faq_category = await this.faq.find();
+
 
     const questions = [new FaqQuestion({
       title_ar:"السؤال 2",
       title_en:"question 2",
       descrption_ar: '2 الجواب',
       descrption_en: '2 answer',
-      category: faq_category[0],
+      // category: faq_category[0],
     }),
     new FaqQuestion({
       title_ar:"السؤال 1",
       title_en:"question 1",
       descrption_ar: '1 الجواب',
       descrption_en: '1 answer',
-      category: faq_category[0],
+      // category: faq_category[0],
     }),
     new FaqQuestion({
       title_ar:"السؤال 1",
       title_en:"question 1",
       descrption_ar: '1 الجواب',
       descrption_en: '1 answer',
-      category: faq_category[1],
+      // category: faq_category[1],
     })
   
   ]
@@ -55,7 +49,7 @@ export class FaqSeeder implements Seeder {
     await this.question.save(questions);
   }
   drop(): Promise<any> {
-    this.faq.delete({});
+   
     return this.question.delete({});
   }
 }
