@@ -9,7 +9,7 @@ import { FaqService } from "./faq.service";
   
     imports: [
     
-      TypeOrmModule.forFeature([FaqCategory,FaqQuestion])],
+      TypeOrmModule.forFeature([FaqQuestion])],
     controllers: [FaqController],
     providers: [FaqService],  
 
