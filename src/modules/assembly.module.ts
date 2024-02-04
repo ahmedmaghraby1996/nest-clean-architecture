@@ -8,6 +8,8 @@ import { DoctorModule } from './doctor/doctor.module';
 import { PharmacyModule } from './pharmacy/pharmacy.module';
 import { StaticPageModule } from './static-page/static-page.module';
 import { ContactUsModule } from './contact-us/contact-us.module';
+import { SuggestionsComplaints } from 'src/infrastructure/entities/suggestions-complaints/suggestions-complaints.entity';
+import { SuggestionsComplaintsModule } from './suggestions-complaints/suggestions-complaints.module';
 
 @Module({
     imports: [
@@ -18,7 +20,8 @@ import { ContactUsModule } from './contact-us/contact-us.module';
         DoctorModule,
         PharmacyModule,
         StaticPageModule,
-        ContactUsModule
+        ContactUsModule,
+        SuggestionsComplaintsModule
         
     ],
     exports: [

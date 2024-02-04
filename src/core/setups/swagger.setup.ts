@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Pharmacy } from 'src/infrastructure/entities/pharmacy/pharmacy.entity';
+import { SuggestionsComplaints } from 'src/infrastructure/entities/suggestions-complaints/suggestions-complaints.entity';
 import { AdditionalInfoModule } from 'src/modules/additional-info/additional-info.module';
 import { AddressModule } from 'src/modules/address/address.module';
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
@@ -12,6 +13,7 @@ import { NotificationModule } from 'src/modules/notification/notification.module
 import { PharmacyModule } from 'src/modules/pharmacy/pharmacy.module';
 import { ReservationModule } from 'src/modules/reservation/reservation.module';
 import { StaticPageModule } from 'src/modules/static-page/static-page.module';
+import { SuggestionsComplaintsModule } from 'src/modules/suggestions-complaints/suggestions-complaints.module';
 import { UserModule } from 'src/modules/user/user.module';
 
 export default (app: INestApplication, config: ConfigService) => {
@@ -41,7 +43,8 @@ export default (app: INestApplication, config: ConfigService) => {
       NotificationModule,
       PharmacyModule,
       StaticPageModule,
-      ContactUsModule
+      ContactUsModule,
+      SuggestionsComplaintsModule
       
       
     ],
