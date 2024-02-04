@@ -24,6 +24,7 @@ import { StaticPage } from "../entities/static-pages/static-pages.entity";
 import { ContactUs } from "../entities/contact-us/contact-us.entity";
 import { SuggestionsComplaints } from "../entities/suggestions-complaints/suggestions-complaints.entity";
 import { FaqModule } from "src/modules/faq/faq.module";
+import { FaqQuestion } from "../entities/faq/faq_question";
 
 export const DB_ENTITIES = [
   User,
@@ -51,7 +52,7 @@ export const DB_ENTITIES = [
   StaticPage,
   ContactUs ,
   SuggestionsComplaints,
-  FaqModule
+  FaqQuestion
   
 ];
 

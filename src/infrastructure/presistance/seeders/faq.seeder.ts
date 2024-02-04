@@ -1,4 +1,4 @@
-import { DataFactory, Seeder } from 'nestjs-seeder';
+import {Seeder } from 'nestjs-seeder';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
