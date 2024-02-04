@@ -16,7 +16,7 @@ export class FaqController{
         private readonly serivce:FaqService){}
 
 
-   @Get("/:id")
+   @Get()
    async getQuestion(){
 
     const res=await  this.serivce.getQuestion();
