@@ -129,7 +129,7 @@ export class AuthenticationController {
   @Post(Router.Auth.Register + '/nurse')
   async registerNurse(
     @Body() req: CreateNurseRequest,
-    @UploadedFiles()
+    @UploadedFiles(new UploadValidator().build())
     files: {
       avatarFile?: Express.Multer.File[];
       license_img?: Express.Multer.File[];
