@@ -11,6 +11,7 @@ import { ContactUsModule } from './contact-us/contact-us.module';
 import { SuggestionsComplaints } from 'src/infrastructure/entities/suggestions-complaints/suggestions-complaints.entity';
 import { SuggestionsComplaintsModule } from './suggestions-complaints/suggestions-complaints.module';
 import { FaqModule } from './faq/faq.module';
+import { NurseModule } from './nurse/nurse.module';
 
 @Module({
     imports: [
@@ -23,7 +24,8 @@ import { FaqModule } from './faq/faq.module';
         StaticPageModule,
         ContactUsModule,
         SuggestionsComplaintsModule,
-        FaqModule
+        FaqModule,
+        NurseModule
         
     ],
     exports: [

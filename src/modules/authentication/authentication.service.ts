@@ -18,6 +18,7 @@ import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PharmacyService } from '../pharmacy/pharmacy.service';
+import { NurseService } from '../nurse/nurse.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -32,6 +33,7 @@ export class AuthenticationService {
     private readonly verifyOtpTransaction: VerifyOtpTransaction,
     @Inject(JwtService) private readonly jwtService: JwtService,
     @Inject(PharmacyService) private readonly pharmacyService: PharmacyService,
+    @Inject(NurseService) private readonly nurseService: NurseService,
     @Inject(AdditionalInfoService)
     private readonly additonalService: AdditionalInfoService,
     @Inject(ConfigService) private readonly _config: ConfigService,
@@ -85,6 +87,16 @@ export class AuthenticationService {
         throw new BadRequestException(e);
       }
     }
+    if (req.role == Role.NURSE) {
+      try {
+        await this.nurseService.addNurse(req, user.id);
+      } catch (e) {
+        await this.userService.delete(user.id);
+
+        throw new BadRequestException(e);
+      }
+    }
+    
     return user;
   }
 

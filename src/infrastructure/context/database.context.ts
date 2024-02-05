@@ -25,6 +25,9 @@ import { ContactUs } from "../entities/contact-us/contact-us.entity";
 import { SuggestionsComplaints } from "../entities/suggestions-complaints/suggestions-complaints.entity";
 import { FaqModule } from "src/modules/faq/faq.module";
 import { FaqQuestion } from "../entities/faq/faq_question";
+import { Nurse } from "../entities/nurse/nurse.entity";
+import { NurserOrder } from "../entities/nurse/nurse-order.entity";
+import { NurseOffer } from "../entities/nurse/nurse-offer.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -52,7 +55,10 @@ export const DB_ENTITIES = [
   StaticPage,
   ContactUs ,
   SuggestionsComplaints,
-  FaqQuestion
+  FaqQuestion,
+  Nurse,
+  NurserOrder,
+  NurseOffer
   
 ];
 

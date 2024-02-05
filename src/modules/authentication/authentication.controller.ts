@@ -6,9 +6,13 @@ import {
   Inject,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { ActionResponse } from 'src/core/base/responses/action.response';
@@ -23,6 +27,7 @@ import { AuthResponse } from './dto/responses/auth.response';
 import { RegisterResponse } from './dto/responses/register.response';
 import { DoctorInfoRequest } from '../additional-info/dto/requests/doctor-info-request';
 import { CreatePharamcyRequest } from '../pharmacy/dto/request/create-pharamcy-request';
+import { CreateNurseRequest } from '../nurse/dto/request/create-nurse-request';
 
 @ApiTags(Router.Auth.ApiTag)
 @Controller(Router.Auth.Base)
@@ -57,7 +62,7 @@ export class AuthenticationController {
   })
   @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
   @ApiConsumes('multipart/form-data')
-  @Post(Router.Auth.Register+"/doctor")
+  @Post(Router.Auth.Register + '/doctor')
   async registerDoctor(
     @Body() req: DoctorInfoRequest,
     @UploadedFile(new UploadValidator().build())
@@ -76,7 +81,7 @@ export class AuthenticationController {
 
   @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
   @ApiConsumes('multipart/form-data')
-  @Post(Router.Auth.Register+"/client")
+  @Post(Router.Auth.Register + '/client')
   async register(
     @Body() req: RegisterRequest,
     @UploadedFile(new UploadValidator().build())
@@ -95,7 +100,7 @@ export class AuthenticationController {
 
   @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
   @ApiConsumes('multipart/form-data')
-  @Post(Router.Auth.Register+"/pharmacy")
+  @Post(Router.Auth.Register + '/pharmacy')
   async registerPharmacy(
     @Body() req: CreatePharamcyRequest,
     @UploadedFile(new UploadValidator().build())
@@ -103,6 +108,38 @@ export class AuthenticationController {
   ): Promise<ActionResponse<RegisterResponse>> {
     console.log(req);
     req.avatarFile = avatarFile;
+    const user = await this.authService.register(req);
+    const result = plainToInstance(RegisterResponse, user, {
+      excludeExtraneousValues: true,
+    });
+    return new ActionResponse<RegisterResponse>(result, {
+      statusCode: HttpStatus.CREATED,
+    });
+  }
+
+  // @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    ClassSerializerInterceptor,
+    FileFieldsInterceptor([
+      { name: 'avatarFile', maxCount: 1 },
+      { name: 'license_img', maxCount: 1 },
+    ]),
+  )
+  @Post(Router.Auth.Register + '/nurse')
+  async registerNurse(
+    @Body() req: CreateNurseRequest,
+    @UploadedFiles()
+    files: {
+      avatarFile?: Express.Multer.File[];
+      license_img?: Express.Multer.File[];
+    },
+  ): Promise<ActionResponse<RegisterResponse>> {
+    console.log(req);
+    req.avatarFile = files.avatarFile[0];
+    req.license_img = files.license_img[0];
+    console.log( req.avatarFile );
+    console.log( req.license_img);
     const user = await this.authService.register(req);
     const result = plainToInstance(RegisterResponse, user, {
       excludeExtraneousValues: true,

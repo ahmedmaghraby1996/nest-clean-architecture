@@ -13,9 +13,8 @@ export class UploadValidator {
   public required: boolean;
   constructor(options?: IUploadValidatorOptions) {
     this.fileType =
-    options?.fileType ??
-    /^image\/(jpg|jpeg|png)$|application\/(pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document|vnd.android.package-archive|doc|docx)$|audio\/(mp3|wav|ogg|x-m4a)$/i;
-  
+      options?.fileType ??
+      /^image\/(jpg|jpeg|png)$|application\/(pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document|vnd.android.package-archive|doc|docx)$|audio\/(mp3|wav|ogg|x-m4a)$/i;
 
     this.fileSize = (options?.fileSize ?? 3) * 1024 * 1024;
     this.required = options?.required ?? false;
