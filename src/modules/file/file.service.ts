@@ -21,17 +21,21 @@ export class FileService {
         return path;
     }
 
-    async upload(req: Express.Multer.File, dir = 'tmp') {
+   
+    async upload(req: UploadFileRequest, dir = 'tmp') {
         try {
-
             const baseUrl = this.config.get('storage.local.root');
-            const ext = req.originalname.split('.').pop();
-            const randName = req.originalname.split('.').shift() + '-' + new Date().getTime();
+            const ext = req.file.originalname.split('.').pop();
+            const randName = req.file.originalname.split('.').shift() + '-' + new Date().getTime();
             const fileLocation = `${baseUrl}/${dir}/${randName}.${ext}`;
+            
             // use sharp to resize image
-            const resizedImage = await sharp(req.buffer)
+            if(req.file.mimetype.includes("image")){
+            const resizedImage = await sharp(req.file.buffer)
                 .toBuffer();
-            await this.storage.getDisk().put(fileLocation, resizedImage);
+            await this.storage.getDisk().put(fileLocation, resizedImage);}
+            else 
+            await this.storage.getDisk().put(fileLocation, req.file.buffer);
             return fileLocation;
         } catch (error) {
             throw error;
