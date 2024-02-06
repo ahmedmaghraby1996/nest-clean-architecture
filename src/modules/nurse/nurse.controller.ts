@@ -56,7 +56,7 @@ export class NurseController {
     const orders = await this.nurseService.findAll(query);
     const order_response = plainToInstance(NurseOrderResponse, orders);
     if (query.page && query.limit) {
-      const total = await this.nurseService.count();
+      const total = await this.nurseService.count(query);
       return new PaginatedResponse(order_response, {
         meta: { total, ...query },
       });
