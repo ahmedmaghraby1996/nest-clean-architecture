@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -21,6 +22,10 @@ import { RolesGuard } from '../authentication/guards/roles.guard';
 import { PhOrderReplyRequest } from './dto/request/ph-order-replay-request';
 import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
 import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
+import { plainToInstance } from 'class-transformer';
+import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
+import { PhOrderResponse } from './dto/respone/ph-order-response';
+import { PhReplyResponse } from './dto/respone/ph-reply-response';
 
 @ApiHeader({
   name: 'Accept-Language',
@@ -62,6 +67,15 @@ export class PharmacyController {
     return new PaginatedResponse(orders.orders, {
       meta: { total: orders.count, ...query },
     });
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Get('/order/:id/replies')
+  async getOrderReplies(@Param('id') id: string) {
+    const replies = await this.pharmacyService.getReplies(id);
+ const result=   plainToInstance(PhReplyResponse, replies)
+    return new ActionResponse(result);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

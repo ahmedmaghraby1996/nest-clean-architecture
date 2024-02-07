@@ -26,7 +26,7 @@ import { SuggestionsComplaints } from "../entities/suggestions-complaints/sugges
 import { FaqModule } from "src/modules/faq/faq.module";
 import { FaqQuestion } from "../entities/faq/faq_question";
 import { Nurse } from "../entities/nurse/nurse.entity";
-import { NurserOrder } from "../entities/nurse/nurse-order.entity";
+import { NurseOrder } from "../entities/nurse/nurse-order.entity";
 import { NurseOffer } from "../entities/nurse/nurse-offer.entity";
 
 export const DB_ENTITIES = [
@@ -57,7 +57,7 @@ export const DB_ENTITIES = [
   SuggestionsComplaints,
   FaqQuestion,
   Nurse,
-  NurserOrder,
+  NurseOrder,
   NurseOffer
   
 ];

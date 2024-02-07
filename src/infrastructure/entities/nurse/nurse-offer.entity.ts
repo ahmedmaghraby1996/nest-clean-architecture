@@ -1,7 +1,7 @@
 import { AuditableEntity } from 'src/infrastructure/base/auditable.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Nurse } from './nurse.entity';
-import { NurserOrder as NurseOrder } from './nurse-order.entity';
+import { NurseOrder as NurseOrder } from './nurse-order.entity';
 
 @Entity()
 export class NurseOffer extends AuditableEntity {

@@ -12,13 +12,13 @@ import {
 } from 'typeorm';
 import { Reservation } from '../reservation/reservation.entity';
 import { PhOrder } from '../pharmacy/ph-order.entity';
-import { NurserOrder } from '../nurse/nurse-order.entity';
+import { NurseOrder } from '../nurse/nurse-order.entity';
 
 @Entity('addresses')
 export class Address extends OwnedEntity {
 
-  @OneToMany(()=>NurserOrder,nurserOrder=>nurserOrder.address)
-  nurse_orders:NurserOrder[]
+  @OneToMany(()=>NurseOrder,nurserOrder=>nurserOrder.address)
+  nurse_orders:NurseOrder[]
   @ManyToOne(() => User, (user) => user.addresses, {
     nullable: false,
     onDelete: 'CASCADE',

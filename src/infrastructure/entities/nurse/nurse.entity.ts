@@ -21,4 +21,7 @@ export class Nurse extends OwnedEntity {
 
   @Column()
   license_img: string;
+
+
+  
 }

@@ -9,15 +9,16 @@ import { plainToInstance } from 'class-transformer';
 import { NurseOrderRequest } from './dto/request/nurse-order-request';
 import { Request } from 'express';
 import { BaseUserService } from 'src/core/base/service/user-service.base';
-import { NurserOrder } from 'src/infrastructure/entities/nurse/nurse-order.entity';
+import { NurseOrder } from 'src/infrastructure/entities/nurse/nurse-order.entity';
 import { NurseOfferRequest } from './dto/request/nurse-offer-request';
 import { NurseOffer } from 'src/infrastructure/entities/nurse/nurse-offer.entity';
+import { generateOrderNumber } from '../reservation/reservation.service';
 
 @Injectable()
-export class NurseService extends BaseUserService<NurserOrder> {
+export class NurseService extends BaseUserService<NurseOrder> {
   constructor(
-    @InjectRepository(NurserOrder)
-    private readonly nurseOrderRepo: Repository<NurserOrder>,
+    @InjectRepository(NurseOrder)
+    private readonly nurseOrderRepo: Repository<NurseOrder>,
     @InjectRepository(Nurse) private readonly nurseRepo: Repository<Nurse>,
     @InjectRepository(NurseOffer)
     private readonly nurseOfferRepo: Repository<NurseOffer>,
@@ -44,7 +45,12 @@ export class NurseService extends BaseUserService<NurserOrder> {
   }
 
   async createNurseOrder(req: NurseOrderRequest) {
-    const order = plainToInstance(Nurse, req);
+    const order = plainToInstance(NurseOrder, req);
+    const count = await this._repo
+    .createQueryBuilder('nurse_order')
+    .where('DATE(nurse_order.created_at) = CURDATE()')
+    .getCount();
+  order.number = generateOrderNumber(count);
     order.user_id = super.currentUser.id;
     return this.nurseOrderRepo.save(order);
   }

@@ -5,7 +5,7 @@ import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { NurseOffer } from './nurse-offer.entity';
 
 @Entity()
-export class NurserOrder extends OwnedEntity {
+export class NurseOrder extends OwnedEntity {
   @ManyToOne(() => User,(user) => user.nurse_orders)
   user: User;
 
@@ -21,4 +21,7 @@ export class NurserOrder extends OwnedEntity {
   date_to: Date;
   @OneToMany(() => NurseOffer, (offer) => offer.nurse)
   offers: NurseOffer[]
+
+  @Column({ length: 10, unique: true })
+  number: string;
 }

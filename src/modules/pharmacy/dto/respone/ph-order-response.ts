@@ -4,6 +4,7 @@ import {
   PhOrderAttachmentType,
   PharmacyAttachmentType,
 } from 'src/infrastructure/data/enums/pharmacy-attachment-typs';
+import { DrugCategory } from 'src/infrastructure/entities/pharmacy/drug-category.entity';
 import { Drug } from 'src/infrastructure/entities/pharmacy/drug.entity';
 import { PhOrderAttachments } from 'src/infrastructure/entities/pharmacy/ph-order-attachments.entity';
 import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
@@ -19,6 +20,8 @@ export class PhOrderResponse {
   created_at: string;
   @Expose()
   number: string;
+  @Expose()
+  categories: DrugCategory[];
   @Expose()
   user_id: string;
   @Expose()
@@ -58,23 +61,23 @@ export class PhOrderResponse {
   )
   voice_recording: PhOrderAttachments[];
 
-  @Expose()
-  @Transform((value) =>
-    plainToInstance(
-      PhReply,
-      value.obj.ph_replies.map((reply) => {
-        reply.pharmacy.attachments = reply.pharmacy.attachments.filter(
-          (attachment) => {
-            if (attachment.type === PharmacyAttachmentType.LOGO) {
-              attachment.file = toUrl(attachment.file);
+  // @Expose()
+  // @Transform((value) =>
+  //   plainToInstance(
+  //     PhReply,
+  //     value.obj.ph_replies.map((reply) => {
+  //       reply.pharmacy.attachments = reply.pharmacy.attachments.filter(
+  //         (attachment) => {
+  //           if (attachment.type === PharmacyAttachmentType.LOGO) {
+  //             attachment.file = toUrl(attachment.file);
 
-              return attachment;
-            }
-          },
-        );
-        return reply;
-      }),
-    ),
-  )
-  replies: any[];
+  //             return attachment;
+  //           }
+  //         },
+  //       );
+  //       return reply;
+  //     }),
+  //   ),
+  // )
+  // replies: any[];
 }

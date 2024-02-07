@@ -16,15 +16,15 @@ import { Reservation } from '../reservation/reservation.entity';
 import { Client } from '../client/client.entity';
 import {NotificationEntity} from '../notification/notification.entity'
 import { PhOrder } from '../pharmacy/ph-order.entity';
-import { NurserOrder } from '../nurse/nurse-order.entity';
+import { NurseOrder } from '../nurse/nurse-order.entity';
 @Entity()
 export class User extends AuditableEntity {
 
   @OneToMany(()=>Reservation,reservation=>reservation.user)
   reservations:Reservation[]
 
-  @OneToMany(()=>NurserOrder,nurserOrder=>nurserOrder.user)
-  nurse_orders:NurserOrder[]
+  @OneToMany(()=>NurseOrder,nurserOrder=>nurserOrder.user)
+  nurse_orders:NurseOrder[]
 
   // account > unique id generator 10 numbers)
   @Factory((faker) => faker.phone.number('########'))

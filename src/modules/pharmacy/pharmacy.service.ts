@@ -42,6 +42,9 @@ export class PharmacyService {
     @InjectRepository(Drug)
     private drugRepository: Repository<Drug>,
 
+    @InjectRepository(PhReply)
+    private PhReplyRepository: Repository<PhReply>,
+
     @InjectRepository(Address)
     private addressRepository: Repository<Address>,
     @InjectRepository(PhOrderAttachments)
@@ -243,7 +246,18 @@ export class PharmacyService {
       });
     }
   }
-
+  async getReplies(id: string) {
+    const replies = await this.PhReplyRepository.find({
+      where: { order_id: id },
+      relations: {
+        pharmacy: {
+          user: true,
+          attachments: true,
+        },
+      },
+    });
+    return replies;
+  }
   async getOrders(query: PaginatedRequest) {
     let { page, limit } = query;
     limit = limit || 20;
@@ -262,7 +276,7 @@ export class PharmacyService {
         ph_replies: { pharmacy: { user: true, attachments: true } },
       },
       select: {
-        user: { first_name: true, last_name: true, phone:true, avatar:true },
+        user: { first_name: true, last_name: true, phone: true, avatar: true },
 
         ph_replies: {
           id: true,
@@ -299,11 +313,7 @@ export class PharmacyService {
 
     const result = await Promise.all(
       orders.map(async (order) => {
-        if (this.request.user.roles.includes(Role.PHARMACY)) {
-          order.ph_replies = order.ph_replies.filter(
-            (reply) => reply.pharmacy_id == pharamcy.id,
-          );
-        }
+       
         const drugs =
           order.drugs == null
             ? null
@@ -338,7 +348,7 @@ export class PharmacyService {
       ...request,
       pharmacy_id: pharamcy.id,
     });
-    console.log(reply);
+ 
 
     return await this.replyRepository.save(reply);
   }
