@@ -49,6 +49,16 @@ export class NurseService extends BaseUserService<NurserOrder> {
     return this.nurseOrderRepo.save(order);
   }
 
+  async getOffers(id: string) {
+    const offers = await this.nurseOfferRepo.find({
+      where: { nurse_order_id: id },
+      relations: { nurse: { user: true } },
+  
+    });
+ 
+    return offers;
+  }
+
   async sendOffer(req: NurseOfferRequest) {
     const offer = plainToInstance(NurseOffer, req);
     const nurse = await this.nurseRepo.findOne({

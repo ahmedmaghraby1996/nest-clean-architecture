@@ -1,11 +1,12 @@
 import { AuditableEntity } from 'src/infrastructure/base/auditable.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Nurse } from './nurse.entity';
 import { NurserOrder as NurseOrder } from './nurse-order.entity';
 
 @Entity()
 export class NurseOffer extends AuditableEntity {
   @ManyToOne(() => Nurse, (nurse) => nurse.offers)
+  @JoinColumn()
   nurse: Nurse;
   @Column()
   nurse_id: string;

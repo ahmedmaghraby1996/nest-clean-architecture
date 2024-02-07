@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -22,6 +23,7 @@ import { User } from 'src/infrastructure/entities/user/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { NurseOrderResponse } from './dto/respone/nurse-order.response';
 import { NurseOfferRequest } from './dto/request/nurse-offer-request';
+import { NurseOfferResponse } from './dto/respone/nurse-offer.response';
 
 @ApiTags('Nusre')
 @ApiHeader({
@@ -47,6 +49,11 @@ export class NurseController {
   @Post('order/offer')
   async createNurseOffer(@Body() request: NurseOfferRequest) {
     return new ActionResponse(await this.nurseService.sendOffer(request));
+  }
+
+  @Get('order/:id/offers')
+  async getNurseOffer(@Param('id') id: string) {
+    return new ActionResponse(plainToInstance( NurseOfferResponse,await this.nurseService.getOffers(id)));
   }
 
   @Get('order')
