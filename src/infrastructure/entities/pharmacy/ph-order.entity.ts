@@ -23,6 +23,10 @@ export class PhOrder extends OwnedEntity {
   @Column({ type: 'simple-array', nullable: true })
   drugs: string[];
 
+  
+  @Column({ type: 'simple-array', nullable: true })
+  categories: string[];
+
 
   @Column({nullable:true})
   notes: string;

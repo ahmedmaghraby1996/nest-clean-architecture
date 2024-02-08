@@ -313,10 +313,15 @@ export class PharmacyService {
 
     const result = await Promise.all(
       orders.map(async (order) => {
-       
+        const categories =
+          order.categories == null
+            ? []
+            : await this.drugCategoryRepository.find({
+                where: { id: In(order.categories) },
+              });
         const drugs =
           order.drugs == null
-            ? null
+            ? []
             : await this.drugRepository.find({
                 where: { id: In(order.drugs) },
               });
@@ -330,6 +335,8 @@ export class PharmacyService {
           PhOrderResponse,
           {
             ...order,
+            has_replied: pharamcy?  await this.hasReplied(order.id, pharamcy.id):false,
+            categories: categories,
             drugs: drugs,
           },
           { excludeExtraneousValues: true },
@@ -348,8 +355,15 @@ export class PharmacyService {
       ...request,
       pharmacy_id: pharamcy.id,
     });
- 
 
     return await this.replyRepository.save(reply);
+  }
+
+  async hasReplied(order_id: string, pharmacy_id: string) {
+    const reply = await this.replyRepository.findOne({
+      where: { order_id, pharmacy_id },
+    });
+    if (reply) return true;
+    return false;
   }
 }

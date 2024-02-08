@@ -63,7 +63,7 @@ export class PharmacyController {
   @Get('/order')
   async getOrders(@Query() query: PaginatedRequest) {
     const orders = await this.pharmacyService.getOrders(query);
-
+      
     return new PaginatedResponse(orders.orders, {
       meta: { total: orders.count, ...query },
     });

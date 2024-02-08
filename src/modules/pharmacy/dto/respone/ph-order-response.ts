@@ -60,6 +60,8 @@ export class PhOrderResponse {
     ),
   )
   voice_recording: PhOrderAttachments[];
+  @Expose()
+  has_replied: boolean;
 
   // @Expose()
   // @Transform((value) =>

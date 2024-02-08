@@ -77,4 +77,12 @@ export class NurseService extends BaseUserService<NurseOrder> {
     offer.nurse_id = nurse.id;
     return this.nurseOfferRepo.save(offer);
   }
+
+  async sentOffer(nurse_order_id: string, nurse_id: string) {
+    const reply = await this.nurseOfferRepo.findOne({
+      where: { nurse_order_id, nurse_id },
+    });
+    if (reply) return true;
+    return false;
+  }
 }
