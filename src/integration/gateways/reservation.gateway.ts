@@ -13,17 +13,15 @@ import { Socket } from 'dgram';
 import { Server } from 'socket.io';
 import { Gateways } from 'src/core/base/gateways';
 
-@WebSocketGateway({ namespace: Gateways.reservation.Namespace, cors: { origin: '*' } })
+@WebSocketGateway({
+  namespace: Gateways.reservation.Namespace,
+  cors: { origin: '*' },
+})
 export class ReservationGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-
-
   @WebSocketServer()
   server: Server;
-
-
-
 
   handleConnection(client: any) {
     console.log('User connected', client.id);

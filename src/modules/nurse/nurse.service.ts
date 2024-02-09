@@ -13,6 +13,9 @@ import { NurseOrder } from 'src/infrastructure/entities/nurse/nurse-order.entity
 import { NurseOfferRequest } from './dto/request/nurse-offer-request';
 import { NurseOffer } from 'src/infrastructure/entities/nurse/nurse-offer.entity';
 import { generateOrderNumber } from '../reservation/reservation.service';
+import { NotificationService } from '../notification/services/notification.service';
+import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
+import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 
 @Injectable()
 export class NurseService extends BaseUserService<NurseOrder> {
@@ -23,11 +26,17 @@ export class NurseService extends BaseUserService<NurseOrder> {
     @InjectRepository(NurseOffer)
     private readonly nurseOfferRepo: Repository<NurseOffer>,
     @Inject(FileService) private _fileService: FileService,
+    @Inject(NotificationService)
+    public readonly notificationService: NotificationService,
     @Inject(REQUEST) request: Request,
   ) {
     super(nurseOrderRepo, request);
   }
 
+
+  async getNurse(id:string){
+    return await this.nurseRepo.findOne({where:{user_id:id}});
+  }
   async addNurse(req: CreateNurseRequest, userId: string) {
     console.log(req);
     const nurse = new Nurse();
@@ -47,11 +56,26 @@ export class NurseService extends BaseUserService<NurseOrder> {
   async createNurseOrder(req: NurseOrderRequest) {
     const order = plainToInstance(NurseOrder, req);
     const count = await this._repo
-    .createQueryBuilder('nurse_order')
-    .where('DATE(nurse_order.created_at) = CURDATE()')
-    .getCount();
-  order.number = generateOrderNumber(count);
+      .createQueryBuilder('nurse_order')
+      .where('DATE(nurse_order.created_at) = CURDATE()')
+      .getCount();
+    order.number = generateOrderNumber(count);
     order.user_id = super.currentUser.id;
+
+    const nurses = await this.nurseRepo.find();
+    nurses.forEach((nurse) => {
+      this.notificationService.create(
+        new NotificationEntity({
+          user_id: nurse.user_id,
+          url: nurse.user_id,
+          type: NotificationTypes.ORDER,
+          title_ar: 'لديك طلب جديد',
+          title_en: 'you have a new order',
+          text_ar: 'لديك طلب جديد',
+          text_en: 'you have a new order',
+        }),
+      );
+    });
     return this.nurseOrderRepo.save(order);
   }
 
@@ -59,9 +83,8 @@ export class NurseService extends BaseUserService<NurseOrder> {
     const offers = await this.nurseOfferRepo.find({
       where: { nurse_order_id: id },
       relations: { nurse: { user: true } },
-  
     });
- 
+
     return offers;
   }
 
@@ -75,6 +98,22 @@ export class NurseService extends BaseUserService<NurseOrder> {
     });
     if (sent_offer) throw new BadRequestException('offer already sent');
     offer.nurse_id = nurse.id;
+
+    const order = await this.nurseOrderRepo.findOne({
+      where: { id: req.nurse_order_id },
+    });
+
+    this.notificationService.create(
+      new NotificationEntity({
+        user_id: order.user_id,
+        url: order.user_id,
+        type: NotificationTypes.ORDER,
+        title_ar: 'لديك طلب جديد',
+        title_en: 'you have a new order',
+        text_ar: 'لديك طلب جديد',
+        text_en: 'you have a new order',
+      }),
+    );
     return this.nurseOfferRepo.save(offer);
   }
 

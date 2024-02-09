@@ -29,6 +29,9 @@ import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
 import { skip } from 'rxjs';
 import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
 import { generateOrderNumber } from '../reservation/reservation.service';
+import { NotificationService } from '../notification/services/notification.service';
+import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
+import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 
 @Injectable()
 export class PharmacyService {
@@ -51,6 +54,8 @@ export class PharmacyService {
     private orderAttachmentRepository: Repository<PhOrderAttachments>,
     @InjectRepository(PharmacyAttachments)
     private pharmacyAttachmentRepository: Repository<PharmacyAttachments>,
+    @Inject(NotificationService)
+    public readonly notificationService: NotificationService,
 
     @InjectRepository(PhReply)
     private replyRepository: Repository<PhReply>,
@@ -164,6 +169,23 @@ export class PharmacyService {
         fs.renameSync(image, newPath);
       });
     }
+
+    //
+
+    const pharmacies=await this.pharmacyRepository.findBy(nearby_pharmacies.map((pharmacy) => pharmacy.id))
+    pharmacies.map((pharmacy) => {
+       this.notificationService.create(
+        new NotificationEntity({
+          user_id: pharmacy.user_id,
+          url: pharmacy.user_id,
+          type: NotificationTypes.PHARMACY_ORDER,
+          title_ar: 'لديك طلب جديد',
+          title_en: 'you have a new order',
+          text_ar: 'لديك طلب جديد',
+          text_en: 'you have a new order',
+        })
+      );
+    })
 
     return ph_order;
   }
@@ -331,6 +353,7 @@ export class PharmacyService {
             return attachment;
           },
         );
+       
         return plainToInstance(
           PhOrderResponse,
           {
@@ -355,6 +378,20 @@ export class PharmacyService {
       ...request,
       pharmacy_id: pharamcy.id,
     });
+    const order = await this.orderRepository.findOne({
+      where: { id: request.order_id },
+    })
+    this.notificationService.create(
+      new NotificationEntity({
+        user_id: order.user_id,
+        url: order.id,
+        type: NotificationTypes.PHARMACY_ORDER,
+        title_ar: 'قامت صيدلية بالرد',
+        title_en: 'pharmacy replied',
+        text_ar: 'قامت صيدلية بالرد',
+        text_en: 'pharmacy replied',
+      })
+    );
 
     return await this.replyRepository.save(reply);
   }

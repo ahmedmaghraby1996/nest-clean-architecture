@@ -11,6 +11,9 @@ import { AdditionalInfoService } from '../additional-info/additional-info.servic
 import { PharmacyService } from '../pharmacy/pharmacy.service';
 import { NurseService } from '../nurse/nurse.service';
 import { FileService } from '../file/file.service';
+import { NotificationModule } from '../notification/notification.module';
+import { NotificationService } from '../notification/services/notification.service';
+import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.service';
 
 @Global()
 @Module({
@@ -27,6 +30,9 @@ import { FileService } from '../file/file.service';
     PharmacyService,
     NurseService,
     FileService,
+    NotificationService,
+    FcmIntegrationService
+
   ],
   exports: [AuthenticationService],
 })

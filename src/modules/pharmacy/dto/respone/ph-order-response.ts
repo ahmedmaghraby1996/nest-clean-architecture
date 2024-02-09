@@ -21,6 +21,9 @@ export class PhOrderResponse {
   @Expose()
   number: string;
   @Expose()
+  @Transform((value) => {
+    return plainToInstance(DrugCategory, value.obj.categories);  
+  })
   categories: DrugCategory[];
   @Expose()
   user_id: string;
@@ -36,7 +39,7 @@ export class PhOrderResponse {
   address: Address;
   @Expose()
   @Transform((value) => plainToInstance(Drug, value.obj.drugs))
-  drugs: Drug[];
+  drugs: Drug[];  
   @Expose()
   notes: string;
 

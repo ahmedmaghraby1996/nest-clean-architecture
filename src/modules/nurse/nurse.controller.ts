@@ -53,15 +53,34 @@ export class NurseController {
 
   @Get('order/:id/offers')
   async getNurseOffer(@Param('id') id: string) {
-    return new ActionResponse(plainToInstance( NurseOfferResponse,await this.nurseService.getOffers(id)));
+    return new ActionResponse(
+      plainToInstance(
+        NurseOfferResponse,
+        await this.nurseService.getOffers(id),
+      ),
+    );
   }
 
   @Get('order')
   async getNurseOrder(@Query() query: PaginatedRequest) {
     applyQueryIncludes(query, 'user');
     applyQueryIncludes(query, 'address');
+    const nurse = await this.nurseService.getNurse(
+      this.nurseService.currentUser.id,
+    );
     const orders = await this.nurseService.findAll(query);
-    const order_response = plainToInstance(NurseOrderResponse, orders);
+    const order_response = await Promise.all(
+      orders.map(async (order) => {
+        return plainToInstance(NurseOrderResponse, {
+          ...order,
+          sent_offer: await this.nurseService.sentOffer(
+            order.id,
+
+            nurse===null?null:nurse.id,
+          ),
+        });
+      }),
+    );
     if (query.page && query.limit) {
       const total = await this.nurseService.count(query);
       return new PaginatedResponse(order_response, {
