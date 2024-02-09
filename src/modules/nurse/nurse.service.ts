@@ -80,8 +80,11 @@ export class NurseService extends BaseUserService<NurseOrder> {
   }
 
   async getOffers(id: string) {
+    const nurse = await this.nurseRepo.findOne({
+      where: { user_id: super.currentUser.id },
+    })
     const offers = await this.nurseOfferRepo.find({
-      where: { nurse_order_id: id },
+      where: { nurse_order_id: id,nurse_id:nurse===null?null:nurse.id },
       relations: { nurse: { user: true } },
     });
 

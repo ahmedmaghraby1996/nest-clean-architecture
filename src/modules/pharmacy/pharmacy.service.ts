@@ -269,8 +269,11 @@ export class PharmacyService {
     }
   }
   async getReplies(id: string) {
+    const pharamcy=await this.pharmacyRepository.findOne({
+      where: { user_id: this.request.user.id },
+    })
     const replies = await this.PhReplyRepository.find({
-      where: { order_id: id },
+      where: { order_id: id ,pharmacy_id:pharamcy==null?null:pharamcy.id},
       relations: {
         pharmacy: {
           user: true,
