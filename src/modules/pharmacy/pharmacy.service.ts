@@ -172,7 +172,7 @@ export class PharmacyService {
 
     //
 
-    const pharmacies=await this.pharmacyRepository.findBy(nearby_pharmacies.map((pharmacy) => pharmacy.id))
+    const pharmacies=await this.pharmacyRepository.find({where:{id:In(nearby_pharmacies.map((pharmacy) => pharmacy.id))}})
     pharmacies.map((pharmacy) => {
        this.notificationService.create(
         new NotificationEntity({
