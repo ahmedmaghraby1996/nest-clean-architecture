@@ -63,7 +63,7 @@ export class PharmacyController {
   @Get('/order')
   async getOrders(@Query() query: PaginatedRequest) {
     const orders = await this.pharmacyService.getOrders(query);
-      const result=this._i18nResponse.entity(orders.orders)
+    const result = this._i18nResponse.entity(orders.orders);
     return new PaginatedResponse(result, {
       meta: { total: orders.count, ...query },
     });
@@ -71,10 +71,19 @@ export class PharmacyController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
+  @Get('/order/:id')
+  async getSingleOrder(@Param('id') id: string) {
+    const order = await this.pharmacyService.getSingle(id);
+    const result = this._i18nResponse.entity(order);
+    return new ActionResponse(result);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Get('/order/:id/replies')
   async getOrderReplies(@Param('id') id: string) {
     const replies = await this.pharmacyService.getReplies(id);
- const result=   plainToInstance(PhReplyResponse, replies)
+    const result = plainToInstance(PhReplyResponse, replies);
     return new ActionResponse(result);
   }
 

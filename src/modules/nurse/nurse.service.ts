@@ -16,6 +16,8 @@ import { generateOrderNumber } from '../reservation/reservation.service';
 import { NotificationService } from '../notification/services/notification.service';
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
+import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway';
+import { NurseOrderResponse } from './dto/respone/nurse-order.response';
 
 @Injectable()
 export class NurseService extends BaseUserService<NurseOrder> {
@@ -28,6 +30,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
     @Inject(FileService) private _fileService: FileService,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
+    private readonly nurseOrderGateway: NurseOrderGateway,
     @Inject(REQUEST) request: Request,
   ) {
     super(nurseOrderRepo, request);
@@ -64,6 +67,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
 
     const nurses = await this.nurseRepo.find();
     nurses.forEach((nurse) => {
+      this.nurseOrderGateway.server.emit(`nurse-${nurse.id}`, plainToInstance(NurseOrderResponse, order));
       this.notificationService.create(
         new NotificationEntity({
           user_id: nurse.user_id,

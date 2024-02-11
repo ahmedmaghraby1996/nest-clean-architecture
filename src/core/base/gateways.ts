@@ -29,4 +29,20 @@ export abstract class Gateways {
     static reservationOffer = 'reservation-offer';
    
   }
+
+  static ph_order = class {
+ 
+    static Namespace = 'ph-order';
+   
+
+   
+  }
+
+  static nurse_order = class {
+ 
+    static Namespace = 'nurse-order';
+   
+    static reservationOffer = 'reservation-offer';
+   
+  }
 }

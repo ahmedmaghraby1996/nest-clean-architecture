@@ -14,6 +14,8 @@ import { FileService } from '../file/file.service';
 import { NotificationModule } from '../notification/notification.module';
 import { NotificationService } from '../notification/services/notification.service';
 import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.service';
+import { PhOrderGateway } from 'src/integration/gateways/ph-order.gateway';
+import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway';
 
 @Global()
 @Module({
@@ -31,6 +33,8 @@ import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.se
     NurseService,
     FileService,
     NotificationService,
+    PhOrderGateway,
+    NurseOrderGateway,
     FcmIntegrationService
 
   ],

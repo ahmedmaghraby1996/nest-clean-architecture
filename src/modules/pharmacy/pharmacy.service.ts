@@ -32,6 +32,8 @@ import { generateOrderNumber } from '../reservation/reservation.service';
 import { NotificationService } from '../notification/services/notification.service';
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
+import { PhOrderGateway } from 'src/integration/gateways/ph-order.gateway';
+import { I18nResponse } from 'src/core/helpers/i18n.helper';
 
 @Injectable()
 export class PharmacyService {
@@ -42,8 +44,10 @@ export class PharmacyService {
     private orderRepository: Repository<PhOrder>,
     @InjectRepository(Pharmacy)
     private pharmacyRepository: Repository<Pharmacy>,
+    @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
     @InjectRepository(Drug)
     private drugRepository: Repository<Drug>,
+    private readonly phOrderGateway: PhOrderGateway,
 
     @InjectRepository(PhReply)
     private PhReplyRepository: Repository<PhReply>,
@@ -172,20 +176,28 @@ export class PharmacyService {
 
     //
 
-    const pharmacies=await this.pharmacyRepository.find({where:{id:In(nearby_pharmacies.map((pharmacy) => pharmacy.id))}})
-    pharmacies.map((pharmacy) => {
-       this.notificationService.create(
-        new NotificationEntity({
-          user_id: pharmacy.user_id,
-          url: pharmacy.user_id,
-          type: NotificationTypes.PHARMACY_ORDER,
-          title_ar: 'لديك طلب جديد',
-          title_en: 'you have a new order',
-          text_ar: 'لديك طلب جديد',
-          text_en: 'you have a new order',
-        })
-      );
-    })
+    const pharmacies = await this.pharmacyRepository.find({
+      where: { id: In(nearby_pharmacies.map((pharmacy) => pharmacy.id)) },
+    });
+    await Promise.all(
+      pharmacies.map(async (pharmacy) => {
+        this.phOrderGateway.server.emit(
+          `pharmacy-${pharmacy.id}`,
+          this._i18nResponse.entity(await this.getSingle(ph_order.id)),
+        );
+        this.notificationService.create(
+          new NotificationEntity({
+            user_id: pharmacy.user_id,
+            url: pharmacy.user_id,
+            type: NotificationTypes.PHARMACY_ORDER,
+            title_ar: 'لديك طلب جديد',
+            title_en: 'you have a new order',
+            text_ar: 'لديك طلب جديد',
+            text_en: 'you have a new order',
+          }),
+        );
+      }),
+    );
 
     return ph_order;
   }
@@ -269,11 +281,14 @@ export class PharmacyService {
     }
   }
   async getReplies(id: string) {
-    const pharamcy=await this.pharmacyRepository.findOne({
+    const pharamcy = await this.pharmacyRepository.findOne({
       where: { user_id: this.request.user.id },
-    })
+    });
     const replies = await this.PhReplyRepository.find({
-      where: { order_id: id ,pharmacy_id:pharamcy==null?null:pharamcy.id},
+      where: {
+        order_id: id,
+        pharmacy_id: pharamcy == null ? null : pharamcy.id,
+      },
       relations: {
         pharmacy: {
           user: true,
@@ -356,12 +371,14 @@ export class PharmacyService {
             return attachment;
           },
         );
-       
+
         return plainToInstance(
           PhOrderResponse,
           {
             ...order,
-            has_replied: pharamcy?  await this.hasReplied(order.id, pharamcy.id):false,
+            has_replied: pharamcy
+              ? await this.hasReplied(order.id, pharamcy.id)
+              : false,
             categories: categories,
             drugs: drugs,
           },
@@ -383,7 +400,7 @@ export class PharmacyService {
     });
     const order = await this.orderRepository.findOne({
       where: { id: request.order_id },
-    })
+    });
     this.notificationService.create(
       new NotificationEntity({
         user_id: order.user_id,
@@ -393,12 +410,78 @@ export class PharmacyService {
         title_en: 'pharmacy replied',
         text_ar: 'قامت صيدلية بالرد',
         text_en: 'pharmacy replied',
-      })
+      }),
     );
 
     return await this.replyRepository.save(reply);
   }
 
+  async getSingle(id: string) {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: {
+        user: true,
+        ph_order_attachments: true,
+        ph_replies: { pharmacy: { user: true, attachments: true } },
+      },
+      select: {
+        user: { first_name: true, last_name: true, phone: true, avatar: true },
+
+        ph_replies: {
+          id: true,
+          note: true,
+          created_at: true,
+          availability: true,
+          pharmacy_id: true,
+          address: true,
+          phone: true,
+          price: true,
+          pharmacy: {
+            id: true,
+            expierence: true,
+            open_time: true,
+            ph_name: true,
+            close_time: true,
+            address: true,
+            attachments: true,
+
+            user: {
+              phone: true,
+            },
+          },
+        },
+      },
+    });
+
+    const categories =
+      order.categories == null
+        ? []
+        : await this.drugCategoryRepository.find({
+            where: { id: In(order.categories) },
+          });
+    const drugs =
+      order.drugs == null
+        ? []
+        : await this.drugRepository.find({
+            where: { id: In(order.drugs) },
+          });
+    order.ph_order_attachments = order.ph_order_attachments.map(
+      (attachment) => {
+        attachment.file = toUrl(attachment.file);
+        return attachment;
+      },
+    );
+
+    return plainToInstance(
+      PhOrderResponse,
+      {
+        ...order,
+        categories: categories,
+        drugs: drugs,
+      },
+      { excludeExtraneousValues: true },
+    );
+  }
   async hasReplied(order_id: string, pharmacy_id: string) {
     const reply = await this.replyRepository.findOne({
       where: { order_id, pharmacy_id },
