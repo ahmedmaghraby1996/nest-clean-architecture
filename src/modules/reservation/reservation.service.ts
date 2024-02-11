@@ -233,6 +233,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       2,
       reservation.id,
     );
+    if (doctor.is_busy == true) throw new BadRequestException('you are busy');
     doctor.is_busy = true;
 
     await this.doctor_repository.save(doctor);
@@ -410,6 +411,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       const doctor = await this.doctor_repository.findOne({
         where: { id: reservation.doctor_id },
       });
+      if (doctor.is_busy == true) throw new BadRequestException('you are busy');
       reservation.doctor_agora_token = await this.generateRTCtoken(
         2,
         reservation.id,

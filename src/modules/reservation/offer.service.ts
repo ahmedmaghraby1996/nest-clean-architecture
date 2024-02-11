@@ -30,6 +30,7 @@ export class OfferService extends BaseService<Offer> {
 
   async makeOffer(id: string) {
     const doctor = await this.additonalService.getDoctor();
+    if (doctor.is_busy == true) throw new BadRequestException('you are busy');
     const reservation = await this.reservationService.findOne(id);
     if (reservation.status != ReservationStatus.CREATED)
       throw new BadRequestException(
@@ -100,8 +101,7 @@ export class OfferService extends BaseService<Offer> {
   async getSingleOffer(id: string) {
     return await this._repo.findOne({
       where: {
-       id:id,
-        
+        id: id,
       },
       relations: { doctor: { user: true, specialization: true } },
     });
