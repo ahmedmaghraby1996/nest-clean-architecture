@@ -27,7 +27,7 @@ export class DoctorController {
       new DoctorResopone({id:doctor.id,user:doctor.user,specialization:doctor.specialization}));
     
     if (query.page && query.limit) {
-      const total = await this.doctorService.count();
+      const total = await this.doctorService.count(query);
       return new PaginatedResponse(doctorsReposonse, {
         meta: { total, ...query },
       });
