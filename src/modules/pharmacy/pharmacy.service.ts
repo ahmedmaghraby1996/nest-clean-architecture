@@ -182,7 +182,7 @@ export class PharmacyService {
     await Promise.all(
       pharmacies.map(async (pharmacy) => {
         this.phOrderGateway.server.emit(
-          `pharmacy-${pharmacy.id}`,
+          `pharmacy-${pharmacy.user_id}`,
           this._i18nResponse.entity(await this.getSingle(ph_order.id)),
         );
         this.notificationService.create(

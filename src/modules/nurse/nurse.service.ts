@@ -67,7 +67,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
 
     const nurses = await this.nurseRepo.find();
     nurses.forEach((nurse) => {
-      this.nurseOrderGateway.server.emit(`nurse-${nurse.id}`, plainToInstance(NurseOrderResponse, order));
+      this.nurseOrderGateway.server.emit(`nurse-${nurse.user_id}`, plainToInstance(NurseOrderResponse, order));
       this.notificationService.create(
         new NotificationEntity({
           user_id: nurse.user_id,
