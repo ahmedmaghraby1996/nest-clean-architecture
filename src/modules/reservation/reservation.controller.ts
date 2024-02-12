@@ -104,7 +104,7 @@ export class ReservationController {
     );
 
     if (query.page && query.limit) {
-      const total = await this.reservationService.count();
+      const total = await this.reservationService.count(query);
       return new PaginatedResponse(reservationRespone, {
         meta: { total, ...query },
       });
