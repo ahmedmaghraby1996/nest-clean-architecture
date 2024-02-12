@@ -92,7 +92,7 @@ console.log(nurse.id);
       .getCount();
     order.number = generateOrderNumber(count);
     order.user_id = super.currentUser.id;
-
+  await  this.nurseOrderRepo.save(order);
     const nurses = await this.nurseRepo.find();
     await Promise.all(
       nurses.map(async (nurse) => {
@@ -117,7 +117,7 @@ console.log(nurse.id);
       }),
     );
 
-    return this.nurseOrderRepo.save(order);
+    return order;
   }
 
   async getSingleOrder(id: string) {
