@@ -28,6 +28,7 @@ import { FaqQuestion } from "../entities/faq/faq_question";
 import { Nurse } from "../entities/nurse/nurse.entity";
 import { NurseOrder } from "../entities/nurse/nurse-order.entity";
 import { NurseOffer } from "../entities/nurse/nurse-offer.entity";
+import { NurseLicense } from "../entities/nurse/nurse-license.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -58,7 +59,8 @@ export const DB_ENTITIES = [
   FaqQuestion,
   Nurse,
   NurseOrder,
-  NurseOffer
+  NurseOffer,
+  NurseLicense
   
 ];
 

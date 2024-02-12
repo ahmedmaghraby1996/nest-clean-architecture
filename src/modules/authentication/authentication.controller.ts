@@ -132,14 +132,11 @@ export class AuthenticationController {
     @UploadedFiles()
     files: {
       avatarFile?: Express.Multer.File[];
-      license_img?: Express.Multer.File[];
     },
   ): Promise<ActionResponse<RegisterResponse>> {
-    console.log(req);
-    req.avatarFile = files.avatarFile[0];
-    req.license_img = files.license_img[0];
-    console.log( req.avatarFile );
-    console.log( req.license_img);
+    if(files.avatarFile){
+    req.avatarFile = files.avatarFile[0];}
+
     const user = await this.authService.register(req);
     const result = plainToInstance(RegisterResponse, user, {
       excludeExtraneousValues: true,

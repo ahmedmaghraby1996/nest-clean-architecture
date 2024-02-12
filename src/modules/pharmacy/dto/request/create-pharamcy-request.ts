@@ -45,7 +45,7 @@ export class CreatePharamcyRequest extends RegisterRequest {
     required: false,
     example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'],
   })
-  @IsOptional()
+
   license_images: string;
 
   @ApiPropertyOptional({
@@ -53,7 +53,7 @@ export class CreatePharamcyRequest extends RegisterRequest {
     required: false,
     example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'],
   })
-  @IsOptional()
+
   logo_images: string;
 
   @ApiPropertyOptional({

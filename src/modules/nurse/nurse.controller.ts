@@ -18,7 +18,7 @@ import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
-import { applyQueryIncludes } from 'src/core/helpers/service-related.helper';
+import { applyQueryIncludes, applyQuerySort } from 'src/core/helpers/service-related.helper';
 import { User } from 'src/infrastructure/entities/user/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { NurseOrderResponse } from './dto/respone/nurse-order.response';
@@ -64,6 +64,7 @@ export class NurseController {
   @Get('order')
   async getNurseOrder(@Query() query: PaginatedRequest) {
     applyQueryIncludes(query, 'user');
+    applyQuerySort(query, 'created_at=desc');
     applyQueryIncludes(query, 'address');
     const nurse = await this.nurseService.getNurse(
       this.nurseService.currentUser.id,

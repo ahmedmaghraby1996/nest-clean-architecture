@@ -18,7 +18,8 @@ import { NotificationEntity } from 'src/infrastructure/entities/notification/not
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway';
 import { NurseOrderResponse } from './dto/respone/nurse-order.response';
-
+import { NurseLicense } from 'src/infrastructure/entities/nurse/nurse-license.entity';
+import * as fs from 'fs';
 @Injectable()
 export class NurseService extends BaseUserService<NurseOrder> {
   constructor(
@@ -27,6 +28,8 @@ export class NurseService extends BaseUserService<NurseOrder> {
     @InjectRepository(Nurse) private readonly nurseRepo: Repository<Nurse>,
     @InjectRepository(NurseOffer)
     private readonly nurseOfferRepo: Repository<NurseOffer>,
+    @InjectRepository(NurseLicense)
+    private readonly nurseLicenseRepo: Repository<NurseLicense>,
     @Inject(FileService) private _fileService: FileService,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
@@ -36,9 +39,8 @@ export class NurseService extends BaseUserService<NurseOrder> {
     super(nurseOrderRepo, request);
   }
 
-
-  async getNurse(id:string){
-    return await this.nurseRepo.findOne({where:{user_id:id}});
+  async getNurse(id: string) {
+    return await this.nurseRepo.findOne({ where: { user_id: id } });
   }
   async addNurse(req: CreateNurseRequest, userId: string) {
     console.log(req);
@@ -47,13 +49,39 @@ export class NurseService extends BaseUserService<NurseOrder> {
     nurse.user_id = userId;
     nurse.experience = req.experience;
     nurse.summary = req.summary;
+await this.nurseRepo.save(nurse);
+console.log(nurse.id);
+    if (req.license_images) {
+      req.license_images.split(',').map((file) => {
+        // check if image exists using fs
+        const exists = fs.existsSync(file);
+        if (!exists) throw new BadRequestException('file not found');
+      });
 
-    // resize image to 300x300
-    const license_img = await this._fileService.upload(req.license_img);
+      // save shipping order images
+      const nurse_licenses = req.license_images.split(',').map((file) => {
+        // create shipping-images folder if not exists
+        if (!fs.existsSync('storage/nurse-licenses')) {
+          fs.mkdirSync('storage/nurse-licenses');
+        }
+        // store the future path of the image
+        const newPath = file.replace('/tmp/', '/nurse-licenses/');
 
-    // set avatar path
-    nurse.license_img = license_img;
-    return this.nurseRepo.save(nurse);
+        // use fs to move images
+        return plainToInstance(NurseLicense, {
+          image: newPath,
+          nurse_id: nurse.id,
+      
+        });
+      });
+
+      await this.nurseLicenseRepo.save(nurse_licenses);
+      req.license_images.split(',').map((image) => {
+        const newPath = image.replace('/tmp/', '/nurse-licenses/');
+        fs.renameSync(image, newPath);
+      });
+    }
+    return nurse;
   }
 
   async createNurseOrder(req: NurseOrderRequest) {
@@ -66,29 +94,45 @@ export class NurseService extends BaseUserService<NurseOrder> {
     order.user_id = super.currentUser.id;
 
     const nurses = await this.nurseRepo.find();
-    nurses.forEach((nurse) => {
-      this.nurseOrderGateway.server.emit(`nurse-${nurse.user_id}`, plainToInstance(NurseOrderResponse, order));
-      this.notificationService.create(
-        new NotificationEntity({
-          user_id: nurse.user_id,
-          url: nurse.user_id,
-          type: NotificationTypes.ORDER,
-          title_ar: 'لديك طلب جديد',
-          title_en: 'you have a new order',
-          text_ar: 'لديك طلب جديد',
-          text_en: 'you have a new order',
-        }),
-      );
-    });
+    await Promise.all(
+      nurses.map(async (nurse) => {
+        this.nurseOrderGateway.server.emit(
+          `nurse-${nurse.user_id}`,
+          plainToInstance(
+            NurseOrderResponse,
+            await this.getSingleOrder(order.id),
+          ),
+        );
+        this.notificationService.create(
+          new NotificationEntity({
+            user_id: nurse.user_id,
+            url: nurse.user_id,
+            type: NotificationTypes.ORDER,
+            title_ar: 'لديك طلب جديد',
+            title_en: 'you have a new order',
+            text_ar: 'لديك طلب جديد',
+            text_en: 'you have a new order',
+          }),
+        );
+      }),
+    );
+
     return this.nurseOrderRepo.save(order);
+  }
+
+  async getSingleOrder(id: string) {
+    return await this.nurseOrderRepo.findOne({
+      where: { id },
+      relations: { user: true, address: true },
+    });
   }
 
   async getOffers(id: string) {
     const nurse = await this.nurseRepo.findOne({
       where: { user_id: super.currentUser.id },
-    })
+    });
     const offers = await this.nurseOfferRepo.find({
-      where: { nurse_order_id: id,nurse_id:nurse===null?null:nurse.id },
+      where: { nurse_order_id: id, nurse_id: nurse === null ? null : nurse.id },
       relations: { nurse: { user: true } },
     });
 

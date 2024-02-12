@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsNumber } from "class-validator";
 import { RegisterRequest } from "src/modules/authentication/dto/requests/register.dto";
@@ -12,8 +12,13 @@ export class CreateNurseRequest extends RegisterRequest{
    @ApiProperty({required:false})
    summary: string
 
-   @ApiProperty({ type: 'file' ,required:false})
-   license_img: Express.Multer.File;
+   @ApiProperty({
+      type: [String],
+      required: false,
+      example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'],
+    })
+  
+    license_images: string;
 
 
 }

@@ -315,6 +315,7 @@ export class PharmacyService {
         ph_order_attachments: true,
         ph_replies: { pharmacy: { user: true, attachments: true } },
       },
+      order: { created_at: 'DESC' },
       select: {
         user: { first_name: true, last_name: true, phone: true, avatar: true },
 
