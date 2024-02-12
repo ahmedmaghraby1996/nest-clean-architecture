@@ -6,7 +6,7 @@ import { BaseEntity } from "src/infrastructure/base/base.entity";
 @Entity()
 export class DoctorAvaliablity extends BaseEntity{
 
-@ManyToOne(() => Doctor,doctor=>doctor.avaliablity,{nullable:true})
+@ManyToOne(() => Doctor,doctor=>doctor.avaliablity,{nullable:true,onDelete:'CASCADE',onUpdate:'CASCADE'})
 @JoinColumn()
 doctor:Doctor
 
