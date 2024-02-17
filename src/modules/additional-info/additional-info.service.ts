@@ -23,6 +23,7 @@ import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-ava
 import { DoctorAvaliablityRequest } from './dto/requests/doctor-availbility-request';
 import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
 import { Clinic } from 'src/infrastructure/entities/doctor/clinc.entity';
+import { UpdateDoctorInfoRequest } from './dto/requests/update-doctor-info.request';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
@@ -38,8 +39,10 @@ export class AdditionalInfoService {
   async getSpecilizations() {
     return await this.specializationRepo.find();
   }
-  async addDoctorInfo(request: DoctorInfoRequest, id?: string) {
-    const doctor = await this.getDoctor(id);
+  async addDoctorInfo(request: Partial<UpdateDoctorInfoRequest>, doctor_id?: string) {
+    const id=(await this.getDoctor(doctor_id)).id;
+    const doctor = plainToInstance(Doctor,{...request,id });
+ 
     
     const docImages = request.license_images
       ? request.license_images.split(',')
@@ -47,29 +50,23 @@ export class AdditionalInfoService {
 
     if (request.year_of_experience)
       doctor.year_of_experience = request.year_of_experience;
-    if (request.is_urgent != null){ 
-      if(doctor.is_busy==true) {
+    if (request.is_urgent != null) {
+      if (doctor.is_busy == true) {
         throw new BadRequestException('Doctor is busy');
-      }
-      else
-      doctor.is_urgent_doctor = request.is_urgent;
-      }
+      } else doctor.is_urgent_doctor = request.is_urgent;
+    }
     if (request.clinic != null) {
       const clinc =
         typeof request.clinic === 'string'
           ? plainToInstance(Clinic, JSON.parse(request.clinic))
           : request.clinic;
-    
-    
-      if (doctor.clinic_id!=null) {
-       await this.context.update(Clinic, doctor.clinic_id, clinc);
-        
+
+      if (doctor.clinic_id != null) {
+        await this.context.update(Clinic, doctor.clinic_id, clinc);
       } else {
-       const new_clinc = await this.context.save(Clinic, clinc);
-        doctor.clinic_id=new_clinc.id
+        const new_clinc = await this.context.save(Clinic, clinc);
+        doctor.clinic_id = new_clinc.id;
       }
-    
-   
     }
     if (request.latitude && request.longitude) {
       (doctor.latitude = Number(request.latitude)),
@@ -92,7 +89,7 @@ export class AdditionalInfoService {
       });
 
       // save shipping order images
-    
+
       const images = docImages.map((image) => {
         // create shipping-images folder if not exists
         if (!fs.existsSync('storage/license-images')) {
@@ -133,7 +130,7 @@ export class AdditionalInfoService {
     }
 
     await this.doctorRepo.save(doctor);
-    return this.getFullDoctor(id);
+    return this.getFullDoctor(doctor_id);
   }
 
   async getDoctor(id?: string) {
@@ -149,7 +146,12 @@ export class AdditionalInfoService {
   async getFullDoctor(id?: string) {
     const doctor = await this.doctorRepo.findOne({
       where: { user_id: id == null ? this.request.user.id : id },
-      relations: { specialization: true, licenses: true, avaliablity: true, clinic: true },
+      relations: {
+        specialization: true,
+        licenses: true,
+        avaliablity: true,
+        clinic: true,
+      },
       select: {
         licenses: { id: true, image: true },
         avaliablity: {
@@ -189,7 +191,6 @@ export class AdditionalInfoService {
       }),
     );
     if (req.avatarFile) {
-     
       // resize image to 300x300
       const resizedImage = await this.imageManager.resize(req.avatarFile, {
         size: { width: 300, height: 300 },
@@ -209,7 +210,7 @@ export class AdditionalInfoService {
       familyMember.avatar = path;
     }
 
-  const savedMember =  await this.context.save(familyMember);
+    const savedMember = await this.context.save(familyMember);
 
     return await this.context.findOneBy(FamilyMember, {
       id: savedMember.id,
@@ -233,9 +234,8 @@ export class AdditionalInfoService {
   }
 
   async getDoctorAvailiablity(req: DoctorAvaliablityRequest) {
-
     const freeTime = await this.getDoctorAvailiablityDay(req);
-    
+
     const busyTimes = await this.getDoctorBusyTimes(req);
     return {
       availavility: freeTime,
@@ -263,7 +263,4 @@ export class AdditionalInfoService {
     const result = busyTimes.map((e) => e.start_time);
     return result;
   }
-
-
-  
 }

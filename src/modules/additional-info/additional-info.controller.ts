@@ -30,6 +30,7 @@ import { ClientInfoRequest } from './dto/requests/client-info-request';
 import { UploadValidator } from 'src/core/validators/upload.validator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DoctorAvaliablityRequest } from './dto/requests/doctor-availbility-request';
+import { UpdateDoctorInfoRequest } from './dto/requests/update-doctor-info.request';
 
 @ApiTags('Additonal-info')
 @ApiHeader({
@@ -54,7 +55,7 @@ export class AdditionalInfoController {
   @ApiBearerAuth()
   @Roles(Role.DOCTOR)
   @Put('doctor/info')
-  async addDoctorInfo(@Body() request: DoctorInfoRequest) {
+  async addDoctorInfo(@Body() request: UpdateDoctorInfoRequest) {
     return new ActionResponse(
       await this.additionalInfoService.addDoctorInfo(request),
     );

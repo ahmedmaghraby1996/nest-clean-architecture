@@ -50,7 +50,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
     nurse.experience = req.experience;
     nurse.summary = req.summary;
 await this.nurseRepo.save(nurse);
-console.log(nurse.id);
+
     if (req.license_images) {
       req.license_images.split(',').map((file) => {
         // check if image exists using fs
@@ -202,4 +202,6 @@ this.nurseOrderGateway.server.emit(
 );
 return result
   }
+
+
 }

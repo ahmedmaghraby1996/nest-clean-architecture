@@ -26,6 +26,7 @@ import { plainToInstance } from 'class-transformer';
 import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
 import { PhOrderResponse } from './dto/respone/ph-order-response';
 import { PhReplyResponse } from './dto/respone/ph-reply-response';
+import { UpdatePharamcyRequest } from './dto/request/update-pharmact-request';
 
 @ApiHeader({
   name: 'Accept-Language',
@@ -67,6 +68,19 @@ export class PharmacyController {
     return new PaginatedResponse(result, {
       meta: { total: orders.count, ...query },
     });
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.PHARMACY)
+  @Post('update/pharmacy')
+  async updatePharmacy(@Body() request: UpdatePharamcyRequest) {
+    return new ActionResponse(
+      await this.pharmacyService.addPharmacyInfo(
+        request,
+        this.pharmacyService.request.user.id,
+      ),
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -34,6 +34,7 @@ import { NotificationTypes } from 'src/infrastructure/data/enums/notification-ty
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { PhOrderGateway } from 'src/integration/gateways/ph-order.gateway';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
+import { UpdatePharamcyRequest } from './dto/request/update-pharmact-request';
 
 @Injectable()
 export class PharmacyService {
@@ -63,7 +64,7 @@ export class PharmacyService {
 
     @InjectRepository(PhReply)
     private replyRepository: Repository<PhReply>,
-    @Inject(REQUEST) private readonly request: Request,
+    @Inject(REQUEST) readonly request: Request,
   ) {}
 
   async makeOrder(request: makeOrderRequest) {
@@ -212,9 +213,23 @@ export class PharmacyService {
   async getDrugCategories() {
     return await this.drugCategoryRepository.find();
   }
+  async getPharmacyInfo(user_id: string) {
+    return await this.pharmacyRepository.findOne({ where: { user_id } });
+  }
 
-  async addPharmacyInfo(request: CreatePharamcyRequest, user_id: string) {
-    const pharmacy = plainToInstance(Pharmacy, { ...request, user_id });
+  async addPharmacyInfo(
+    request: Partial<UpdatePharamcyRequest>,
+    user_id: string,
+  ) {
+    const pharmacy_id = await this.pharmacyRepository.findOne({
+      where: { user_id },
+    });
+
+    const pharmacy = plainToInstance(Pharmacy, {
+      ...request,
+      user_id,
+      id: pharmacy_id?.id,
+    });
 
     await this.pharmacyRepository.save(pharmacy);
 
@@ -279,6 +294,7 @@ export class PharmacyService {
         fs.renameSync(image, newPath);
       });
     }
+    return pharmacy;
   }
   async getReplies(id: string) {
     const pharamcy = await this.pharmacyRepository.findOne({
