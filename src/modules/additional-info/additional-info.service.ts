@@ -24,6 +24,7 @@ import { DoctorAvaliablityRequest } from './dto/requests/doctor-availbility-requ
 import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
 import { Clinic } from 'src/infrastructure/entities/doctor/clinc.entity';
 import { UpdateDoctorInfoRequest } from './dto/requests/update-doctor-info.request';
+import { UpdateProfileRequest } from '../authentication/dto/requests/update-profile-request';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
@@ -38,6 +39,32 @@ export class AdditionalInfoService {
 
   async getSpecilizations() {
     return await this.specializationRepo.find();
+  }
+
+  async updateProfile(request: UpdateProfileRequest) {
+    const user = plainToInstance(User, {...request,id:this.request.user.id}, {
+    
+    });
+
+    if(user.avatar) {
+      
+      const resizedImage = await this.imageManager.resize(request.avatarFile, {
+        size: { width: 300, height: 300 },
+        options: {
+          fit: sharp.fit.cover,
+          position: sharp.strategy.entropy,
+        },
+      });
+      const path = await this.storageManager.store(
+        { buffer: resizedImage, originalname: request.avatarFile.originalname },
+        { path: 'avatars' },
+      );
+      user.avatar = path;
+    }
+    await this.context.save(User, user);
+    
+ return    await this.context.findOne(User, {where:{id:this.request.user.id}});
+    
   }
   async addDoctorInfo(request: Partial<UpdateDoctorInfoRequest>, doctor_id?: string) {
     const id=(await this.getDoctor(doctor_id)).id;

@@ -87,7 +87,7 @@ export class AuthenticationController {
     @UploadedFile(new UploadValidator().build())
     avatarFile: Express.Multer.File,
   ): Promise<ActionResponse<RegisterResponse>> {
-    console.log(req);
+
     req.avatarFile = avatarFile;
     const user = await this.authService.register(req);
     const result = plainToInstance(RegisterResponse, user, {

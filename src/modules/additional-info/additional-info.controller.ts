@@ -31,6 +31,9 @@ import { UploadValidator } from 'src/core/validators/upload.validator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DoctorAvaliablityRequest } from './dto/requests/doctor-availbility-request';
 import { UpdateDoctorInfoRequest } from './dto/requests/update-doctor-info.request';
+import { UpdateProfileRequest } from '../authentication/dto/requests/update-profile-request';
+import { plainToInstance } from 'class-transformer';
+import { RegisterResponse } from '../authentication/dto/responses/register.response';
 
 @ApiTags('Additonal-info')
 @ApiHeader({
@@ -67,7 +70,9 @@ export class AdditionalInfoController {
   @Get('doctor/info')
   async getDoctorInfo() {
     return new ActionResponse(
-      this._i18nResponse.entity(await this.additionalInfoService.getFullDoctor()),
+      this._i18nResponse.entity(
+        await this.additionalInfoService.getFullDoctor(),
+      ),
     );
   }
 
@@ -117,7 +122,28 @@ export class AdditionalInfoController {
   async getClientInfo() {
     return new ActionResponse(await this.additionalInfoService.getClientInfo());
   }
-
+  @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
+  @ApiConsumes('multipart/form-data')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Put('update-profile')
+  async updateProfile(
+    @Body() request: UpdateProfileRequest,
+    @UploadedFile(new UploadValidator().build())
+    avatarFile: Express.Multer.File,
+  ) {
+    if (avatarFile) {
+      request.avatarFile = avatarFile;
+    }
+    return new ActionResponse(
+      plainToInstance(
+        RegisterResponse,
+        await this.additionalInfoService.updateProfile(request),{
+          excludeExtraneousValues: true,
+        },
+      ),
+    );
+  }
   @Roles(Role.DOCTOR)
   @Get('doctor/availability')
   async getDoctorAvailability(@Query() query: DoctorAvaliablityRequest) {
