@@ -89,4 +89,9 @@ export class NurseController {
       });
     } else return new ActionResponse(order_response);
   }
+
+  @Post('accept/offer/:id')
+  async acceptOffer(@Param('id') id: string) {
+    return new ActionResponse(await this.nurseService.acceptOffer(id));
+  }
 }

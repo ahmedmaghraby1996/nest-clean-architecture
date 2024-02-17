@@ -175,4 +175,31 @@ console.log(nurse.id);
     if (reply) return true;
     return false;
   }
+
+  async acceptOffer(id:string){
+const offer = await this.nurseOfferRepo.findOne({
+  where: { id },
+
+});
+offer.is_accepted = true;
+await this.nurseOfferRepo.save(offer);
+const nurse_order = await this.nurseOrderRepo.findOne({
+  where: { id: offer.nurse_order_id },
+})
+
+nurse_order.nurse_id = offer.nurse_id;
+await this.nurseOrderRepo.save(nurse_order);
+const result=await this.getSingleOrder(offer.nurse_order_id)
+const nurse = await this.nurseRepo.findOne({
+  where: { id: offer.nurse_id },
+})
+this.nurseOrderGateway.server.emit(
+  `nurse-${nurse.user_id}`,
+  plainToInstance(
+    NurseOrderResponse,
+   result
+  ),
+);
+return result
+  }
 }

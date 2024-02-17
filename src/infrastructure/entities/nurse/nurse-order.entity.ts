@@ -3,6 +3,7 @@ import { User } from '../user/user.entity';
 import { Address } from '../user/address.entity';
 import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { NurseOffer } from './nurse-offer.entity';
+import { Nurse } from './nurse.entity';
 
 @Entity()
 export class NurseOrder extends OwnedEntity {
@@ -22,6 +23,10 @@ export class NurseOrder extends OwnedEntity {
   @OneToMany(() => NurseOffer, (offer) => offer.nurse)
   offers: NurseOffer[]
 
+  @ManyToOne(() => Nurse, (nurse) => nurse.orders)
+  nurse: Nurse;
+  @Column({nullable: true})
+  nurse_id: string;
   @Column({ length: 10, unique: true })
   number: string;
 }
