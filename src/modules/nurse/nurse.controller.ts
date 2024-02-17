@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -24,6 +25,7 @@ import { plainToInstance } from 'class-transformer';
 import { NurseOrderResponse } from './dto/respone/nurse-order.response';
 import { NurseOfferRequest } from './dto/request/nurse-offer-request';
 import { NurseOfferResponse } from './dto/respone/nurse-offer.response';
+import { UpdateNurseRequest } from './dto/request/update-nurse-request';
 
 @ApiTags('Nusre')
 @ApiHeader({
@@ -93,5 +95,9 @@ export class NurseController {
   @Post('accept/offer/:id')
   async acceptOffer(@Param('id') id: string) {
     return new ActionResponse(await this.nurseService.acceptOffer(id));
+  }
+  @Put('update-info')
+  async updateInfo(@Body() request: UpdateNurseRequest) {
+    return new ActionResponse(await this.nurseService.addNurse(request,this.nurseService.currentUser.id));
   }
 }

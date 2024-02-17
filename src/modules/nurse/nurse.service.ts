@@ -20,6 +20,7 @@ import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway'
 import { NurseOrderResponse } from './dto/respone/nurse-order.response';
 import { NurseLicense } from 'src/infrastructure/entities/nurse/nurse-license.entity';
 import * as fs from 'fs';
+import { UpdateNurseRequest } from './dto/request/update-nurse-request';
 @Injectable()
 export class NurseService extends BaseUserService<NurseOrder> {
   constructor(
@@ -42,14 +43,15 @@ export class NurseService extends BaseUserService<NurseOrder> {
   async getNurse(id: string) {
     return await this.nurseRepo.findOne({ where: { user_id: id } });
   }
-  async addNurse(req: CreateNurseRequest, userId: string) {
-    console.log(req);
-    const nurse = new Nurse();
+  async addNurse(req: Partial<UpdateNurseRequest>, userId: string) {
+    const nurse_id = await this.getNurse(userId);
+    const nurse = plainToInstance(Nurse, {
+      ...req,
+      user_id: userId,
+      id: nurse_id?.id,
+    });
 
-    nurse.user_id = userId;
-    nurse.experience = req.experience;
-    nurse.summary = req.summary;
-await this.nurseRepo.save(nurse);
+    await this.nurseRepo.save(nurse);
 
     if (req.license_images) {
       req.license_images.split(',').map((file) => {
@@ -71,7 +73,6 @@ await this.nurseRepo.save(nurse);
         return plainToInstance(NurseLicense, {
           image: newPath,
           nurse_id: nurse.id,
-      
         });
       });
 
@@ -92,7 +93,7 @@ await this.nurseRepo.save(nurse);
       .getCount();
     order.number = generateOrderNumber(count);
     order.user_id = super.currentUser.id;
-  await  this.nurseOrderRepo.save(order);
+    await this.nurseOrderRepo.save(order);
     const nurses = await this.nurseRepo.find();
     await Promise.all(
       nurses.map(async (nurse) => {
@@ -176,32 +177,26 @@ await this.nurseRepo.save(nurse);
     return false;
   }
 
-  async acceptOffer(id:string){
-const offer = await this.nurseOfferRepo.findOne({
-  where: { id },
+  async acceptOffer(id: string) {
+    const offer = await this.nurseOfferRepo.findOne({
+      where: { id },
+    });
+    offer.is_accepted = true;
+    await this.nurseOfferRepo.save(offer);
+    const nurse_order = await this.nurseOrderRepo.findOne({
+      where: { id: offer.nurse_order_id },
+    });
 
-});
-offer.is_accepted = true;
-await this.nurseOfferRepo.save(offer);
-const nurse_order = await this.nurseOrderRepo.findOne({
-  where: { id: offer.nurse_order_id },
-})
-
-nurse_order.nurse_id = offer.nurse_id;
-await this.nurseOrderRepo.save(nurse_order);
-const result=await this.getSingleOrder(offer.nurse_order_id)
-const nurse = await this.nurseRepo.findOne({
-  where: { id: offer.nurse_id },
-})
-this.nurseOrderGateway.server.emit(
-  `nurse-${nurse.user_id}`,
-  plainToInstance(
-    NurseOrderResponse,
-   result
-  ),
-);
-return result
+    nurse_order.nurse_id = offer.nurse_id;
+    await this.nurseOrderRepo.save(nurse_order);
+    const result = await this.getSingleOrder(offer.nurse_order_id);
+    const nurse = await this.nurseRepo.findOne({
+      where: { id: offer.nurse_id },
+    });
+    this.nurseOrderGateway.server.emit(
+      `nurse-${nurse.user_id}`,
+      plainToInstance(NurseOrderResponse, result),
+    );
+    return result;
   }
-
-
 }

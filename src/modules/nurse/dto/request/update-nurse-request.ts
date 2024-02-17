@@ -3,8 +3,8 @@ import { Transform } from "class-transformer";
 import { IsNumber } from "class-validator";
 import { RegisterRequest } from "src/modules/authentication/dto/requests/register.dto";
 
-export class CreateNurseRequest extends RegisterRequest{
-   @ApiProperty()
+export class UpdateNurseRequest {
+   @ApiPropertyOptional()
    @IsNumber()
    @Transform(({value})=>parseInt(value))
    experience: number
@@ -15,7 +15,7 @@ export class CreateNurseRequest extends RegisterRequest{
    @ApiProperty({
       type: [String],
       required: false,
-      example: ['storage/tmp/image1.png', 'storage/tmp/image2.png'],
+      example: 'storage/tmp/image1.png', 
     })
   
     license_images: string;

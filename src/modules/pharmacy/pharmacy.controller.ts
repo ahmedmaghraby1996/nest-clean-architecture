@@ -73,7 +73,7 @@ export class PharmacyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles(Role.PHARMACY)
-  @Post('update/pharmacy')
+  @Post('update-info')
   async updatePharmacy(@Body() request: UpdatePharamcyRequest) {
     return new ActionResponse(
       await this.pharmacyService.addPharmacyInfo(
