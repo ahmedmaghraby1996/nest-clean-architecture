@@ -214,7 +214,7 @@ export class PharmacyService {
     return await this.drugCategoryRepository.find();
   }
   async getPharmacyInfo(user_id: string) {
-    return await this.pharmacyRepository.findOne({ where: { user_id } });
+    return await this.pharmacyRepository.findOne({ where: { user_id } ,relations: { attachments: true } });
   }
 
   async addPharmacyInfo(
@@ -505,5 +505,13 @@ export class PharmacyService {
     });
     if (reply) return true;
     return false;
+  }
+
+  async getCategories(ids:string[]) {
+    const categories = await this.drugCategoryRepository.find({
+      where: { id: In(ids) },
+    });
+    return categories;
+    
   }
 }

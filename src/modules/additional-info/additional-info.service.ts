@@ -42,12 +42,13 @@ export class AdditionalInfoService {
   }
 
   async updateProfile(request: UpdateProfileRequest) {
-    const user = plainToInstance(User, {...request,id:this.request.user.id}, {
-    
-    });
+    const user = plainToInstance(
+      User,
+      { ...request, id: this.request.user.id },
+      {},
+    );
 
-    if(user.avatar) {
-      
+    if (user.avatar) {
       const resizedImage = await this.imageManager.resize(request.avatarFile, {
         size: { width: 300, height: 300 },
         options: {
@@ -62,15 +63,18 @@ export class AdditionalInfoService {
       user.avatar = path;
     }
     await this.context.save(User, user);
-    
- return    await this.context.findOne(User, {where:{id:this.request.user.id}});
-    
+
+    return await this.context.findOne(User, {
+      where: { id: this.request.user.id },
+    });
   }
-  async addDoctorInfo(request: Partial<UpdateDoctorInfoRequest>, doctor_id?: string) {
-    const id=(await this.getDoctor(doctor_id)).id;
-    const doctor = plainToInstance(Doctor,{...request,id });
- 
-    
+  async addDoctorInfo(
+    request: Partial<UpdateDoctorInfoRequest>,
+    doctor_id?: string,
+  ) {
+    const id = (await this.getDoctor(doctor_id)).id;
+    const doctor = plainToInstance(Doctor, { ...request, id });
+
     const docImages = request.license_images
       ? request.license_images.split(',')
       : [];
@@ -289,5 +293,12 @@ export class AdditionalInfoService {
     });
     const result = busyTimes.map((e) => e.start_time);
     return result;
+  }
+
+
+  async getProfile() {
+    return await this.context.findOneBy(User, {
+      id: this.request.user.id,
+    });
   }
 }

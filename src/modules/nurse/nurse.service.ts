@@ -41,7 +41,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
   }
 
   async getNurse(id: string) {
-    return await this.nurseRepo.findOne({ where: { user_id: id } });
+    return await this.nurseRepo.findOne({ where: { user_id: id },relations: { license_images: true } });
   }
   async addNurse(req: Partial<UpdateNurseRequest>, userId: string) {
     const nurse_id = await this.getNurse(userId);

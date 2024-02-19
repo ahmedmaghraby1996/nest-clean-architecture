@@ -16,6 +16,9 @@ export class Pharmacy extends OwnedEntity {
   @Column()
   ph_name: string;
 
+  @Column({default:false})
+  is_verified: boolean;
+
   @Column()
   open_time: string;
 

@@ -34,6 +34,12 @@ import { UpdateDoctorInfoRequest } from './dto/requests/update-doctor-info.reque
 import { UpdateProfileRequest } from '../authentication/dto/requests/update-profile-request';
 import { plainToInstance } from 'class-transformer';
 import { RegisterResponse } from '../authentication/dto/responses/register.response';
+import { UpdateNurseRequest } from '../nurse/dto/request/update-nurse-request';
+import { NurseService } from '../nurse/nurse.service';
+import { PharmacyService } from '../pharmacy/pharmacy.service';
+import { UpdatePharamcyRequest } from '../pharmacy/dto/request/update-pharmact-request';
+import { PharmacyResponse } from '../pharmacy/dto/respone/pharmacy.reposne';
+import { toUrl } from 'src/core/helpers/file.helper';
 
 @ApiTags('Additonal-info')
 @ApiHeader({
@@ -46,6 +52,8 @@ export class AdditionalInfoController {
   constructor(
     private readonly additionalInfoService: AdditionalInfoService,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
+    private readonly nurseService: NurseService,
+    private readonly PharmacyService: PharmacyService,
   ) {}
 
   @Get('specializations')
@@ -138,12 +146,93 @@ export class AdditionalInfoController {
     return new ActionResponse(
       plainToInstance(
         RegisterResponse,
-        await this.additionalInfoService.updateProfile(request),{
+        await this.additionalInfoService.updateProfile(request),
+        {
           excludeExtraneousValues: true,
         },
       ),
     );
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Get('profile')
+  async getProfile() {
+    return new ActionResponse(
+      plainToInstance(
+        RegisterResponse,
+        await this.additionalInfoService.getProfile(),
+        {
+          excludeExtraneousValues: true,
+        },
+      ),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Put('update-nurse-info')
+  async updateInfo(@Body() request: UpdateNurseRequest) {
+    return new ActionResponse(
+      await this.nurseService.addNurse(
+        request,
+        this.nurseService.currentUser.id,
+      ),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.NURSE)
+  @Get('nurse-info')
+  async getNurseInfo() {
+    const nurse= await this.nurseService.getNurse(this.nurseService.currentUser.id);
+    nurse.license_images.map((img)=>{
+      img.image=toUrl(img.image)
+      return img;
+    })
+    return new ActionResponse(
+      nurse
+    );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.PHARMACY)
+  @Put('update-pharmacy-info')
+  async updatePharmacy(@Body() request: UpdatePharamcyRequest) {
+    return new ActionResponse(
+      await this.PharmacyService.addPharmacyInfo(
+        request,
+        this.PharmacyService.request.user.id,
+      ),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.PHARMACY)
+  @Get('pharmacy-info')
+  async getPharmacyInfo() {
+    const pharamcy = await this.PharmacyService.getPharmacyInfo(
+      this.nurseService.currentUser.id,
+    );
+    const categories = await this.PharmacyService.getCategories(
+      pharamcy.categories,
+    );
+
+    return new ActionResponse(
+      this._i18nResponse.entity(
+        plainToInstance(
+          PharmacyResponse,
+          { ...pharamcy, categories: categories },
+          { excludeExtraneousValues: true },
+        ),    
+      )
+    
+    );
+  }
+
   @Roles(Role.DOCTOR)
   @Get('doctor/availability')
   async getDoctorAvailability(@Query() query: DoctorAvaliablityRequest) {

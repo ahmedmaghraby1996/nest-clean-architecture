@@ -96,8 +96,5 @@ export class NurseController {
   async acceptOffer(@Param('id') id: string) {
     return new ActionResponse(await this.nurseService.acceptOffer(id));
   }
-  @Put('update-info')
-  async updateInfo(@Body() request: UpdateNurseRequest) {
-    return new ActionResponse(await this.nurseService.addNurse(request,this.nurseService.currentUser.id));
-  }
+
 }
