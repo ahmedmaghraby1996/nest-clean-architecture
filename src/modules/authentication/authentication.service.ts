@@ -35,7 +35,7 @@ export class AuthenticationService {
     @Inject(JwtService) private readonly jwtService: JwtService,
     @Inject(PharmacyService) private readonly pharmacyService: PharmacyService,
     @Inject(NurseService) private readonly nurseService: NurseService,
-    @Inject(Wallet) private readonly walletRepo: Repository<Wallet>,
+    @InjectRepository(Wallet) private readonly walletRepo: Repository<Wallet>,
     @Inject(AdditionalInfoService)
     private readonly additonalService: AdditionalInfoService,
     @Inject(ConfigService) private readonly _config: ConfigService,
