@@ -14,7 +14,7 @@ export class Wallet extends OwnedEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2,nullable: true })
   limit: number;
   //one to many relation with user
-  @OneToOne(() => User, (user) => user.wallet)
+  @OneToOne(() => User, (user) => user.wallet,{onDelete: 'CASCADE'})
   @JoinColumn({ name: 'user_id' })
   user: User;
 
