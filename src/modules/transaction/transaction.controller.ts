@@ -1,10 +1,21 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
 import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 import { ActionResponse } from 'src/core/base/responses/action.response';
 import { applyQueryIncludes } from 'src/core/helpers/service-related.helper';
+import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
+import { RolesGuard } from '../authentication/guards/roles.guard';
 
+@ApiTags('Transaction')
+@ApiHeader({
+  name: 'Accept-Language',
+  required: false,
+  description: 'Language header: en, ar',
+})
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 @Controller('transaction')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}

@@ -36,6 +36,7 @@ import { NotificationEntity } from 'src/infrastructure/entities/notification/not
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { TransactionService } from '../transaction/transaction.service';
 import { MakeTransactionRequest } from '../transaction/dto/requests/make-transaction-request';
+import { TransactionTypes } from 'src/infrastructure/data/enums/transaction-types';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -264,6 +265,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         amount: offer.value,
         order_id: offer.reservation_id,
         user_id: this.currentUser.id,
+        type: TransactionTypes.ORDER,
         receiver_id: doctor.user_id,
       }),
     );
@@ -429,6 +431,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       new MakeTransactionRequest({
         amount: value,
         order_id: reservation.id,
+        type: TransactionTypes.ORDER,
         user_id: this.currentUser.id,
         receiver_id: doctor.user_id,
       }),

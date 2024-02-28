@@ -16,6 +16,7 @@ import { PharmacyModule } from 'src/modules/pharmacy/pharmacy.module';
 import { ReservationModule } from 'src/modules/reservation/reservation.module';
 import { StaticPageModule } from 'src/modules/static-page/static-page.module';
 import { SuggestionsComplaintsModule } from 'src/modules/suggestions-complaints/suggestions-complaints.module';
+import { TransactionModule } from 'src/modules/transaction/transaction.module';
 import { UserModule } from 'src/modules/user/user.module';
 
 export default (app: INestApplication, config: ConfigService) => {
@@ -48,7 +49,8 @@ export default (app: INestApplication, config: ConfigService) => {
       ContactUsModule,
       SuggestionsComplaintsModule,
       FaqModule,
-      NurseModule
+      NurseModule,
+      TransactionModule
       
       
     ],
