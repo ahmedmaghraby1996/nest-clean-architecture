@@ -55,8 +55,8 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly reservationGateway: ReservationGateway,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
-    @Inject(TransactionService)
-    public readonly transactionService: TransactionService,
+
+    private readonly transactionService: TransactionService,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
   ) {
     super(repository, request);
@@ -264,8 +264,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         amount: offer.value,
         order_id: offer.reservation_id,
         user_id: this.currentUser.id,
-        receiver_id:doctor.user_id
-        
+        receiver_id: doctor.user_id,
       }),
     );
     const savedReservation = await this._repo.save(reservation);
@@ -340,7 +339,6 @@ export class ReservationService extends BaseUserService<Reservation> {
   }
 
   async scheduledReservation(request: SechudedReservationRequest) {
-    
     const busyTimes = await this.additionalInfoService.getDoctorBusyTimes(
       new DoctorAvaliablityRequest({
         doctor_id: request.doctor_id,
@@ -421,21 +419,20 @@ export class ReservationService extends BaseUserService<Reservation> {
     }
     const has_money = await this.transactionService.checkBalance(
       this.currentUser.id,
-    value,
+      value,
     );
     if (!has_money)
       throw new BadRequestException(
         'you dont have enough money to accept offer',
       );
-      await this.transactionService.makeTransaction(
-        new MakeTransactionRequest({
-          amount: value,
-          order_id: reservation.id,
-          user_id: this.currentUser.id,
-          receiver_id:doctor.user_id
-          
-        }),
-      );
+    await this.transactionService.makeTransaction(
+      new MakeTransactionRequest({
+        amount: value,
+        order_id: reservation.id,
+        user_id: this.currentUser.id,
+        receiver_id: doctor.user_id,
+      }),
+    );
 
     await this.notificationService.create(
       new NotificationEntity({
