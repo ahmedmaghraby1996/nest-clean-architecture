@@ -14,14 +14,17 @@ export class TransactionResponse {
     created_at: Date
 
     @Expose()
-    @Transform(({ value }) => {
-        return {id: value.receiver.id, name: value.receiver.first_name + ' ' + value.receiver.last_name}
+    @Transform(( receiver ) => {
+   
+        return {id:  receiver.value.id, name:  receiver.value.first_name + ' ' +  receiver.value.last_name}
     })
+
     receiver: User
 
     @Expose()
-    @Transform(({ value }) => {
-        return {id: value.user.id, name: value.user.first_name + ' ' + value.user.last_name}
+    @Transform(( user ) => {
+      
+        return {id:  user.value.id, name:  user.value.first_name + ' ' +  user.value.last_name}
     })
     user: User
 }
