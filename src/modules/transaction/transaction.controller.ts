@@ -7,6 +7,8 @@ import { applyQueryIncludes } from 'src/core/helpers/service-related.helper';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
+import { plainToInstance } from 'class-transformer';
+import { TransactionResponse } from './dto/response/transaction-response';
 
 @ApiTags('Transaction')
 @ApiHeader({
@@ -26,12 +28,13 @@ export class TransactionController {
     applyQueryIncludes(query, 'receiver');
 
     const transaction = await this.transactionService.findAll(query);
+    const result =plainToInstance(TransactionResponse, transaction);
 
     if (query.page && query.limit) {
       const total = await this.transactionService.count(query);
-      return new PaginatedResponse(transaction, { meta: { total, ...query } });
+      return new PaginatedResponse(result, { meta: { total, ...query } });
     } else {
-      return new ActionResponse(transaction);
+      return new ActionResponse(result);
     }
   }
 
