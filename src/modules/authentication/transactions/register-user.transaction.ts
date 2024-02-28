@@ -71,7 +71,7 @@ export class RegisterUserTransaction extends BaseTransaction<
       user.roles = [req.role];
       // save user
       const savedUser = await context.save(User, user);
-      await context.save(new Wallet({ user_id: savedUser.id }));
+      await context.save(new Wallet({ user_id: user.id }));
 
       // create driver setting if user is a driver
       if (req.role == Role.DOCTOR) {
