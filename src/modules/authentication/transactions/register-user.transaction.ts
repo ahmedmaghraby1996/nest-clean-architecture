@@ -95,7 +95,7 @@ export class RegisterUserTransaction extends BaseTransaction<
         console.log(client);
         await context.save(client);
       }
-      await context.save(new Wallet({ user_id: user.id }));
+
 
       // return user
       return savedUser;

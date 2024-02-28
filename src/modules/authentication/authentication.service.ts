@@ -19,6 +19,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PharmacyService } from '../pharmacy/pharmacy.service';
 import { NurseService } from '../nurse/nurse.service';
+import { Wallet } from 'src/infrastructure/entities/wallet/wallet.entity';
 
 @Injectable()
 export class AuthenticationService {
@@ -34,6 +35,7 @@ export class AuthenticationService {
     @Inject(JwtService) private readonly jwtService: JwtService,
     @Inject(PharmacyService) private readonly pharmacyService: PharmacyService,
     @Inject(NurseService) private readonly nurseService: NurseService,
+    @Inject(Wallet) private readonly walletRepo: Repository<Wallet>,
     @Inject(AdditionalInfoService)
     private readonly additonalService: AdditionalInfoService,
     @Inject(ConfigService) private readonly _config: ConfigService,
@@ -69,6 +71,7 @@ export class AuthenticationService {
 
   async register(req: any) {
     const user = await this.registerUserTransaction.run(req);
+    
     if (req.role == Role.DOCTOR) {
       try {
         await this.additonalService.addDoctorInfo(req, user.id);
@@ -96,6 +99,7 @@ export class AuthenticationService {
         throw new BadRequestException(e);
       }
     }
+    await this.walletRepo.save(new Wallet({ user_id: user.id }));
     
     return user;
   }

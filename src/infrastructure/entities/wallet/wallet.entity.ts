@@ -18,6 +18,8 @@ export class Wallet extends OwnedEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  
+
 
 
   constructor(partial?: Partial<Wallet>) {
