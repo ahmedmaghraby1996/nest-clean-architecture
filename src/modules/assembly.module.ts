@@ -12,6 +12,7 @@ import { SuggestionsComplaints } from 'src/infrastructure/entities/suggestions-c
 import { SuggestionsComplaintsModule } from './suggestions-complaints/suggestions-complaints.module';
 import { FaqModule } from './faq/faq.module';
 import { NurseModule } from './nurse/nurse.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { NurseModule } from './nurse/nurse.module';
         ContactUsModule,
         SuggestionsComplaintsModule,
         FaqModule,
-        NurseModule
+        NurseModule,
+        TransactionModule
         
     ],
     exports: [
