@@ -34,6 +34,8 @@ import { NotificationService } from '../notification/services/notification.servi
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 import { NotificationEntity } from 'src/infrastructure/entities/notification/notification.entity';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
+import { TransactionService } from '../transaction/transaction.service';
+import { MakeTransactionRequest } from '../transaction/dto/requests/make-transaction-request';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -53,6 +55,8 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly reservationGateway: ReservationGateway,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
+    @Inject(TransactionService)
+    public readonly transactionService: TransactionService,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
   ) {
     super(repository, request);
@@ -201,7 +205,14 @@ export class ReservationService extends BaseUserService<Reservation> {
   }
   async acceptOffer(id: string) {
     const offer = await this.offer_repository.findOne({ where: { id: id } });
-
+    const has_money = await this.transactionService.checkBalance(
+      this.currentUser.id,
+      offer.value,
+    );
+    if (!has_money)
+      throw new BadRequestException(
+        'you dont have enough money to accept offer',
+      );
     const reservation = await this._repo.findOne({
       where: { id: offer.reservation_id },
       relations: {
@@ -248,8 +259,17 @@ export class ReservationService extends BaseUserService<Reservation> {
       text_en: ' your offer has been approved',
     });
 
+    await this.transactionService.makeTransaction(
+      new MakeTransactionRequest({
+        amount: offer.value,
+        order_id: offer.reservation_id,
+        user_id: this.currentUser.id,
+        receiver_id:doctor.user_id
+        
+      }),
+    );
     const savedReservation = await this._repo.save(reservation);
-   
+
     return savedReservation;
   }
 
@@ -320,6 +340,7 @@ export class ReservationService extends BaseUserService<Reservation> {
   }
 
   async scheduledReservation(request: SechudedReservationRequest) {
+    
     const busyTimes = await this.additionalInfoService.getDoctorBusyTimes(
       new DoctorAvaliablityRequest({
         doctor_id: request.doctor_id,
@@ -383,6 +404,39 @@ export class ReservationService extends BaseUserService<Reservation> {
     const doctor = await this.doctor_repository.findOne({
       where: { id: request.doctor_id },
     });
+    let value = 0;
+    switch (reservation.reservationType) {
+      case ReservationType.MEETING:
+        value = doctor.home_consultation_price;
+        break;
+      case ReservationType.VIDEO_CALL:
+        value = doctor.video_consultation_price;
+        break;
+      case ReservationType.VOICE_CALL:
+        value = doctor.voice_consultation_price;
+        break;
+      default:
+        value = 0;
+        break;
+    }
+    const has_money = await this.transactionService.checkBalance(
+      this.currentUser.id,
+    value,
+    );
+    if (!has_money)
+      throw new BadRequestException(
+        'you dont have enough money to accept offer',
+      );
+      await this.transactionService.makeTransaction(
+        new MakeTransactionRequest({
+          amount: value,
+          order_id: reservation.id,
+          user_id: this.currentUser.id,
+          receiver_id:doctor.user_id
+          
+        }),
+      );
+
     await this.notificationService.create(
       new NotificationEntity({
         user_id: doctor.user_id,

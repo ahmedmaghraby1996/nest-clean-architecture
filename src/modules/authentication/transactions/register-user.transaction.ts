@@ -14,6 +14,7 @@ import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { plainToInstance } from 'class-transformer';
 import { Client } from 'src/infrastructure/entities/client/client.entity';
 import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-avaliablity.entity';
+import { Wallet } from 'src/infrastructure/entities/wallet/wallet.entity';
 
 @Injectable()
 export class RegisterUserTransaction extends BaseTransaction<
@@ -70,6 +71,7 @@ export class RegisterUserTransaction extends BaseTransaction<
       user.roles = [req.role];
       // save user
       const savedUser = await context.save(User, user);
+      await context.save(new Wallet({ user_id: savedUser.id }));
 
       // create driver setting if user is a driver
       if (req.role == Role.DOCTOR) {

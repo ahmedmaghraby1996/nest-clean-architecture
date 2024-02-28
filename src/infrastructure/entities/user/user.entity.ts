@@ -5,6 +5,7 @@ import {
   BeforeInsert,
   OneToMany,
   OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import { Factory } from 'nestjs-seeder';
 import { randNum } from 'src/core/helpers/cast.helper';
@@ -17,6 +18,8 @@ import { Client } from '../client/client.entity';
 import {NotificationEntity} from '../notification/notification.entity'
 import { PhOrder } from '../pharmacy/ph-order.entity';
 import { NurseOrder } from '../nurse/nurse-order.entity';
+import { Wallet } from '../wallet/wallet.entity';
+import { Transaction } from '../wallet/transaction.entity';
 @Entity()
 export class User extends AuditableEntity {
 
@@ -89,6 +92,12 @@ export class User extends AuditableEntity {
 
   @Column({ default: true })
   is_active: boolean;
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user)
+  wallet: Wallet;
+
+  @ManyToOne(() => Transaction, (transaction) => transaction.user)
+  transactions: Transaction[];
 
   @Factory((faker) => faker.helpers.arrayElement([Role.CLIENT, Role.DOCTOR]))
   @Column({ type: 'set', enum: Role, default: [Role.CLIENT] })

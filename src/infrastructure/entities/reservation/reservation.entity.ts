@@ -19,6 +19,7 @@ import { User } from '../user/user.entity';
 import { Client } from '../client/client.entity';
 import { Exclude } from 'class-transformer';
 import { Address } from '../user/address.entity';
+import { Transaction } from '../wallet/transaction.entity';
 
 @Entity()
 export class Reservation extends OwnedEntity {
@@ -31,6 +32,7 @@ export class Reservation extends OwnedEntity {
 
   @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
   longitude: number;
+
 
   @Column({ nullable: true })
   reservationType: ReservationType;
@@ -91,10 +93,10 @@ export class Reservation extends OwnedEntity {
   @OneToMany(() => Offer, (offer) => offer.reservation)
   offers: Offer[];
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   start_day: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 , nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   start_time: number;
 
   @ManyToOne(() => Address, (address) => address.reservations)
@@ -107,7 +109,6 @@ export class Reservation extends OwnedEntity {
   number: string;
   @Column()
   is_urgent: boolean;
-  
 
   constructor(data: Partial<Reservation>) {
     super();
