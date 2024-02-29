@@ -201,6 +201,7 @@ export class AdditionalInfoController {
   @Roles(Role.PHARMACY)
   @Put('update-pharmacy-info')
   async updatePharmacy(@Body() request: UpdatePharamcyRequest) {
+    
     return new ActionResponse(
       await this.PharmacyService.addPharmacyInfo(
         request,
@@ -217,9 +218,14 @@ export class AdditionalInfoController {
     const pharamcy = await this.PharmacyService.getPharmacyInfo(
       this.nurseService.currentUser.id,
     );
+
+   
+   
     const categories = await this.PharmacyService.getCategories(
-      pharamcy.categories,
+     pharamcy.categories==null?[]: pharamcy.categories,
     );
+   
+    
 
     return new ActionResponse(
       this._i18nResponse.entity(

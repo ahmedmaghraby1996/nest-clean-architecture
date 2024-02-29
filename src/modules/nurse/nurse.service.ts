@@ -50,6 +50,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
       user_id: userId,
       id: nurse_id?.id,
     });
+   delete nurse.license_images;
 
     await this.nurseRepo.save(nurse);
 
