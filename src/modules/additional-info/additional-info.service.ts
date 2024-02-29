@@ -146,7 +146,9 @@ export class AdditionalInfoService {
         typeof request.avaliablity === 'string'
           ? plainToInstance(DoctorAvaliablity, JSON.parse(request.avaliablity))
           : request.avaliablity;
-      const availability = Promise.all(
+
+
+      Promise.all(
         (doctor_availiablity as unknown as DoctorAvaliablity[]).map(
           async (e) =>
             await this.context.update(
@@ -160,6 +162,8 @@ export class AdditionalInfoService {
       // await this.context.save(DoctorAvaliablity, availability);
     }
 
+  
+    delete doctor.avaliablity;
     await this.doctorRepo.save(doctor);
     return this.getFullDoctor(doctor_id);
   }
@@ -294,7 +298,6 @@ export class AdditionalInfoService {
     const result = busyTimes.map((e) => e.start_time);
     return result;
   }
-
 
   async getProfile() {
     return await this.context.findOneBy(User, {
