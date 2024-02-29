@@ -26,8 +26,8 @@ export class TransactionController {
   async getTransactions(@Query() query: PaginatedRequest) {
     applyQueryIncludes(query, 'user');
     applyQueryIncludes(query, 'receiver');
-    applyQueryFilters(query, `user.id=${this.transactionService.currentUser.id}`);
-    applyQueryFilters(query, `receiver.id=${this.transactionService.currentUser.id}`);
+    applyQueryFilters(query, `user_id=${this.transactionService.currentUser.id}`);
+    applyQueryFilters(query, `receiver_id=${this.transactionService.currentUser.id}`);
 
     
 
