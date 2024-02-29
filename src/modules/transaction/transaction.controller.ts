@@ -3,7 +3,11 @@ import { TransactionService } from './transaction.service';
 import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
 import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 import { ActionResponse } from 'src/core/base/responses/action.response';
-import { applyQueryFilters, applyQueryIncludes } from 'src/core/helpers/service-related.helper';
+import {
+  applyQueryFilters,
+  applyQueryIncludes,
+
+} from 'src/core/helpers/service-related.helper';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
@@ -26,13 +30,14 @@ export class TransactionController {
   async getTransactions(@Query() query: PaginatedRequest) {
     applyQueryIncludes(query, 'user');
     applyQueryIncludes(query, 'receiver');
-    applyQueryFilters(query, `user_id=${this.transactionService.currentUser.id}`);
-    applyQueryFilters(query, `receiver_id=${this.transactionService.currentUser.id}`);
-
-    
+    applyQueryFilters(
+      query,
+      `user_id=${this.transactionService.currentUser.id}`,
+      [`receiver_id=${this.transactionService.currentUser.id}`],
+    );
 
     const transaction = await this.transactionService.findAll(query);
-    const result =plainToInstance(TransactionResponse, transaction);
+    const result = plainToInstance(TransactionResponse, transaction);
 
     if (query.page && query.limit) {
       const total = await this.transactionService.count(query);
