@@ -407,6 +407,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         receiver_id: doctor.user_id,
       }),
     );
+    reservation.price = value;
     await this._repo.save(reservation);
     if (request.files) {
       request.files.map((file) => {
