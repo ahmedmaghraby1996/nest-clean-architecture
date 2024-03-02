@@ -25,7 +25,6 @@ export class TransactionService extends BaseUserService<Transaction> {
       user_id: req.user_id,
     });
     user_wallet.balance = user_wallet.balance - req.amount;
-  
 
     const receiver__wallet = await this.walletRepository.findOneBy({
       user_id: req.receiver_id,
@@ -33,10 +32,9 @@ export class TransactionService extends BaseUserService<Transaction> {
     receiver__wallet.balance = receiver__wallet.balance + req.amount;
     const transaction = plainToInstance(Transaction, {
       ...req,
-
-   
     });
-  
+
+    
 
     await this.transactionRepository.save(transaction);
     await this.walletRepository.save(receiver__wallet);

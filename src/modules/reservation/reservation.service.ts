@@ -37,6 +37,7 @@ import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { TransactionService } from '../transaction/transaction.service';
 import { MakeTransactionRequest } from '../transaction/dto/requests/make-transaction-request';
 import { TransactionTypes } from 'src/infrastructure/data/enums/transaction-types';
+import { CancelReservationRequest } from './dto/requests/cancel-reservation-request';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -228,6 +229,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     offer.is_accepted = true;
     this.offer_repository.update(offer.id, offer);
     reservation.doctor_id = offer.doctor_id;
+    reservation.price = offer.value;
     reservation.end_date = new Date(new Date().getTime() + 20 * 60000);
     reservation.status = ReservationStatus.STARTED;
     if (reservation.reservationType != ReservationType.MEETING) {
@@ -370,6 +372,41 @@ export class ReservationService extends BaseUserService<Reservation> {
     reservation.number = generateOrderNumber(count);
     reservation.is_urgent = false;
     reservation.status = ReservationStatus.SCHEDULED;
+    const doctor = await this.doctor_repository.findOne({
+      where: { id: request.doctor_id },
+    });
+    let value = 0;
+    switch (reservation.reservationType) {
+      case ReservationType.MEETING:
+        value = doctor.home_consultation_price;
+        break;
+      case ReservationType.VIDEO_CALL:
+        value = doctor.video_consultation_price;
+        break;
+      case ReservationType.VOICE_CALL:
+        value = doctor.voice_consultation_price;
+        break;
+      default:
+        value = 0;
+        break;
+    }
+    const has_money = await this.transactionService.checkBalance(
+      this.currentUser.id,
+      value,
+    );
+    if (!has_money)
+      throw new BadRequestException(
+        'you dont have enough money to make this reservation',
+      );
+    await this.transactionService.makeTransaction(
+      new MakeTransactionRequest({
+        amount: value,
+        order_id: reservation.id,
+        type: TransactionTypes.ORDER,
+        user_id: this.currentUser.id,
+        receiver_id: doctor.user_id,
+      }),
+    );
     await this._repo.save(reservation);
     if (request.files) {
       request.files.map((file) => {
@@ -401,41 +438,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       });
     }
 
-    const doctor = await this.doctor_repository.findOne({
-      where: { id: request.doctor_id },
-    });
-    let value = 0;
-    switch (reservation.reservationType) {
-      case ReservationType.MEETING:
-        value = doctor.home_consultation_price;
-        break;
-      case ReservationType.VIDEO_CALL:
-        value = doctor.video_consultation_price;
-        break;
-      case ReservationType.VOICE_CALL:
-        value = doctor.voice_consultation_price;
-        break;
-      default:
-        value = 0;
-        break;
-    }
-    const has_money = await this.transactionService.checkBalance(
-      this.currentUser.id,
-      value,
-    );
-    if (!has_money)
-      throw new BadRequestException(
-        'you dont have enough money to accept offer',
-      );
-    await this.transactionService.makeTransaction(
-      new MakeTransactionRequest({
-        amount: value,
-        order_id: reservation.id,
-        type: TransactionTypes.ORDER,
-        user_id: this.currentUser.id,
-        receiver_id: doctor.user_id,
-      }),
-    );
+
 
     await this.notificationService.create(
       new NotificationEntity({
@@ -448,6 +451,39 @@ export class ReservationService extends BaseUserService<Reservation> {
         text_en: 'you have a new reservation',
       }),
     );
+    return this.getResevation(reservation.id);
+  }
+
+  async cancelOrder(request: CancelReservationRequest) {
+    const reservation = await this._repo.findOne({
+      where: { id: request.id },
+      relations: { doctor: { user: true } },
+    });
+    if (reservation.status != ReservationStatus.SCHEDULED)
+      throw new BadRequestException('you can not cancel this reservation');
+    reservation.status = ReservationStatus.CANCELED;
+    this.transactionService.makeTransaction(
+      new MakeTransactionRequest({
+        amount: reservation.price - reservation.price * 0.1,
+        order_id: reservation.id,
+        type: TransactionTypes.ORDER_CANCEL,
+        user_id: reservation.doctor.user_id,
+        receiver_id: reservation.user_id,
+      }),
+    );
+    await this.notificationService.create(
+      new NotificationEntity({
+        user_id: reservation.doctor.user_id,
+        url: reservation.doctor.user_id,
+        type: NotificationTypes.CANCELED,
+        title_ar: 'تم الغاء حجز',
+        title_en: 'reservation has been canceled',
+        text_ar: 'تم الغاء حجز',
+        text_en: 'reservation has been canceled',
+      }),
+    );
+
+    await this._repo.save(reservation);
     return this.getResevation(reservation.id);
   }
 

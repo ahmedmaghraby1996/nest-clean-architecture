@@ -59,6 +59,9 @@ export class Reservation extends OwnedEntity {
   @Column({ nullable: true })
   end_date: Date;
 
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
+  price: number;
+
   @OneToMany(
     () => ReservationAttachments,
     (attachment) => attachment.reservation,

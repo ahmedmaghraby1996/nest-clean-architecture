@@ -4,6 +4,7 @@
  */
 export enum NotificationTypes {
   RESERVATION = 'RESERVATION',
+  CANCELED = 'CANCELED',
   OFFER = 'OFFER',
   ORDER = 'ORDER',
 

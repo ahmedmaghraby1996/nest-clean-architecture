@@ -36,6 +36,7 @@ import { SechudedReservationRequest } from './dto/requests/scheduled-reservation
 import { Reservation } from 'src/infrastructure/entities/reservation/reservation.entity';
 import { NotificationService } from '../notification/services/notification.service';
 import { ReservationGateway } from 'src/integration/gateways/reservation.gateway';
+import { CancelReservationRequest } from './dto/requests/cancel-reservation-request';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -119,6 +120,16 @@ export class ReservationController {
     return new ActionResponse(
       this._i18nResponse.entity(
         new ReservationResponse(await this.reservationService.findOne(id)),
+      ),
+    );
+  }
+
+  @Roles(Role.CLIENT)
+  @Get('client-cancel')
+  async cancelOrder(@Body() request: CancelReservationRequest) {
+    return new ActionResponse(
+      this._i18nResponse.entity(
+        new ReservationResponse(await this.reservationService.cancelOrder(request)),
       ),
     );
   }
