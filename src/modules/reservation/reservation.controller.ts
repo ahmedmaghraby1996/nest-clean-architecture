@@ -125,7 +125,7 @@ export class ReservationController {
   }
 
   @Roles(Role.CLIENT)
-  @Get('client-cancel')
+  @Post('client-cancel')
   async cancelOrder(@Body() request: CancelReservationRequest) {
     return new ActionResponse(
       this._i18nResponse.entity(
