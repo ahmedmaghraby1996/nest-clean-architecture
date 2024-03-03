@@ -24,6 +24,8 @@ export class TransactionService extends BaseUserService<Transaction> {
     const user_wallet = await this.walletRepository.findOneBy({
       user_id: req.user_id,
     });
+    req.amount= Number(req.amount)
+    
     user_wallet.balance = user_wallet.balance - req.amount;
 
     const receiver__wallet = await this.walletRepository.findOneBy({
@@ -45,7 +47,7 @@ export class TransactionService extends BaseUserService<Transaction> {
     const wallet = await this.walletRepository.findOneBy({
       user_id: user_id,
     });
-    if (wallet.balance < amount) {
+    if ( Number(wallet.balance) < Number(amount)) {
       return false;
     }
     return true;
