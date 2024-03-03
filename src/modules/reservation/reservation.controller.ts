@@ -134,6 +134,16 @@ export class ReservationController {
     );
   }
 
+  @Roles(Role.DOCTOR)
+  @Post('doctor-cancel')
+  async docCancelOrder(@Body() request: CancelReservationRequest) {
+    return new ActionResponse(
+      this._i18nResponse.entity(
+        new ReservationResponse(await this.reservationService.cancelOrder(request)),
+      ),
+    );
+  }
+
   @Roles(Role.CLIENT)
   @Post('urgent')
   async urgentReservation(@Body() request: urgentReservationRequest) {

@@ -78,6 +78,12 @@ export class Reservation extends OwnedEntity {
   @Column({ nullable: true })
   doctor_id?: string;
 
+  @Column({ nullable: true })
+  cancel_reason: string;
+
+  @Column({ default: false })
+  cancel_request: boolean;
+
   @ManyToOne(() => FamilyMember, (familyMember) => familyMember.reservations, {
     cascade: true,
     nullable: true,

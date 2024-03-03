@@ -386,6 +386,9 @@ export class ReservationService extends BaseUserService<Reservation> {
       case ReservationType.VOICE_CALL:
         value = doctor.voice_consultation_price;
         break;
+        case ReservationType.CLINIC:
+          value = doctor.voice_consultation_price;
+          break;
       default:
         value = 0;
         break;
@@ -463,6 +466,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     if (reservation.status != ReservationStatus.SCHEDULED)
       throw new BadRequestException('you can not cancel this reservation');
     reservation.status = ReservationStatus.CANCELED;
+    reservation.cancel_reason = request.reason;
     this.transactionService.makeTransaction(
       new MakeTransactionRequest({
         amount: reservation.price - reservation.price * 0.1,
@@ -483,6 +487,20 @@ export class ReservationService extends BaseUserService<Reservation> {
         text_en: 'reservation has been canceled',
       }),
     );
+
+    await this._repo.save(reservation);
+    return this.getResevation(reservation.id);
+  }
+  async doctorCancelOrder(request: CancelReservationRequest) {
+    const doctor = await this.doctor_repository.findOne({
+      where: { user_id: this.currentUser.id },
+    })
+    const reservation = await this._repo.findOne({
+      where: { id: request.id ,doctor_id:doctor.id},
+    });
+    reservation.cancel_reason = request.reason;
+    reservation.cancel_request=true
+   
 
     await this._repo.save(reservation);
     return this.getResevation(reservation.id);
