@@ -96,6 +96,11 @@ export class Reservation extends OwnedEntity {
   @Column({ nullable: true })
   client_agora_token: string;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  rate: number;
+  @Column({ nullable: true })
+  comment: string;
+
   @Column({ nullable: true })
   doctor_agora_token: string;
 

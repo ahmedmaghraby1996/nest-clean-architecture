@@ -59,10 +59,14 @@ export class Doctor extends OwnedEntity {
   @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
   latitude: number;
 
+  @Column({ default: 0, type: 'decimal', precision: 10, scale: 2 })
+  rating: number;
+  @Column({ default: 0 })
+  number_of_reviews: number;
+
+
   @Column({ type: 'float', precision: 10, scale: 6, nullable: true })
   longitude: number;
-
-
 
   @Column({ nullable: true })
   is_verified: boolean;
@@ -78,7 +82,6 @@ export class Doctor extends OwnedEntity {
 
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   clinic_consultation_price: number;
-  
 
   @Column({ default: false })
   is_urgent_doctor: boolean;

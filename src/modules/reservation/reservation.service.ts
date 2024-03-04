@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { urgentReservationRequest } from './dto/requests/urgent_reservation_request';
 import * as fs from 'fs';
 import { plainToInstance } from 'class-transformer';
@@ -38,6 +43,8 @@ import { TransactionService } from '../transaction/transaction.service';
 import { MakeTransactionRequest } from '../transaction/dto/requests/make-transaction-request';
 import { TransactionTypes } from 'src/infrastructure/data/enums/transaction-types';
 import { CancelReservationRequest } from './dto/requests/cancel-reservation-request';
+import { RateDoctorRequest } from './dto/requests/rate-doctor-request';
+import { User } from 'src/infrastructure/entities/user/user.entity';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -50,6 +57,8 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly repository: Repository<Reservation>,
     @InjectRepository(Address)
     private readonly address_repository: Repository<Address>,
+    @InjectRepository(User)
+    private readonly user_repository: Repository<User>,
     @InjectRepository(Offer)
     private readonly offer_repository: Repository<Offer>,
     private readonly additionalInfoService: AdditionalInfoService,
@@ -247,7 +256,7 @@ export class ReservationService extends BaseUserService<Reservation> {
       2,
       reservation.id,
     );
-    if (doctor.is_busy == true) throw new BadRequestException('you are busy');
+    if (doctor.is_busy == true) throw new BadRequestException('doctor is busy');
     doctor.is_busy = true;
 
     await this.doctor_repository.save(doctor);
@@ -386,9 +395,9 @@ export class ReservationService extends BaseUserService<Reservation> {
       case ReservationType.VOICE_CALL:
         value = doctor.voice_consultation_price;
         break;
-        case ReservationType.CLINIC:
-          value = doctor.voice_consultation_price;
-          break;
+      case ReservationType.CLINIC:
+        value = doctor.voice_consultation_price;
+        break;
       default:
         value = 0;
         break;
@@ -401,6 +410,9 @@ export class ReservationService extends BaseUserService<Reservation> {
       throw new BadRequestException(
         'you dont have enough money to make this reservation',
       );
+
+    reservation.price = value;
+    await this._repo.save(reservation);
     await this.transactionService.makeTransaction(
       new MakeTransactionRequest({
         amount: value,
@@ -410,8 +422,6 @@ export class ReservationService extends BaseUserService<Reservation> {
         receiver_id: doctor.user_id,
       }),
     );
-    reservation.price = value;
-    await this._repo.save(reservation);
     if (request.files) {
       request.files.map((file) => {
         // check if image exists using fs
@@ -441,8 +451,6 @@ export class ReservationService extends BaseUserService<Reservation> {
         fs.renameSync(image, newPath);
       });
     }
-
-
 
     await this.notificationService.create(
       new NotificationEntity({
@@ -494,18 +502,36 @@ export class ReservationService extends BaseUserService<Reservation> {
   async doctorCancelOrder(request: CancelReservationRequest) {
     const doctor = await this.doctor_repository.findOne({
       where: { user_id: this.currentUser.id },
-    })
+    });
     const reservation = await this._repo.findOne({
-      where: { id: request.id ,doctor_id:doctor.id},
+      where: { id: request.id, doctor_id: doctor.id },
     });
     reservation.cancel_reason = request.reason;
-    reservation.cancel_request=true
-   
+    reservation.cancel_request = true;
 
     await this._repo.save(reservation);
     return this.getResevation(reservation.id);
   }
 
+  async rateDoctor(request: RateDoctorRequest) {
+    const reservation = await this._repo.findOne({
+      where: { id: request.order_id },
+    });
+    if (!reservation) throw new NotFoundException('reservation not found');
+    reservation.comment = request.comment;
+    reservation.rate = request.rate;
+    await this._repo.save(reservation);
+    const doctor = await this.doctor_repository.findOne({
+      where: { id: reservation.doctor_id },
+    })
+    doctor.number_of_reviews = doctor.number_of_reviews + 1
+    doctor.rating = Number(doctor.rating) + Number(request.rate)
+    const user = await this.user_repository.findOne({
+      where: { id: reservation.user_id },
+    })
+    user.review_count = user.review_count + 1
+    return this.getResevation(reservation.id);
+  }
   async startReservation(id: string) {
     const reservation = await this._repo.findOne({
       where: { id },

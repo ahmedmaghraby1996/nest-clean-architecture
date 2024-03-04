@@ -37,6 +37,7 @@ import { Reservation } from 'src/infrastructure/entities/reservation/reservation
 import { NotificationService } from '../notification/services/notification.service';
 import { ReservationGateway } from 'src/integration/gateways/reservation.gateway';
 import { CancelReservationRequest } from './dto/requests/cancel-reservation-request';
+import { RateDoctorRequest } from './dto/requests/rate-doctor-request';
 
 @ApiTags('reservation')
 @ApiHeader({
@@ -123,13 +124,22 @@ export class ReservationController {
       ),
     );
   }
+  @Roles(Role.CLIENT)
+  @Post('/rate')
+  async rateReservation(@Body() request: RateDoctorRequest) {
+    const reservation = await this.reservationService.rateDoctor(request);
+    const data = this._i18nResponse.entity(reservation);
+    return new ActionResponse(new ReservationResponse(data));
+  }
 
   @Roles(Role.CLIENT)
   @Post('client-cancel')
   async cancelOrder(@Body() request: CancelReservationRequest) {
     return new ActionResponse(
       this._i18nResponse.entity(
-        new ReservationResponse(await this.reservationService.cancelOrder(request)),
+        new ReservationResponse(
+          await this.reservationService.cancelOrder(request),
+        ),
       ),
     );
   }
@@ -139,7 +149,9 @@ export class ReservationController {
   async docCancelOrder(@Body() request: CancelReservationRequest) {
     return new ActionResponse(
       this._i18nResponse.entity(
-        new ReservationResponse(await this.reservationService.cancelOrder(request)),
+        new ReservationResponse(
+          await this.reservationService.cancelOrder(request),
+        ),
       ),
     );
   }

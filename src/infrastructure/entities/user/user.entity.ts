@@ -96,6 +96,9 @@ export class User extends AuditableEntity {
   @OneToOne(() => Wallet, (wallet) => wallet.user)
   wallet: Wallet;
 
+  @Column({ default: 0 })
+  review_count: number;
+
   @ManyToOne(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
 
