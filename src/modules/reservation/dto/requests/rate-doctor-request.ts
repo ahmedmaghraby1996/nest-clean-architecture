@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsString, Max, Min } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class RateDoctorRequest {
   @ApiProperty()
@@ -9,6 +9,8 @@ export class RateDoctorRequest {
   rate: number;
   @ApiPropertyOptional()
   @IsString()
+  
+@IsOptional()
   comment: string;
   @ApiProperty()
   @IsString()
