@@ -150,7 +150,7 @@ export class ReservationController {
     return new ActionResponse(
       this._i18nResponse.entity(
         new ReservationResponse(
-          await this.reservationService.cancelOrder(request),
+          await this.reservationService.doctorCancelOrder(request),
         ),
       ),
     );

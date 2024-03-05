@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { DoctorInfoRequest } from './dto/requests/doctor-info-request';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
-import { EntityManager, In, Repository } from 'typeorm';
+import { EntityManager, In, Not, Repository } from 'typeorm';
 import * as fs from 'fs';
 import { DoctorLicense } from 'src/infrastructure/entities/doctor/doctor-license.entity';
 import { plainToInstance } from 'class-transformer';
@@ -25,6 +25,7 @@ import { Reservation } from 'src/infrastructure/entities/reservation/reservation
 import { Clinic } from 'src/infrastructure/entities/doctor/clinc.entity';
 import { UpdateDoctorInfoRequest } from './dto/requests/update-doctor-info.request';
 import { UpdateProfileRequest } from '../authentication/dto/requests/update-profile-request';
+import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-status.eum';
 @Injectable()
 export class AdditionalInfoService {
   constructor(
@@ -292,6 +293,7 @@ export class AdditionalInfoService {
       where: {
         start_day: start_date,
         // start_time: start_time,
+        status: Not(ReservationStatus.CANCELED),
         doctor_id: query.doctor_id,
       },
     });

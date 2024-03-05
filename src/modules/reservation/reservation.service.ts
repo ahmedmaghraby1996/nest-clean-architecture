@@ -530,6 +530,8 @@ export class ReservationService extends BaseUserService<Reservation> {
       where: { id: reservation.user_id },
     })
     user.review_count = user.review_count + 1
+    await this.doctor_repository.save(doctor);
+    await this.user_repository.save(user);
     return this.getResevation(reservation.id);
   }
   async startReservation(id: string) {
