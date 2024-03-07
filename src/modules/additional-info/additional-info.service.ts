@@ -49,7 +49,8 @@ export class AdditionalInfoService {
       {},
     );
 
-    if (user.avatar) {
+    if (request.avatarFile) {
+   
       const resizedImage = await this.imageManager.resize(request.avatarFile, {
         size: { width: 300, height: 300 },
         options: {

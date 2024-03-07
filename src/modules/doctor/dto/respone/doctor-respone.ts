@@ -12,7 +12,8 @@ export class DoctorResopone {
   user: any;
   clinic_consultation_price: number;
   summery: string;
- experience: number;
+  rating: number;
+  experience: number;
   clinic: any;
   constructor(data: Partial<Doctor>) {
     this.id = data.id;
@@ -20,12 +21,12 @@ export class DoctorResopone {
     this.name = data.user.first_name + ' ' + data.user.last_name;
     this.experience = data.year_of_experience;
     this.summery = data.summery;
+    this.rating = data.rating;
     this.specialization = data.specialization;
     this.video_consultation_price = data.video_consultation_price;
     this.voice_consultation_price = data.voice_consultation_price;
     this.home_consultation_price = data.home_consultation_price;
     this.clinic_consultation_price = data.clinic_consultation_price;
-    this.clinic=data.clinic
-
+    this.clinic = data.clinic;
   }
 }

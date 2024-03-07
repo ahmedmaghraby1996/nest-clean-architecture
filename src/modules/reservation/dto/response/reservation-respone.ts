@@ -14,6 +14,7 @@ export class ReservationResponse {
   reservationType: ReservationType;
   @Expose()
   specialization: any;
+  
 
   @Expose()
   phone: string;
@@ -46,6 +47,8 @@ export class ReservationResponse {
 
   start_day?: string;
 
+  @Expose()
+  rate:number
   start_time?: number;
   @Expose() 
   client_info: any;
@@ -56,7 +59,10 @@ export class ReservationResponse {
   is_urgent: boolean;
 
   constructor(data: Partial<ReservationResponse>) {
+
+    this.rate=data.rate
     const startDate = new Date(data.start_day);
+
 
     if (data.start_time != null) {
     
@@ -94,7 +100,8 @@ export class ReservationResponse {
           id: data.doctor.id,
           name: data.doctor.user.first_name + ' ' + data.doctor.user.last_name,
           avatar: data.doctor.user.avatar ? toUrl(data.doctor.user.avatar) : null,
-          clinic: data.doctor.clinic
+          clinic: data.doctor.clinic,
+          rating:data.doctor.number_of_reviews==0?0: data.doctor.rating/data.doctor.number_of_reviews,
         }
       : null;
 

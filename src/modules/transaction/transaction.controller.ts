@@ -6,7 +6,6 @@ import { ActionResponse } from 'src/core/base/responses/action.response';
 import {
   applyQueryFilters,
   applyQueryIncludes,
-
 } from 'src/core/helpers/service-related.helper';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
@@ -37,7 +36,15 @@ export class TransactionController {
     );
 
     const transaction = await this.transactionService.findAll(query);
-    const result = plainToInstance(TransactionResponse, transaction);
+    const result = transaction.map((transaction) =>
+      plainToInstance(TransactionResponse, {
+        ...transaction,
+        payee:
+          this.transactionService.currentUser.id == transaction.user_id
+            ? true:false
+            
+      }),
+    );
 
     if (query.page && query.limit) {
       const total = await this.transactionService.count(query);

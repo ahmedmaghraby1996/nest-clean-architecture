@@ -117,7 +117,7 @@ export class User extends AuditableEntity {
   }
 
   // generate unique id in this pattern: ######
-  private uniqueIdGenerator(): string {
+  public uniqueIdGenerator(): string {
     return randNum(8);
   }
 

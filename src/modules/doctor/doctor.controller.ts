@@ -7,7 +7,8 @@ import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 import { DoctorResopone } from './dto/respone/doctor-respone';
 import { applyQueryIncludes } from 'src/core/helpers/service-related.helper';
 import { ApiTags } from '@nestjs/swagger';
-@ApiTags("Doctor")
+import { number } from 'joi';
+@ApiTags('Doctor')
 @Controller('doctor')
 export class DoctorController {
   constructor(
@@ -22,10 +23,16 @@ export class DoctorController {
     applyQueryIncludes(query, 'specialization');
     const doctors = await this.doctorService.findAll(query);
     const data = this._i18nResponse.entity(doctors);
-    const doctorsReposonse = data.map((doctor) =>
-     
-      new DoctorResopone({id:doctor.id,user:doctor.user,specialization:doctor.specialization}));
-    
+    const doctorsReposonse = data.map(
+      (doctor) =>
+        new DoctorResopone({
+          id: doctor.id,
+          user: doctor.user,
+          specialization: doctor.specialization,
+          rating: doctor.number_of_reviews == 0 ? 0 : Number( doctor.rating/doctor.number_of_reviews)
+        }),
+    );
+
     if (query.page && query.limit) {
       const total = await this.doctorService.count(query);
       return new PaginatedResponse(doctorsReposonse, {
@@ -35,11 +42,11 @@ export class DoctorController {
       return new ActionResponse(doctorsReposonse);
     }
   }
-@Get("/:id")
+  @Get('/:id')
   async getSingle(@Param('id') id: string) {
     const doctor = await this.doctorService.findOne(id);
-    console.log(id)
+    console.log(id);
     const data = this._i18nResponse.entity(doctor);
-    return new ActionResponse(new DoctorResopone({...data}));
+    return new ActionResponse(new DoctorResopone({ ...data , rating: doctor.number_of_reviews == 0 ? 0 : Number( doctor.rating/doctor.number_of_reviews)}));
   }
 }
