@@ -21,7 +21,9 @@ longitude: number;
 @Column({default:true})
 is_active:boolean
 
-@OneToMany(()=>Doctor,(doctor)=>doctor.clinic)
+@OneToMany(()=>Doctor,(doctor)=>doctor.clinic)  
 doctors:Doctor[]
+
+
 
 }

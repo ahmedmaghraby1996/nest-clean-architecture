@@ -98,7 +98,8 @@ export class AdditionalInfoService {
         await this.context.update(Clinic, doctor.clinic_id, clinc);
       } else {
         const new_clinc = await this.context.save(Clinic, clinc);
-        doctor.clinic_id = new_clinc.id;
+        doctor.clinic= new_clinc;
+      
       }
     }
     if (request.latitude && request.longitude) {
@@ -166,6 +167,7 @@ export class AdditionalInfoService {
 
   
     delete doctor.avaliablity;
+  
     await this.doctorRepo.save(doctor);
     return this.getFullDoctor(doctor_id);
   }

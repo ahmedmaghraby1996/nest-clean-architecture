@@ -216,7 +216,7 @@ export class AdditionalInfoController {
   @Get('pharmacy-info')
   async getPharmacyInfo() {
     const pharamcy = await this.PharmacyService.getPharmacyInfo(
-      this.nurseService.currentUser.id,
+      this.PharmacyService.request.user.id,
     );
 
    

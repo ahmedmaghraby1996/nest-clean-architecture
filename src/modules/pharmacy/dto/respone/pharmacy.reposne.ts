@@ -14,6 +14,9 @@ export class PharmacyResponse {
   close_time: string;
   @Expose()
   expierence: number;
+
+  @Expose()
+  address: string;
   @Expose()
   summery: string;
   @Expose()
