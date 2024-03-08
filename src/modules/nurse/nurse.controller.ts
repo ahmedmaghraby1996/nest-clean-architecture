@@ -29,6 +29,8 @@ import { NurseOrderResponse } from './dto/respone/nurse-order.response';
 import { NurseOfferRequest } from './dto/request/nurse-offer-request';
 import { NurseOfferResponse } from './dto/respone/nurse-offer.response';
 import { UpdateNurseRequest } from './dto/request/update-nurse-request';
+import { request } from 'http';
+import { RateDoctorRequest } from '../reservation/dto/requests/rate-doctor-request';
 
 @ApiTags('Nusre')
 @ApiHeader({
@@ -64,6 +66,10 @@ export class NurseController {
         await this.nurseService.getOffers(id),
       ),
     );
+  }
+  @Post('order/rate')
+  async rateNurse(@Body()request:RateDoctorRequest) {
+    return new ActionResponse(await this.nurseService.clientRating(request));
   }
 
   @Get('order')
