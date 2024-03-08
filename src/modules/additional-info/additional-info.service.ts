@@ -172,6 +172,15 @@ export class AdditionalInfoService {
     return this.getFullDoctor(doctor_id);
   }
 
+  async deleteDoctorLicense(id: string) {
+    const license = await this.context.findOne(DoctorLicense, {
+      where: { id },
+    });
+     fs.unlinkSync(license.image);
+    await this.context.remove(DoctorLicense, license);
+    return license;
+  }
+
   async getDoctor(id?: string) {
     const doctor = await this.doctorRepo.findOne({
       where: { user_id: id == null ? this.request.user.id : id },

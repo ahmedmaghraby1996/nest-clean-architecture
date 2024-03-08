@@ -2,8 +2,10 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   Inject,
+  Param,
   Post,
   Put,
   Query,
@@ -70,6 +72,16 @@ export class AdditionalInfoController {
     return new ActionResponse(
       await this.additionalInfoService.addDoctorInfo(request),
     );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.DOCTOR)
+  @Delete('doctor-license/:id')
+  async deleteDoctorLicense(@Param('id') id: string) {
+    return new ActionResponse(
+      await this.additionalInfoService.deleteDoctorLicense(id),
+    )
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -170,6 +182,7 @@ export class AdditionalInfoController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.NURSE)
   @ApiBearerAuth()
   @Put('update-nurse-info')
   async updateInfo(@Body() request: UpdateNurseRequest) {
@@ -181,19 +194,24 @@ export class AdditionalInfoController {
     );
   }
 
+  @Delete('delete-nurse-license/:id')
+  async deleteNurseLicense(@Param('id') id: string) {
+    return new ActionResponse(await this.nurseService.deleteLicense(id));
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles(Role.NURSE)
   @Get('nurse-info')
   async getNurseInfo() {
-    const nurse= await this.nurseService.getNurse(this.nurseService.currentUser.id);
-    nurse.license_images.map((img)=>{
-      img.image=toUrl(img.image)
-      return img;
-    })
-    return new ActionResponse(
-      nurse
+    const nurse = await this.nurseService.getNurse(
+      this.nurseService.currentUser.id,
     );
+    nurse.license_images.map((img) => {
+      img.image = toUrl(img.image);
+      return img;
+    });
+    return new ActionResponse(nurse);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -201,7 +219,6 @@ export class AdditionalInfoController {
   @Roles(Role.PHARMACY)
   @Put('update-pharmacy-info')
   async updatePharmacy(@Body() request: UpdatePharamcyRequest) {
-    
     return new ActionResponse(
       await this.PharmacyService.addPharmacyInfo(
         request,
@@ -209,6 +226,24 @@ export class AdditionalInfoController {
       ),
     );
   }
+
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.PHARMACY)
+  @Delete('delete-pharmacy-license/:id')
+  async deletePharmacyLicense(@Param('id') id: string) {
+    return new ActionResponse(await this.PharmacyService.deleteLicense(id));
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.PHARMACY)
+  @Delete('delete-pharmacy-logo/:id')
+  async deletePharmacyLogo(@Param('id') id: string) {
+    return new ActionResponse(await this.PharmacyService.deleteLog(id));
+  }
+
+
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
@@ -219,13 +254,9 @@ export class AdditionalInfoController {
       this.PharmacyService.request.user.id,
     );
 
-   
-   
     const categories = await this.PharmacyService.getCategories(
-     pharamcy.categories==null?[]: pharamcy.categories,
+      pharamcy.categories == null ? [] : pharamcy.categories,
     );
-   
-    
 
     return new ActionResponse(
       this._i18nResponse.entity(
@@ -233,9 +264,8 @@ export class AdditionalInfoController {
           PharmacyResponse,
           { ...pharamcy, categories: categories },
           { excludeExtraneousValues: true },
-        ),    
-      )
-    
+        ),
+      ),
     );
   }
 

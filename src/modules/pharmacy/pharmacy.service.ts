@@ -213,8 +213,26 @@ export class PharmacyService {
   async getDrugCategories() {
     return await this.drugCategoryRepository.find();
   }
+  async deleteLicense(id: string) {
+    const license = await this.pharmacyAttachmentRepository.findOne({
+      where: { id, type: PharmacyAttachmentType.LICENSE },
+    });
+    fs.unlinkSync(license.file);
+    await this.pharmacyAttachmentRepository.remove(license);
+  }
+  async deleteLog(id: string) {
+    const logo = await this.pharmacyAttachmentRepository.findOne({
+      where: { id, type: PharmacyAttachmentType.LOGO },
+    });
+    fs.unlinkSync(logo.file);
+    await this.pharmacyAttachmentRepository.remove(logo);
+  }
+
   async getPharmacyInfo(user_id: string) {
-    return await this.pharmacyRepository.findOne({ where: { user_id } ,relations: { attachments: true } });
+    return await this.pharmacyRepository.findOne({
+      where: { user_id },
+      relations: { attachments: true },
+    });
   }
 
   async addPharmacyInfo(
@@ -507,11 +525,10 @@ export class PharmacyService {
     return false;
   }
 
-  async getCategories(ids:string[]) {
+  async getCategories(ids: string[]) {
     const categories = await this.drugCategoryRepository.find({
       where: { id: In(ids) },
     });
     return categories;
-    
   }
 }

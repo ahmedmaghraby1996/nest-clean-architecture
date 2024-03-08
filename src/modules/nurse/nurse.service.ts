@@ -41,7 +41,10 @@ export class NurseService extends BaseUserService<NurseOrder> {
   }
 
   async getNurse(id: string) {
-    return await this.nurseRepo.findOne({ where: { user_id: id },relations: { license_images: true } });
+    return await this.nurseRepo.findOne({
+      where: { user_id: id },
+      relations: { license_images: true },
+    });
   }
   async addNurse(req: Partial<UpdateNurseRequest>, userId: string) {
     const nurse_id = await this.getNurse(userId);
@@ -50,7 +53,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
       user_id: userId,
       id: nurse_id?.id,
     });
-   delete nurse.license_images;
+    delete nurse.license_images;
 
     await this.nurseRepo.save(nurse);
 
@@ -84,6 +87,12 @@ export class NurseService extends BaseUserService<NurseOrder> {
       });
     }
     return nurse;
+  }
+
+  async deleteLicense(id: string) {
+    const license = await this.nurseLicenseRepo.findOne({ where: { id } });
+    fs.unlinkSync(license.image);
+    await this.nurseLicenseRepo.remove(license);
   }
 
   async createNurseOrder(req: NurseOrderRequest) {
