@@ -19,7 +19,10 @@ import { PaginatedResponse } from 'src/core/base/responses/paginated.response';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
 import { RolesGuard } from '../authentication/guards/roles.guard';
-import { applyQueryIncludes, applyQuerySort } from 'src/core/helpers/service-related.helper';
+import {
+  applyQueryIncludes,
+  applyQuerySort,
+} from 'src/core/helpers/service-related.helper';
 import { User } from 'src/infrastructure/entities/user/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { NurseOrderResponse } from './dto/respone/nurse-order.response';
@@ -79,7 +82,7 @@ export class NurseController {
           sent_offer: await this.nurseService.sentOffer(
             order.id,
 
-            nurse===null?null:nurse.id,
+            nurse === null ? null : nurse.id,
           ),
         });
       }),
@@ -94,7 +97,21 @@ export class NurseController {
 
   @Post('accept/offer/:id')
   async acceptOffer(@Param('id') id: string) {
-    return new ActionResponse(await this.nurseService.acceptOffer(id));
+    return new ActionResponse(
+      plainToInstance(
+        NurseOrderResponse,
+        await this.nurseService.acceptOffer(id),
+      ),
+    );
   }
 
+  @Post('cancel/order/:id')
+  async cancelOrder(@Param('id') id: string) {
+    return new ActionResponse(
+      plainToInstance(
+        NurseOrderResponse,
+        await this.nurseService.acceptOffer(id),
+      ),
+    );
+  }
 }

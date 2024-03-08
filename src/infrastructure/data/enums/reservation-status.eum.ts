@@ -5,7 +5,8 @@ export enum ReservationStatus {
     CANCELED = 'CANCELED',
     STARTED="STARTED",
     COMPLETED='COMPLETED',
-    SCHEDULED='SCHEDULED'
+    SCHEDULED='SCHEDULED',
+    ACCEPTED='ACCEPTED'
 
   }
   

@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Nurse } from 'src/infrastructure/entities/nurse/nurse.entity';
 import { Repository } from 'typeorm';
@@ -21,6 +26,9 @@ import { NurseOrderResponse } from './dto/respone/nurse-order.response';
 import { NurseLicense } from 'src/infrastructure/entities/nurse/nurse-license.entity';
 import * as fs from 'fs';
 import { UpdateNurseRequest } from './dto/request/update-nurse-request';
+import { CancelReservationRequest } from '../reservation/dto/requests/cancel-reservation-request';
+import { RateDoctorRequest } from '../reservation/dto/requests/rate-doctor-request';
+import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-status.eum';
 @Injectable()
 export class NurseService extends BaseUserService<NurseOrder> {
   constructor(
@@ -192,11 +200,12 @@ export class NurseService extends BaseUserService<NurseOrder> {
       where: { id },
     });
     offer.is_accepted = true;
+
     await this.nurseOfferRepo.save(offer);
     const nurse_order = await this.nurseOrderRepo.findOne({
       where: { id: offer.nurse_order_id },
     });
-
+    nurse_order.status = ReservationStatus.ACCEPTED;
     nurse_order.nurse_id = offer.nurse_id;
     await this.nurseOrderRepo.save(nurse_order);
     const result = await this.getSingleOrder(offer.nurse_order_id);
@@ -208,5 +217,35 @@ export class NurseService extends BaseUserService<NurseOrder> {
       plainToInstance(NurseOrderResponse, result),
     );
     return result;
+  }
+
+  async nurseCancel(request: CancelReservationRequest) {
+    const order = await this.nurseOrderRepo.findOne({
+      where: { id: request.id },
+    });
+    if (!order) throw new NotFoundException('order not found');
+    order.cancel_reason = request.reason;
+    order.cancel_request = true;
+    await this.nurseOrderRepo.save(order);
+    return await this.getSingleOrder(request.id);
+  }
+
+  async clientRating(request: RateDoctorRequest) {
+    const order = await this.nurseOrderRepo.findOne({
+      where: { id: request.order_id },
+    });
+    if (!order) throw new NotFoundException('order not found');
+    if (order.status == ReservationStatus.ACCEPTED)
+      throw new BadRequestException('order already accepted');
+    const nurse = await this.nurseRepo.findOne({
+      where: { id: order.nurse_id },
+    });
+    nurse.number_of_reviews = nurse.number_of_reviews + 1;
+    nurse.rating = Number(nurse.rating) + Number(request.rate);
+    this.nurseRepo.save(nurse);
+    order.comment = request.comment;
+    order.rate = request.rate;
+    await this.nurseOrderRepo.save(order);
+    return await this.getSingleOrder(request.order_id);
   }
 }
