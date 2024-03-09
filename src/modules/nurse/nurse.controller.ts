@@ -97,9 +97,7 @@ export class NurseController {
 
             nurse === null ? null : nurse.id,
           ),
-        },{
-          excludeExtraneousValues: true,
-        });
+        },);
       }),
     );
     if (query.page && query.limit) {
