@@ -6,6 +6,7 @@ import {
   ILike,
   LessThan,
   LessThanOrEqual,
+  Like,
   MoreThan,
   MoreThanOrEqual,
   Not,
@@ -82,7 +83,17 @@ export class PaginatedRequest {
       let whereFilter = {};
       const filterParts = filter.split(',');
       filterParts.forEach((filterPart) => {
-        const operator = this.getOperator(filterPart);
+        const subFilters = filterPart.split('.');
+        if (
+          subFilters.length > 1
+        ) {
+          const subFilter = subFilters.shift();
+          whereFilter = {
+            ...whereFilter,
+            [subFilter]: this.handleSubFilters(subFilters.join('.')),
+          };
+        } else {
+          const operator = this.getOperator(filterPart);
 
         const [key, value] = filterPart.split(operator);
         switch (operator) {
@@ -107,7 +118,7 @@ export class PaginatedRequest {
           default:
             whereFilter = { ...whereFilter, [key]: value };
             break;
-        }
+        }}
       });
       whereFilters.push(whereFilter);
     });
@@ -157,6 +168,34 @@ export class PaginatedRequest {
   }
 
   // handle sub relations with level limit of x
+  private handleSubFilters(filter: string) {
+    const subFilters = filter.split('.');
+    if (
+      subFilters.length > 1 &&
+      subFilters[1] !== 'com'
+    ) {
+      const subFilter = subFilters.shift();
+      return { [subFilter]: this.handleSubFilters(subFilters.join('.')) };
+    } else {
+      const operator = this.getOperator(filter);
+
+      const [key, value] = filter.split(operator);
+      switch (operator) {
+        case '<':
+          return { [key]: LessThan(value) };
+        case '>':
+          return { [key]: MoreThan(value) };
+        case '<=':
+          return { [key]: LessThanOrEqual(value) };
+        case '>=':
+          return { [key]: MoreThanOrEqual(value) };
+        case '!=':
+          return { [key]: Not(value) };
+        default:
+          return { [key]: Like(`%${value}%`) };
+      }
+    }
+  }
   private handleSubRelations(include: string): IncludesFilter {
     if (include.includes('#')) {
       const key = include.split('#')[0];
