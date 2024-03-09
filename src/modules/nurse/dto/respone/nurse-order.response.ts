@@ -19,6 +19,8 @@ export class NurseOrderResponse {
 
   @Expose()
   @Transform((value) => {
+    if(value.obj.nurse_id==null)
+    return null;
     return {
       name:
         value.obj.nurse.user.first_name + ' ' + value.obj.nurse.user.last_name,
