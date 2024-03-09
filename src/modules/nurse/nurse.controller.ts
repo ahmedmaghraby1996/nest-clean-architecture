@@ -97,6 +97,8 @@ export class NurseController {
 
             nurse === null ? null : nurse.id,
           ),
+        },{
+          excludeExtraneousValues: true,
         });
       }),
     );
