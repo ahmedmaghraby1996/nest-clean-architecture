@@ -237,8 +237,9 @@ export class NurseService extends BaseUserService<NurseOrder> {
       where: { id: request.order_id },
     });
     if (!order) throw new NotFoundException('order not found');
-    if (order.status == ReservationStatus.ACCEPTED)
-      throw new BadRequestException('order already accepted');
+    if (!(order.status == ReservationStatus.ACCEPTED && order.date_to < new Date()))
+      throw new BadRequestException('order can not be rated now');
+    if(order.rate) throw new BadRequestException('order has already been rated');
     const nurse = await this.nurseRepo.findOne({
       where: { id: order.nurse_id },
     });
