@@ -203,11 +203,11 @@ export class NurseService extends BaseUserService<NurseOrder> {
     const nurse_order = await this.nurseOrderRepo.findOne({
       where: { id: offer.nurse_order_id },
     });
-    if (nurse_order.status == ReservationStatus.ACCEPTED)
+    if (nurse_order.status == ReservationStatus.STARTED)
       throw new BadRequestException('the order is already accepted');
     await this.nurseOfferRepo.save(offer);
 
-    nurse_order.status = ReservationStatus.ACCEPTED;
+    nurse_order.status = ReservationStatus.STARTED;
     nurse_order.nurse_id = offer.nurse_id;
     await this.nurseOrderRepo.save(nurse_order);
     const result = await this.getSingleOrder(offer.nurse_order_id);
@@ -237,7 +237,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
       where: { id: request.order_id },
     });
     if (!order) throw new NotFoundException('order not found');
-    if (!(order.status == ReservationStatus.ACCEPTED && order.date_to < new Date()))
+    if (!(order.status == ReservationStatus.STARTED && order.date_to < new Date()))
       throw new BadRequestException('order can not be rated now');
     if(order.rate) throw new BadRequestException('order has already been rated');
     const nurse = await this.nurseRepo.findOne({
