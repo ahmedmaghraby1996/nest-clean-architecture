@@ -29,7 +29,9 @@ export class PharmacyResponse {
   @Transform((value) => {
     return value.obj.attachments
       .filter((attachment) => attachment.type === PharmacyAttachmentType.LOGO)
-      .map((attachment) => toUrl(attachment.file));
+      .map((attachment) => {
+        return { image: toUrl(attachment.file), id: attachment.id };
+      });
   })
   @Expose()
   logo: string[];
@@ -39,7 +41,9 @@ export class PharmacyResponse {
       .filter(
         (attachment) => attachment.type === PharmacyAttachmentType.LICENSE,
       )
-      .map((attachment) => toUrl(attachment.file));
+      .map((attachment) => {
+        return { mage: toUrl(attachment.file), id: attachment.id };
+      });
   })
   @Expose()
   license: string[];

@@ -68,8 +68,13 @@ export class NurseController {
     );
   }
   @Post('order/rate')
-  async rateNurse(@Body()request:RateDoctorRequest) {
-    return new ActionResponse(await this.nurseService.clientRating(request));
+  async rateNurse(@Body() request: RateDoctorRequest) {
+    return new ActionResponse(
+      plainToInstance(
+        NurseOrderResponse,
+        await this.nurseService.clientRating(request),
+      ),
+    );
   }
 
   @Get('order')

@@ -200,11 +200,13 @@ export class NurseService extends BaseUserService<NurseOrder> {
       where: { id },
     });
     offer.is_accepted = true;
-
-    await this.nurseOfferRepo.save(offer);
     const nurse_order = await this.nurseOrderRepo.findOne({
       where: { id: offer.nurse_order_id },
     });
+    if (nurse_order.status == ReservationStatus.ACCEPTED)
+      throw new BadRequestException('the order is already accepted');
+    await this.nurseOfferRepo.save(offer);
+
     nurse_order.status = ReservationStatus.ACCEPTED;
     nurse_order.nurse_id = offer.nurse_id;
     await this.nurseOrderRepo.save(nurse_order);
