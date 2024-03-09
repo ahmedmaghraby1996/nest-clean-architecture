@@ -18,6 +18,18 @@ export class NurseOrderResponse {
   user: User;
 
   @Expose()
+  @Transform((value) => {
+    return {
+      name:
+        value.obj.nurse.user.first_name + ' ' + value.obj.nurse.user.last_name,
+      avatar: toUrl(value.obj.nurse.user.avatar),
+      phone: value.obj.nurse.user.phone,
+      rating: value.obj.nurse.number_of_reviews==0?0: value.obj.nurse.rating/value.obj.nurse.number_of_reviews,
+    };
+  })
+  nurse: any;
+
+  @Expose()
   @Transform((address) => {
     return {
       id: address.value.id,

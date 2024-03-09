@@ -82,6 +82,8 @@ export class NurseController {
     applyQueryIncludes(query, 'user');
     applyQuerySort(query, 'created_at=desc');
     applyQueryIncludes(query, 'address');
+    applyQueryIncludes(query, 'nurse');
+    applyQueryIncludes(query, 'nurse.user');
     const nurse = await this.nurseService.getNurse(
       this.nurseService.currentUser.id,
     );
