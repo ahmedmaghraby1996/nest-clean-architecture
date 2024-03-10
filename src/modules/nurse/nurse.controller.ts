@@ -31,6 +31,7 @@ import { NurseOfferResponse } from './dto/respone/nurse-offer.response';
 import { UpdateNurseRequest } from './dto/request/update-nurse-request';
 import { request } from 'http';
 import { RateDoctorRequest } from '../reservation/dto/requests/rate-doctor-request';
+import { CancelReservationRequest } from '../reservation/dto/requests/cancel-reservation-request';
 
 @ApiTags('Nusre')
 @ApiHeader({
@@ -118,12 +119,12 @@ export class NurseController {
     );
   }
 
-  @Post('cancel/order/:id')
-  async cancelOrder(@Param('id') id: string) {
+  @Post('cancel/order')
+  async cancelOrder(@Body()request:CancelReservationRequest) {
     return new ActionResponse(
       plainToInstance(
         NurseOrderResponse,
-        await this.nurseService.acceptOffer(id),
+        await this.nurseService.nurseCancel(request),
       ),
     );
   }
