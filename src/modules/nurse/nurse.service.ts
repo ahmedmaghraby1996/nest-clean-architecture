@@ -142,7 +142,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
   async getSingleOrder(id: string) {
     return await this.nurseOrderRepo.findOne({
       where: { id },
-      relations: { user: true, address: true },
+      relations: { user: true, address: true,nurse:true },
     });
   }
 
