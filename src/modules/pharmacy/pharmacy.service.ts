@@ -580,6 +580,8 @@ export class PharmacyService {
     if (orders >= max_orders) {
       return false;
     }
+    subscription.number_of_used_orders =subscription.number_of_used_orders+1 ;
+    await this.subscriptionRepository.save(subscription);
     return true;
   }
 }

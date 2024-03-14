@@ -6,6 +6,7 @@ import { ActionResponse } from 'src/core/base/responses/action.response';
 import {
   applyQueryFilters,
   applyQueryIncludes,
+  applyQuerySort,
 } from 'src/core/helpers/service-related.helper';
 import { ApiTags, ApiHeader, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../authentication/guards/jwt-auth.guard';
@@ -29,6 +30,7 @@ export class TransactionController {
   async getTransactions(@Query() query: PaginatedRequest) {
     applyQueryIncludes(query, 'user');
     applyQueryIncludes(query, 'receiver');
+    applyQuerySort(query, 'created_at=desc');
     applyQueryFilters(
       query,
       `user_id=${this.transactionService.currentUser.id}`,

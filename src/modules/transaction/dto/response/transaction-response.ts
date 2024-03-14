@@ -15,7 +15,7 @@ export class TransactionResponse {
 
     @Expose()
     @Transform(( receiver ) => {
-   
+   if(receiver.value==null) return null
         return {id:  receiver.value.id, name:  receiver.value.first_name + ' ' +  receiver.value.last_name}
     })
 
