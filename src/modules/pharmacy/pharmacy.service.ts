@@ -346,6 +346,7 @@ export class PharmacyService {
     const pharamcy = await this.pharmacyRepository.findOne({
       where: { user_id: this.request.user.id },
     });
+ 
 
     const orders = await this.orderRepository.find({
       where: this.request.user.roles.includes(Role.PHARMACY)
@@ -540,17 +541,11 @@ export class PharmacyService {
   }
 
   async getMonthlyOrders(id: string) {
-    const currentDate = new Date();
+  
     const firstDayOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1,
+      new Date().setDate(new Date().getDate() - 30),
     );
-    const lastDayOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0,
-    );
+    const lastDayOfMonth = new Date();
     let max_orders = 3;
     const subscription = await this.subscriptionRepository.findOne({
       where: {
@@ -576,12 +571,13 @@ export class PharmacyService {
       )
       .andWhere('ph_order.user_id = :user_id', { user_id: id })
       .getCount();
-
+   
     if (orders >= max_orders) {
       return false;
     }
-    subscription.number_of_used_orders =subscription.number_of_used_orders+1 ;
-    await this.subscriptionRepository.save(subscription);
+    if(subscription){
+    subscription.number_of_used_orders = subscription.number_of_used_orders + 1;
+    await this.subscriptionRepository.save(subscription);}
     return true;
   }
 }
