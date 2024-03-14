@@ -31,6 +31,8 @@ import { NurseOffer } from "../entities/nurse/nurse-offer.entity";
 import { NurseLicense } from "../entities/nurse/nurse-license.entity";
 import { Transaction } from "../entities/wallet/transaction.entity";
 import { Wallet } from "../entities/wallet/wallet.entity";
+import { Subscription } from "../entities/subscription/subscription.entity";
+import { Package } from "../entities/subscription/package.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -64,7 +66,9 @@ export const DB_ENTITIES = [
   NurseOffer,
   NurseLicense,
   Transaction,
-  Wallet
+  Wallet,
+  Subscription,
+  Package
   
 ];
 

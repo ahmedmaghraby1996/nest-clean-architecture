@@ -13,6 +13,7 @@ import { SuggestionsComplaintsModule } from './suggestions-complaints/suggestion
 import { FaqModule } from './faq/faq.module';
 import { NurseModule } from './nurse/nurse.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { PackageModule } from './package/package.module';
 
 @Module({
     imports: [
@@ -27,7 +28,8 @@ import { TransactionModule } from './transaction/transaction.module';
         SuggestionsComplaintsModule,
         FaqModule,
         NurseModule,
-        TransactionModule
+        TransactionModule,
+        PackageModule
         
     ],
     exports: [

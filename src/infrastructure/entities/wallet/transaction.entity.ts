@@ -19,7 +19,7 @@ export class Transaction extends AuditableEntity {
   @JoinColumn({ name: 'receiver_id' })
   receiver: User;
 
-  @Column()
+  @Column({nullable:true})
   receiver_id: string;
 
   @Column({ nullable: true })

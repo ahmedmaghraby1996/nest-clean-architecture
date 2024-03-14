@@ -20,6 +20,8 @@ import { PhOrder } from '../pharmacy/ph-order.entity';
 import { NurseOrder } from '../nurse/nurse-order.entity';
 import { Wallet } from '../wallet/wallet.entity';
 import { Transaction } from '../wallet/transaction.entity';
+import { Subscription } from '../subscription/subscription.entity';
+
 @Entity()
 export class User extends AuditableEntity {
 
@@ -105,6 +107,9 @@ export class User extends AuditableEntity {
   @Factory((faker) => faker.helpers.arrayElement([Role.CLIENT, Role.DOCTOR]))
   @Column({ type: 'set', enum: Role, default: [Role.CLIENT] })
   roles: Role[];
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  subscriptions: Subscription[];
 
   @OneToMany(() => Address, (address) => address.user, {
     cascade: true,

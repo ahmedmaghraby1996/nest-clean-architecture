@@ -12,6 +12,7 @@ import { FaqModule } from 'src/modules/faq/faq.module';
 import { FileModule } from 'src/modules/file/file.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 import { NurseModule } from 'src/modules/nurse/nurse.module';
+import { PackageModule } from 'src/modules/package/package.module';
 import { PharmacyModule } from 'src/modules/pharmacy/pharmacy.module';
 import { ReservationModule } from 'src/modules/reservation/reservation.module';
 import { StaticPageModule } from 'src/modules/static-page/static-page.module';
@@ -50,7 +51,8 @@ export default (app: INestApplication, config: ConfigService) => {
       SuggestionsComplaintsModule,
       FaqModule,
       NurseModule,
-      TransactionModule
+      TransactionModule,
+      PackageModule
       
       
     ],

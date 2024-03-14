@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { Pharmacy } from 'src/infrastructure/entities/pharmacy/pharmacy.entity';
 import { ImageManager } from 'src/integration/sharp/image.manager';
-import { ILike, In, Like, Repository } from 'typeorm';
+import { ILike, In, Like, MoreThan, Repository } from 'typeorm';
 import { CreatePharamcyRequest } from './dto/request/create-pharamcy-request';
 import { PharmacyAttachments } from 'src/infrastructure/entities/pharmacy/pharmacy-attachments.entity';
 import * as fs from 'fs';
@@ -26,7 +26,7 @@ import { or } from 'sequelize';
 import { toUrl } from 'src/core/helpers/file.helper';
 import { PhOrderReplyRequest } from './dto/request/ph-order-replay-request';
 import { PhReply } from 'src/infrastructure/entities/pharmacy/ph-reply.entity';
-import { skip } from 'rxjs';
+
 import { PaginatedRequest } from 'src/core/base/requests/paginated.request';
 import { generateOrderNumber } from '../reservation/reservation.service';
 import { NotificationService } from '../notification/services/notification.service';
@@ -35,6 +35,7 @@ import { NotificationEntity } from 'src/infrastructure/entities/notification/not
 import { PhOrderGateway } from 'src/integration/gateways/ph-order.gateway';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
 import { UpdatePharamcyRequest } from './dto/request/update-pharmact-request';
+import { Subscription } from 'src/infrastructure/entities/subscription/subscription.entity';
 
 @Injectable()
 export class PharmacyService {
@@ -53,6 +54,9 @@ export class PharmacyService {
     @InjectRepository(PhReply)
     private PhReplyRepository: Repository<PhReply>,
 
+    @InjectRepository(Subscription)
+    private subscriptionRepository: Repository<Subscription>,
+
     @InjectRepository(Address)
     private addressRepository: Repository<Address>,
     @InjectRepository(PhOrderAttachments)
@@ -68,6 +72,9 @@ export class PharmacyService {
   ) {}
 
   async makeOrder(request: makeOrderRequest) {
+    if (await this.getMonthlyOrders(this.request.user.id)) {
+      throw new BadRequestException('you have reached your monthly limit');
+    }
     const ph_order = plainToInstance(PhOrder, {
       ...request,
       user_id: this.request.user.id,
@@ -530,5 +537,49 @@ export class PharmacyService {
       where: { id: In(ids) },
     });
     return categories;
+  }
+
+  async getMonthlyOrders(id: string) {
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1,
+    );
+    const lastDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0,
+    );
+    let max_orders = 3;
+    const subscription = await this.subscriptionRepository.findOne({
+      where: {
+        user_id: id,
+        expiration_date: MoreThan(new Date()),
+      },
+      relations: { package: true },
+    });
+    if (subscription) {
+      max_orders =
+        subscription.package.number_of_pharmacy_order -
+        subscription.number_of_used_orders;
+    }
+
+    const orders = await this.orderRepository
+      .createQueryBuilder('ph_order')
+      .where(
+        'ph_order.created_at >= :firstDayOfMonth AND ph_order.created_at <= :lastDayOfMonth',
+        {
+          firstDayOfMonth,
+          lastDayOfMonth,
+        },
+      )
+      .andWhere('ph_order.user_id = :user_id', { user_id: id })
+      .getCount();
+
+    if (orders >= max_orders) {
+      return false;
+    }
+    return true;
   }
 }
