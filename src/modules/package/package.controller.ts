@@ -42,4 +42,15 @@ export class PackageController {
       await this.packageService.makeSubscription(id),
     );
   }
+
+  
+  @Get("/subscription")
+  async getCurrentSubscription() {
+    return new ActionResponse(
+      await this._i18nResponse.entity(
+        await this.packageService.getCurrentSubscription(),   
+      )
+     
+    );
+  }
 }

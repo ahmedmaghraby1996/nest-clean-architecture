@@ -16,6 +16,8 @@ export class Package extends BaseEntity {
 
   @Column({ nullable: true })
   description_ar: string;
+  @Column({ nullable: true })
+  description_en: string;
 
   @Column()
   number_of_pharmacy_order: number;

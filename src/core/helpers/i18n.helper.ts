@@ -26,6 +26,7 @@ export function convertToI18nObject(obj: any, lang: string): any {
 }
 
 export function i18nEntity(obj: any, lang: string): any {
+
   if (obj) {
     if (Array.isArray(obj)) {
       return obj.map((item) => i18nEntity(item, lang));
@@ -40,9 +41,13 @@ export function i18nEntity(obj: any, lang: string): any {
       Object.keys(obj).forEach((key) => {
         // find key that ends with _${lang}, remove _${lang} and set value to key
         if (obj[key]) {
+          
           if (key.endsWith(`_${lang}`)) {
             const newKey = key.replace(`_${lang}`, '');
             newObj[newKey] = obj[key];
+
+            delete obj[`${newKey}_ar`];
+            delete obj[`${newKey}_en`];
             delete newObj[`${newKey}_ar`];
             delete newObj[`${newKey}_en`];
           } else {
@@ -52,6 +57,7 @@ export function i18nEntity(obj: any, lang: string): any {
           newObj[key] = obj[key];
         }
       });
+      
       return newObj;
     } else {
       return obj;

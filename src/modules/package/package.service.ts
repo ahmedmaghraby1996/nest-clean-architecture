@@ -9,6 +9,7 @@ import { TransactionService } from '../transaction/transaction.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Transaction } from 'src/infrastructure/entities/wallet/transaction.entity';
+import { MoreThan } from 'typeorm';
 
 @Injectable()
 export class PackageService {
@@ -45,10 +46,22 @@ await this.transactionService.makeTransaction(new Transaction({
 )
     const subscription = plainToInstance(Subscription,new Subscription({
       package:get_package,
-      expiration_date:new Date(new Date().getDate()+get_package.expiration_days),
+      expiration_date:new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
       
       user_id:this.request.user.id
     }))
     return await this.subscriptionRepository.save(subscription)
+  }
+
+  async getCurrentSubscription() {
+    const subscription = await this.subscriptionRepository.findOne({
+      where: {
+        user_id: this.request.user.id,
+        expiration_date: MoreThan(new Date()),
+      },order:{created_at:'DESC'}
+      ,
+      relations: { package: true },
+    });
+    return subscription;
   }
 }

@@ -551,7 +551,8 @@ export class PharmacyService {
       where: {
         user_id: id,
         expiration_date: MoreThan(new Date()),
-      },
+
+      },order:{created_at:'DESC'},
       relations: { package: true },
     });
     if (subscription) {
