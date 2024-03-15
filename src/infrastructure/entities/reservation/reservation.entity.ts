@@ -20,6 +20,7 @@ import { Client } from '../client/client.entity';
 import { Exclude } from 'class-transformer';
 import { Address } from '../user/address.entity';
 import { Transaction } from '../wallet/transaction.entity';
+import { PromoCode } from '../promo-code/promo-code.entity';
 
 @Entity()
 export class Reservation extends OwnedEntity {
@@ -83,6 +84,13 @@ export class Reservation extends OwnedEntity {
 
   @Column({ default: false })
   cancel_request: boolean;
+
+  @ManyToOne(()=>PromoCode, (promoCode) => promoCode.reservations)
+  @JoinColumn()
+  promo_code: PromoCode;
+
+  @Column({ nullable: true })
+  promo_code_id?: string;
 
   @ManyToOne(() => FamilyMember, (familyMember) => familyMember.reservations, {
     cascade: true,

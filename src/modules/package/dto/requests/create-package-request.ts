@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
+import { Column } from "typeorm";
 
 export class CreatePackageRequest {
     @ApiProperty()
@@ -25,4 +26,6 @@ export class CreatePackageRequest {
     @IsNumber()
     @Transform(({ value }) => Number(value))
     number_of_clinic_order: number;
+
+   
 }

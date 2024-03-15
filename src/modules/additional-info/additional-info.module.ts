@@ -8,6 +8,7 @@ import { NotificationService } from '../notification/services/notification.servi
 import { FileService } from '../file/file.service';
 import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway';
 import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Module({
   controllers: [AdditionalInfoController],
@@ -19,7 +20,8 @@ import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.se
     PhOrderGateway,
     FileService,
     NurseOrderGateway,
-    FcmIntegrationService
+    FcmIntegrationService,
+    TransactionService
   ],
 })
 export class AdditionalInfoModule {}

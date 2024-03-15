@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Nurse } from 'src/infrastructure/entities/nurse/nurse.entity';
-import { Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository, Transaction } from 'typeorm';
 import { CreateNurseRequest } from './dto/request/create-nurse-request';
 import { FileService } from '../file/file.service';
 import { REQUEST } from '@nestjs/core';
@@ -29,6 +29,8 @@ import { UpdateNurseRequest } from './dto/request/update-nurse-request';
 import { CancelReservationRequest } from '../reservation/dto/requests/cancel-reservation-request';
 import { RateDoctorRequest } from '../reservation/dto/requests/rate-doctor-request';
 import { ReservationStatus } from 'src/infrastructure/data/enums/reservation-status.eum';
+import { TransactionService } from '../transaction/transaction.service';
+import { MakeTransactionRequest } from '../transaction/dto/requests/make-transaction-request';
 @Injectable()
 export class NurseService extends BaseUserService<NurseOrder> {
   constructor(
@@ -37,6 +39,8 @@ export class NurseService extends BaseUserService<NurseOrder> {
     @InjectRepository(Nurse) private readonly nurseRepo: Repository<Nurse>,
     @InjectRepository(NurseOffer)
     private readonly nurseOfferRepo: Repository<NurseOffer>,
+    @Inject(TransactionService)
+    private readonly transactionService: TransactionService,
     @InjectRepository(NurseLicense)
     private readonly nurseLicenseRepo: Repository<NurseLicense>,
     @Inject(FileService) private _fileService: FileService,
@@ -142,7 +146,7 @@ export class NurseService extends BaseUserService<NurseOrder> {
   async getSingleOrder(id: string) {
     return await this.nurseOrderRepo.findOne({
       where: { id },
-      relations: { user: true, address: true,nurse:{user:true} },
+      relations: { user: true, address: true, nurse: { user: true } },
     });
   }
 
@@ -167,6 +171,11 @@ export class NurseService extends BaseUserService<NurseOrder> {
       where: { nurse_id: nurse.id, nurse_order_id: req.nurse_order_id },
     });
     if (sent_offer) throw new BadRequestException('offer already sent');
+    const nuser_order = await this.nurseOrderRepo.findOne({
+      where: { nurse_id: nurse.id, date_to: MoreThan(new Date()) },
+    });
+    if (nuser_order)
+      throw new BadRequestException('nurse already have an order');
     offer.nurse_id = nurse.id;
 
     const order = await this.nurseOrderRepo.findOne({
@@ -199,6 +208,17 @@ export class NurseService extends BaseUserService<NurseOrder> {
     const offer = await this.nurseOfferRepo.findOne({
       where: { id },
     });
+    const nuser_order = await this.nurseOrderRepo.findOne({
+      where: { nurse_id: offer.nurse_id, date_to: MoreThan(new Date()) },
+    });
+    if (nuser_order)
+      throw new BadRequestException('nurse already have an order');
+
+    await this.transactionService.checkBalance(
+      this.currentUser.id,
+      offer.value,
+    );
+
     offer.is_accepted = true;
     const nurse_order = await this.nurseOrderRepo.findOne({
       where: { id: offer.nurse_order_id },
@@ -214,6 +234,13 @@ export class NurseService extends BaseUserService<NurseOrder> {
     const nurse = await this.nurseRepo.findOne({
       where: { id: offer.nurse_id },
     });
+    await this.transactionService.makeTransaction(
+      new MakeTransactionRequest({
+        amount: offer.value,
+        user_id: this.currentUser.id,
+        receiver_id: nurse.user_id,
+      }),
+    );
     this.nurseOrderGateway.server.emit(
       `nurse-${nurse.user_id}`,
       plainToInstance(NurseOrderResponse, result),
@@ -237,9 +264,12 @@ export class NurseService extends BaseUserService<NurseOrder> {
       where: { id: request.order_id },
     });
     if (!order) throw new NotFoundException('order not found');
-    if (!(order.status == ReservationStatus.STARTED && order.date_to < new Date()))
+    if (
+      !(order.status == ReservationStatus.STARTED && order.date_to < new Date())
+    )
       throw new BadRequestException('order can not be rated now');
-    if(order.rate) throw new BadRequestException('order has already been rated');
+    if (order.rate)
+      throw new BadRequestException('order has already been rated');
     const nurse = await this.nurseRepo.findOne({
       where: { id: order.nurse_id },
     });

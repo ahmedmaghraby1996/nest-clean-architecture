@@ -16,6 +16,7 @@ import { NotificationService } from '../notification/services/notification.servi
 import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.service';
 import { PhOrderGateway } from 'src/integration/gateways/ph-order.gateway';
 import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Global()
 @Module({
@@ -36,6 +37,7 @@ import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway'
     PhOrderGateway,
     NurseOrderGateway,
     FcmIntegrationService
+    ,TransactionService
 
   ],
   exports: [AuthenticationService],

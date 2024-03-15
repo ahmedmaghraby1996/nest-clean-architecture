@@ -45,6 +45,7 @@ import { TransactionTypes } from 'src/infrastructure/data/enums/transaction-type
 import { CancelReservationRequest } from './dto/requests/cancel-reservation-request';
 import { RateDoctorRequest } from './dto/requests/rate-doctor-request';
 import { User } from 'src/infrastructure/entities/user/user.entity';
+import { PromoCode } from 'src/infrastructure/entities/promo-code/promo-code.entity';
 
 @Injectable()
 export class ReservationService extends BaseUserService<Reservation> {
@@ -66,6 +67,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     private readonly reservationGateway: ReservationGateway,
     @Inject(NotificationService)
     public readonly notificationService: NotificationService,
+    @InjectRepository(PromoCode)private readonly promoCodeRepository: Repository<PromoCode>,
 
     private readonly transactionService: TransactionService,
     @Inject(I18nResponse) private readonly _i18nResponse: I18nResponse,
@@ -410,8 +412,16 @@ export class ReservationService extends BaseUserService<Reservation> {
       throw new BadRequestException(
         'you dont have enough money to make this reservation',
       );
+    
 
     reservation.price = value;
+    if (reservation.promo_code_id) {
+      const promo_code = await this.promoCodeRepository.findOne({
+        where: { id: reservation.promo_code_id },
+      });
+      value = value - (value * promo_code.discount) / 100;
+      reservation.price = value;
+    }
     await this._repo.save(reservation);
     await this.transactionService.makeTransaction(
       new MakeTransactionRequest({
@@ -530,6 +540,15 @@ export class ReservationService extends BaseUserService<Reservation> {
       where: { id: reservation.user_id },
     })
     user.review_count = user.review_count + 1
+
+    if(user.review_count % 3 == 0){
+      this.promoCodeRepository.save(new PromoCode({
+        user_id: user.id,
+        code: Math.random().toString(36).substr(2, length),
+        discount: 10
+      }))
+    }
+
     await this.doctor_repository.save(doctor);
     await this.user_repository.save(user);
     return this.getResevation(reservation.id);

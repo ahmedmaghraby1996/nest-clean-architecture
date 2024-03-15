@@ -19,6 +19,7 @@ import { TransactionService } from '../transaction/transaction.service';
     AdditionalInfoService,
     ReservationGateway,
     NotificationService,
+    
   ],
 })
 export class ReservationModule {}

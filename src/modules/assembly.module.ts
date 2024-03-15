@@ -14,6 +14,7 @@ import { FaqModule } from './faq/faq.module';
 import { NurseModule } from './nurse/nurse.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { PackageModule } from './package/package.module';
+import { PromoCodeModule } from './promo-code/promo-code.module';
 
 @Module({
     imports: [
@@ -29,7 +30,8 @@ import { PackageModule } from './package/package.module';
         FaqModule,
         NurseModule,
         TransactionModule,
-        PackageModule
+        PackageModule,
+        PromoCodeModule
         
     ],
     exports: [

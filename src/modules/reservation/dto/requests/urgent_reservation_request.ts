@@ -46,6 +46,12 @@ export class urgentReservationRequest {
   @ApiProperty({ required: false })
   note: string;
 
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  promo_code_id: string;
+
+  
   @ApiPropertyOptional({
     type: [String],
     required: false,

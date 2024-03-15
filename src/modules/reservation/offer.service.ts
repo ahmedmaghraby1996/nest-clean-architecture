@@ -13,10 +13,13 @@ import { NotificationEntity } from 'src/infrastructure/entities/notification/not
 import { NotificationTypes } from 'src/infrastructure/data/enums/notification-types.enum';
 import { OfferResponse } from './dto/response/offer-respone';
 import { I18nResponse } from 'src/core/helpers/i18n.helper';
+import { PromoCode } from 'src/infrastructure/entities/promo-code/promo-code.entity';
 
 @Injectable()
 export class OfferService extends BaseService<Offer> {
   constructor(
+    @InjectRepository(PromoCode)
+    private readonly PromoCodeRepository: Repository<PromoCode>,
     @InjectRepository(Offer) private readonly repository: Repository<Offer>,
     private readonly reservationService: ReservationService,
     private readonly additonalService: AdditionalInfoService,
@@ -56,6 +59,12 @@ export class OfferService extends BaseService<Offer> {
       default:
         value = 0;
         break;
+    }
+    if (reservation.promo_code_id) {
+      const promo_code = await this.PromoCodeRepository.findOne({
+        where: { id: reservation.promo_code_id },
+      });
+      value = value - (value * promo_code.discount) / 100;
     }
 
     const offer = new Offer({

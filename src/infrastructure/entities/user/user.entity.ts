@@ -21,6 +21,7 @@ import { NurseOrder } from '../nurse/nurse-order.entity';
 import { Wallet } from '../wallet/wallet.entity';
 import { Transaction } from '../wallet/transaction.entity';
 import { Subscription } from '../subscription/subscription.entity';
+import { PromoCode } from '../promo-code/promo-code.entity';
 
 @Entity()
 export class User extends AuditableEntity {
@@ -28,6 +29,8 @@ export class User extends AuditableEntity {
   @OneToMany(()=>Reservation,reservation=>reservation.user)
   reservations:Reservation[]
 
+  @OneToMany(()=>PromoCode,promoCode=>promoCode.user)
+  promoCodes:PromoCode[]
   @OneToMany(()=>NurseOrder,nurserOrder=>nurserOrder.user)
   nurse_orders:NurseOrder[]
 
