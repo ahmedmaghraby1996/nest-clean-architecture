@@ -547,6 +547,7 @@ export class ReservationService extends BaseUserService<Reservation> {
         code: Math.random().toString(36).substr(2, 5),
         discount: 10,
         expire_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+        number_of_uses:1
       }))
     }
 
