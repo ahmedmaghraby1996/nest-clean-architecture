@@ -1,12 +1,14 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Banar } from 'src/infrastructure/entities/banar/banar.entity';
 import { Pharmacy } from 'src/infrastructure/entities/pharmacy/pharmacy.entity';
 import { PromoCode } from 'src/infrastructure/entities/promo-code/promo-code.entity';
 import { SuggestionsComplaints } from 'src/infrastructure/entities/suggestions-complaints/suggestions-complaints.entity';
 import { AdditionalInfoModule } from 'src/modules/additional-info/additional-info.module';
 import { AddressModule } from 'src/modules/address/address.module';
 import { AuthenticationModule } from 'src/modules/authentication/authentication.module';
+import { BanarModule } from 'src/modules/banar/banar.module';
 import { ContactUsModule } from 'src/modules/contact-us/contact-us.module';
 import { DoctorModule } from 'src/modules/doctor/doctor.module';
 import { FaqModule } from 'src/modules/faq/faq.module';
@@ -55,7 +57,8 @@ export default (app: INestApplication, config: ConfigService) => {
       NurseModule,
       TransactionModule,
       PackageModule,
-      PromoCodeModule
+      PromoCodeModule,
+      BanarModule
       
       
     ],

@@ -15,6 +15,8 @@ import { NurseModule } from './nurse/nurse.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { PackageModule } from './package/package.module';
 import { PromoCodeModule } from './promo-code/promo-code.module';
+import { Banar } from 'src/infrastructure/entities/banar/banar.entity';
+import { BanarModule } from './banar/banar.module';
 
 @Module({
     imports: [
@@ -31,7 +33,8 @@ import { PromoCodeModule } from './promo-code/promo-code.module';
         NurseModule,
         TransactionModule,
         PackageModule,
-        PromoCodeModule
+        PromoCodeModule,
+        BanarModule
         
     ],
     exports: [

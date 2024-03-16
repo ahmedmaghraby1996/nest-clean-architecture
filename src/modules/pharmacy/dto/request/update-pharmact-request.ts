@@ -47,7 +47,7 @@ export class UpdatePharamcyRequest  {
   @IsOptional()
   summery: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({required:false})
   @IsString()
   @IsOptional()
   @Transform(({ value }) => parseInt(value))

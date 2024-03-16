@@ -544,7 +544,7 @@ export class ReservationService extends BaseUserService<Reservation> {
     if(user.review_count % 3 == 0){
       this.promoCodeRepository.save(new PromoCode({
         user_id: user.id,
-        code: Math.random().toString(36).substr(2, length),
+        code: Math.random().toString(36).substr(2, 5),
         discount: 10
       }))
     }

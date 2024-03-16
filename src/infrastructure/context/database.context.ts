@@ -34,6 +34,7 @@ import { Wallet } from "../entities/wallet/wallet.entity";
 import { Subscription } from "../entities/subscription/subscription.entity";
 import { Package } from "../entities/subscription/package.entity";
 import { PromoCode } from "../entities/promo-code/promo-code.entity";
+import { Banar } from "../entities/banar/banar.entity";
 
 export const DB_ENTITIES = [
   User,
@@ -70,7 +71,8 @@ export const DB_ENTITIES = [
   Wallet,
   Subscription,
   Package,
-  PromoCode
+  PromoCode,
+  Banar
   
 ];
 

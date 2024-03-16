@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { Unique } from 'src/core/validators/unique-constraints.validator';
 import { Gender } from 'src/infrastructure/data/enums/gender.enum';
+import { Language } from 'src/infrastructure/data/enums/language.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { DoctorInfoRequest } from 'src/modules/additional-info/dto/requests/doctor-info-request';
 
@@ -46,4 +47,9 @@ export class UpdateProfileRequest {
   @ApiProperty({ type: 'file', required: false })
   @IsOptional()
   avatarFile: Express.Multer.File;
+
+  @ApiProperty({ type: 'enum', required: false,enum:[Language.EN,Language.AR] })
+  @IsEnum(Language)
+  @IsOptional()
+  language: Language;
 }

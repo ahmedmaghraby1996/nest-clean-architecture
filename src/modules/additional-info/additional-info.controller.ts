@@ -208,9 +208,11 @@ export class AdditionalInfoController {
       this.nurseService.currentUser.id,
     );
     nurse.license_images.map((img) => {
-      img.image = toUrl(img.image);
+      img.image = toUrl(img.image); 
       return img;
     });
+    nurse.rating= Number(nurse.rating)/nurse.number_of_reviews
+    delete nurse.number_of_reviews;
     return new ActionResponse(nurse);
   }
 
