@@ -30,7 +30,7 @@ export class VerifyOtpTransaction extends BaseTransaction<
   // the important thing here is to use the manager that we've created in the base class
   protected async execute(
     req: VerifyOtpRequest,
-    context:EntityManager
+    context: EntityManager,
   ): Promise<AuthResponse> {
     try {
       // find otp
@@ -40,12 +40,12 @@ export class VerifyOtpTransaction extends BaseTransaction<
         code: req.code,
       });
       if (!otp) throw new BadRequestException('message.invalid_code');
-      if (otp.isExpired()) throw new BadRequestException('message.code_expired');
+      if (otp.isExpired())
+        throw new BadRequestException('message.code_expired');
 
       // find the user
       const user = await this.userService.findOne({ [req.type]: req.username });
-      if (!user )
-        throw new BadRequestException('message.invalid_credentials');
+      if (!user) throw new BadRequestException('message.invalid_credentials');
 
       // delete otp
       await this.otpsRepo.remove(otp);
@@ -58,16 +58,23 @@ export class VerifyOtpTransaction extends BaseTransaction<
 
       if (!user) throw new BadRequestException('message.invalid_credentials');
       const payload = { username: user.username, sub: user.id };
-const doctor= (await context.findOne(Doctor,{where:{user_id:user.id}}))
+      const doctor = await context.findOne(Doctor, {
+        where: { user_id: user.id },
+      });
       return {
-        ...user,role:user.roles[0],doctor_id:doctor==null?  null:doctor.id,
-        access_token: this.jwtService.sign(payload, jwtSignOptions(this._config)),
+        ...user,
+        role: user.roles[0],
+        doctor_id: doctor == null ? null : doctor.id,
+        access_token: this.jwtService.sign(
+          payload,
+          jwtSignOptions(this._config),
+        ),
       };
     } catch (error) {
       throw new BadRequestException(
-        this._config.get('app.env') !== 'prod' ?
-          error :
-          'message.invalid_credentials',
+        this._config.get('app.env') !== 'prod'
+          ? error
+          : 'message.invalid_credentials',
       );
     }
   }
