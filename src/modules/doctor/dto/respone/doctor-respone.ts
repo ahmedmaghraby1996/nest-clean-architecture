@@ -27,6 +27,6 @@ export class DoctorResopone {
     this.voice_consultation_price = data.voice_consultation_price;
     this.home_consultation_price = data.home_consultation_price;
     this.clinic_consultation_price = data.clinic_consultation_price;
-    this.clinic = data.clinic;
+    
   }
 }

@@ -19,7 +19,7 @@ export class DoctorService extends BaseUserService<Doctor> {
 
     return await this.repository.findOne({
       where: { id },
-      relations: { user: true, specialization: true, clinic: true },
+      relations: { user: true, specialization: true,  },
     });
   }
 }

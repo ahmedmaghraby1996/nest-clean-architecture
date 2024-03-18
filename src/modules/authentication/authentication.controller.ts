@@ -25,9 +25,9 @@ import { LoginRequest } from './dto/requests/signin.dto';
 import { VerifyOtpRequest } from './dto/requests/verify-otp.dto';
 import { AuthResponse } from './dto/responses/auth.response';
 import { RegisterResponse } from './dto/responses/register.response';
-import { DoctorInfoRequest } from '../additional-info/dto/requests/doctor-info-request';
-import { CreatePharamcyRequest } from '../pharmacy/dto/request/create-pharamcy-request';
+
 import { CreateNurseRequest } from '../nurse/dto/request/create-nurse-request';
+import { DoctorInfoRequest } from '../doctor/dto/request/doctor-info-request';
 
 @ApiTags(Router.Auth.ApiTag)
 @Controller(Router.Auth.Base)
@@ -50,16 +50,7 @@ export class AuthenticationController {
     return new ActionResponse<AuthResponse>(result);
   }
 
-  @ApiBody({
-    type: DoctorInfoRequest,
-    examples: {
-      json: {
-        value: {
-          avaliablity: '{"day": "Monday", "start_at": 8, "end_at": 17}',
-        },
-      },
-    },
-  })
+
   @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
   @ApiConsumes('multipart/form-data')
   @Post(Router.Auth.Register + '/doctor')
@@ -98,34 +89,10 @@ export class AuthenticationController {
     });
   }
 
-  @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
-  @ApiConsumes('multipart/form-data')
-  @Post(Router.Auth.Register + '/pharmacy')
-  async registerPharmacy(
-    @Body() req: CreatePharamcyRequest,
-    @UploadedFile(new UploadValidator().build())
-    avatarFile: Express.Multer.File,
-  ): Promise<ActionResponse<RegisterResponse>> {
-    console.log(req);
-    req.avatarFile = avatarFile;
-    const user = await this.authService.register(req);
-    const result = plainToInstance(RegisterResponse, user, {
-      excludeExtraneousValues: true,
-    });
-    return new ActionResponse<RegisterResponse>(result, {
-      statusCode: HttpStatus.CREATED,
-    });
-  }
 
-  // @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('avatarFile'))
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    ClassSerializerInterceptor,
-    FileFieldsInterceptor([
-      { name: 'avatarFile', maxCount: 1 },
-      { name: 'license_img', maxCount: 1 },
-    ]),
-  )
+
+ 
+
   @Post(Router.Auth.Register + '/nurse')
   async registerNurse(
     @Body() req: CreateNurseRequest,

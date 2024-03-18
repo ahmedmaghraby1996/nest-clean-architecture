@@ -11,16 +11,14 @@ import {
 import { User } from '../user/user.entity';
 import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { DoctorLicense } from './doctor-license.entity';
-import { Reservation } from '../reservation/reservation.entity';
+
 import { Specialization } from './specialization.entity';
-import { Offer } from '../reservation/offers.entity';
-import { DoctorAvaliablity } from './doctor-avaliablity.entity';
-import { Clinic } from './clinc.entity';
+
+
 
 @Entity()
 export class Doctor extends OwnedEntity {
-  @OneToMany(() => Offer, (offer) => offer.doctor)
-  offers: Offer[];
+
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({})
@@ -38,18 +36,13 @@ export class Doctor extends OwnedEntity {
   @JoinTable()
   specialization: Specialization;
 
-  @OneToMany(() => DoctorAvaliablity, (availability) => availability.doctor)
-  avaliablity: DoctorAvaliablity[];
+
 
   @Column({ nullable: true })
   specialization_id: string;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.doctor)
-  reservations: Reservation[];
 
-  @ManyToOne(() => Clinic, (clinc) => clinc.doctors)
-  @JoinColumn({ name: 'clinic_id' })
-  clinic: Clinic;
+
   @Column({ nullable: true })
   clinic_id: string;
 

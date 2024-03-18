@@ -7,15 +7,13 @@ import { JwtService } from '@nestjs/jwt';
 import { VerifyOtpTransaction } from './transactions/verify-otp.transaction';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import JWTSetup from 'src/core/setups/jwt.setup';
-import { AdditionalInfoService } from '../additional-info/additional-info.service';
-import { PharmacyService } from '../pharmacy/pharmacy.service';
+
 import { NurseService } from '../nurse/nurse.service';
 import { FileService } from '../file/file.service';
 import { NotificationModule } from '../notification/notification.module';
 import { NotificationService } from '../notification/services/notification.service';
 import { FcmIntegrationService } from 'src/integration/notify/fcm-integration.service';
-import { PhOrderGateway } from 'src/integration/gateways/ph-order.gateway';
-import { NurseOrderGateway } from 'src/integration/gateways/nurse-order.gateway';
+
 import { TransactionService } from '../transaction/transaction.service';
 
 @Global()
@@ -29,13 +27,9 @@ import { TransactionService } from '../transaction/transaction.service';
     VerifyOtpTransaction,
     JwtService,
     JwtStrategy,
-    AdditionalInfoService,
-    PharmacyService,
     NurseService,
     FileService,
     NotificationService,
-    PhOrderGateway,
-    NurseOrderGateway,
     FcmIntegrationService
     ,TransactionService
 

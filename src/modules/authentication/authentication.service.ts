@@ -12,12 +12,12 @@ import { SendOtpTransaction } from './transactions/send-otp.transaction';
 import { UserService } from '../user/user.service';
 import { VerifyOtpTransaction } from './transactions/verify-otp.transaction';
 import { jwtSignOptions } from 'src/core/setups/jwt.setup';
-import { AdditionalInfoService } from '../additional-info/additional-info.service';
+
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PharmacyService } from '../pharmacy/pharmacy.service';
+
 import { NurseService } from '../nurse/nurse.service';
 import { Wallet } from 'src/infrastructure/entities/wallet/wallet.entity';
 
@@ -33,11 +33,10 @@ export class AuthenticationService {
     @Inject(VerifyOtpTransaction)
     private readonly verifyOtpTransaction: VerifyOtpTransaction,
     @Inject(JwtService) private readonly jwtService: JwtService,
-    @Inject(PharmacyService) private readonly pharmacyService: PharmacyService,
+
     @Inject(NurseService) private readonly nurseService: NurseService,
     @InjectRepository(Wallet) private readonly walletRepo: Repository<Wallet>,
-    @Inject(AdditionalInfoService)
-    private readonly additonalService: AdditionalInfoService,
+ 
     @Inject(ConfigService) private readonly _config: ConfigService,
   ) {}
 
@@ -74,22 +73,14 @@ export class AuthenticationService {
     
     if (req.role == Role.DOCTOR) {
       try {
-        await this.additonalService.addDoctorInfo(req, user.id);
+    
       } catch (e) {
         await this.userService.delete(user.id);
 
         throw new BadRequestException(e);
       }
     }
-    if (req.role == Role.PHARMACY) {
-      try {
-        await this.pharmacyService.addPharmacyInfo(req, user.id);
-      } catch (e) {
-        await this.userService.delete(user.id);
 
-        throw new BadRequestException(e);
-      }
-    }
     if (req.role == Role.NURSE) {
       try {
         await this.nurseService.addNurse(req, user.id);

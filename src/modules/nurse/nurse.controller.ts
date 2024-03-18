@@ -30,8 +30,7 @@ import { NurseOfferRequest } from './dto/request/nurse-offer-request';
 import { NurseOfferResponse } from './dto/respone/nurse-offer.response';
 import { UpdateNurseRequest } from './dto/request/update-nurse-request';
 import { request } from 'http';
-import { RateDoctorRequest } from '../reservation/dto/requests/rate-doctor-request';
-import { CancelReservationRequest } from '../reservation/dto/requests/cancel-reservation-request';
+
 
 @ApiTags('Nusre')
 @ApiHeader({
@@ -47,85 +46,14 @@ export class NurseController {
     @Inject(NurseService) private readonly nurseService: NurseService,
   ) {}
 
-  @Post('order')
-  async createNurseorder(@Body() request: NurseOrderRequest) {
-    return new ActionResponse(
-      await this.nurseService.createNurseOrder(request),
-    );
-  }
 
-  @Post('order/offer')
-  async createNurseOffer(@Body() request: NurseOfferRequest) {
-    return new ActionResponse(await this.nurseService.sendOffer(request));
-  }
 
-  @Get('order/:id/offers')
-  async getNurseOffer(@Param('id') id: string) {
-    return new ActionResponse(
-      plainToInstance(
-        NurseOfferResponse,
-        await this.nurseService.getOffers(id),
-      ),
-    );
-  }
-  @Post('order/rate')
-  async rateNurse(@Body() request: RateDoctorRequest) {
-    return new ActionResponse(
-      plainToInstance(
-        NurseOrderResponse,
-        await this.nurseService.clientRating(request),
-      ),
-    );
-  }
 
-  @Get('order')
-  async getNurseOrder(@Query() query: PaginatedRequest) {
-    applyQueryIncludes(query, 'user');
-    applyQuerySort(query, 'created_at=desc');
-    applyQueryIncludes(query, 'address');
-    applyQueryIncludes(query, 'nurse');
-    applyQueryIncludes(query, 'nurse.user');
-    const nurse = await this.nurseService.getNurse(
-      this.nurseService.currentUser.id,
-    );
-    const orders = await this.nurseService.findAll(query);
-    const order_response = await Promise.all(
-      orders.map(async (order) => {
-        return plainToInstance(NurseOrderResponse, {
-          ...order,
-          sent_offer: await this.nurseService.sentOffer(
-            order.id,
 
-            nurse === null ? null : nurse.id,
-          ),
-        },);
-      }),
-    );
-    if (query.page && query.limit) {
-      const total = await this.nurseService.count(query);
-      return new PaginatedResponse(order_response, {
-        meta: { total, ...query },
-      });
-    } else return new ActionResponse(order_response);
-  }
 
-  @Post('accept/offer/:id')
-  async acceptOffer(@Param('id') id: string) {
-    return new ActionResponse(
-      plainToInstance(
-        NurseOrderResponse,
-        await this.nurseService.acceptOffer(id),
-      ),
-    );
-  }
 
-  @Post('cancel/order')
-  async cancelOrder(@Body()request:CancelReservationRequest) {
-    return new ActionResponse(
-      plainToInstance(
-        NurseOrderResponse,
-        await this.nurseService.nurseCancel(request),
-      ),
-    );
-  }
+
+
+
+
 }

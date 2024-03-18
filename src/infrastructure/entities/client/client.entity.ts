@@ -1,15 +1,13 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { User } from '../user/user.entity';
 import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
-import { FamilyMember } from './family-member.entity';
-import { Reservation } from '../reservation/reservation.entity';
+
 @Entity()
 export class Client extends OwnedEntity {
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   height: number;
 
-  @OneToMany(() => FamilyMember, (familyMember) => familyMember.client)
-  familyMembers: FamilyMember[];
+
 
   @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
   weight: number;

@@ -6,6 +6,7 @@ import {
   OneToMany,
   OneToOne,
   ManyToOne,
+  
 } from 'typeorm';
 import { Factory } from 'nestjs-seeder';
 import { randNum } from 'src/core/helpers/cast.helper';
@@ -13,26 +14,14 @@ import { Gender } from 'src/infrastructure/data/enums/gender.enum';
 import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Language } from 'src/infrastructure/data/enums/language.enum';
 import { Address } from './address.entity';
-import { Reservation } from '../reservation/reservation.entity';
 import { Client } from '../client/client.entity';
-import {NotificationEntity} from '../notification/notification.entity'
-import { PhOrder } from '../pharmacy/ph-order.entity';
-import { NurseOrder } from '../nurse/nurse-order.entity';
+import { NotificationEntity } from '../notification/notification.entity';
 import { Wallet } from '../wallet/wallet.entity';
 import { Transaction } from '../wallet/transaction.entity';
-import { Subscription } from '../subscription/subscription.entity';
-import { PromoCode } from '../promo-code/promo-code.entity';
 
 @Entity()
 export class User extends AuditableEntity {
 
-  @OneToMany(()=>Reservation,reservation=>reservation.user)
-  reservations:Reservation[]
-
-  @OneToMany(()=>PromoCode,promoCode=>promoCode.user)
-  promoCodes:PromoCode[]
-  @OneToMany(()=>NurseOrder,nurserOrder=>nurserOrder.user)
-  nurse_orders:NurseOrder[]
 
   // account > unique id generator 10 numbers)
   @Factory((faker) => faker.phone.number('########'))
@@ -79,8 +68,7 @@ export class User extends AuditableEntity {
   @Column({ nullable: true, length: 500 })
   avatar: string;
 
-  @OneToMany(() => PhOrder, (phOrder) => phOrder.user)
-  ph_orders: PhOrder[]
+
 
   @Factory((faker) => faker.helpers.arrayElement(Object.values(Gender)))
   @Column({ nullable: true, type: 'enum', enum: Gender })
@@ -101,8 +89,7 @@ export class User extends AuditableEntity {
   @OneToOne(() => Wallet, (wallet) => wallet.user)
   wallet: Wallet;
 
-  @Column({ default: 0 })
-  review_count: number;
+
 
   @ManyToOne(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
@@ -111,8 +98,7 @@ export class User extends AuditableEntity {
   @Column({ type: 'set', enum: Role, default: [Role.CLIENT] })
   roles: Role[];
 
-  @OneToMany(() => Subscription, (subscription) => subscription.user)
-  subscriptions: Subscription[];
+
 
   @OneToMany(() => Address, (address) => address.user, {
     cascade: true,

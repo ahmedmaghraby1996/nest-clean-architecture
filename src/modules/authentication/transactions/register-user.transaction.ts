@@ -13,7 +13,6 @@ import { Role } from 'src/infrastructure/data/enums/role.enum';
 import { Doctor } from 'src/infrastructure/entities/doctor/doctor.entity';
 import { plainToInstance } from 'class-transformer';
 import { Client } from 'src/infrastructure/entities/client/client.entity';
-import { DoctorAvaliablity } from 'src/infrastructure/entities/doctor/doctor-avaliablity.entity';
 import { Wallet } from 'src/infrastructure/entities/wallet/wallet.entity';
 
 @Injectable()
@@ -80,15 +79,7 @@ export class RegisterUserTransaction extends BaseTransaction<
         const doctor = new Doctor({ ...doctordata, user_id: user.id });
 
         await context.save(doctor);
-        for (let index = 1; index < 8; index++) {
-          await context.save(DoctorAvaliablity, {
-            doctor_id: doctor.id,
-            day: index,
-            start_at: 0,
-            end_at: 0,
-          });
-          1;
-        }
+     
       }
       if (req.role == Role.CLIENT) {
         const client = new Client({ user_id: user.id });

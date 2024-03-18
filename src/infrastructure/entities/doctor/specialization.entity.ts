@@ -1,6 +1,6 @@
 import { BaseEntity } from "src/infrastructure/base/base.entity";
 import { Column, Entity, ManyToMany, OneToMany } from "typeorm";
-import { Reservation } from "../reservation/reservation.entity";
+
 import { Doctor } from "./doctor.entity";
 
 @Entity()
@@ -12,8 +12,7 @@ name_ar: string;
 @Column()
 name_en:string
 
-@OneToMany(()=>Reservation,reservation=>reservation.specialization)
-reservations:Reservation[]
+
 
 
 @OneToMany(()=>Doctor,doctor=>doctor.specialization)

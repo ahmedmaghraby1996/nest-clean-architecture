@@ -3,7 +3,7 @@ import { TransactionTypes } from 'src/infrastructure/data/enums/transaction-type
 import { Entity, Column, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Wallet } from './wallet.entity';
-import { Reservation } from '../reservation/reservation.entity';
+
 import { randNum } from 'src/core/helpers/cast.helper';
 
 @Entity()

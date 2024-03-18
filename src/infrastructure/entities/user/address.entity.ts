@@ -10,15 +10,12 @@ import {
   BeforeUpdate,
   OneToMany,
 } from 'typeorm';
-import { Reservation } from '../reservation/reservation.entity';
-import { PhOrder } from '../pharmacy/ph-order.entity';
-import { NurseOrder } from '../nurse/nurse-order.entity';
+
 
 @Entity('addresses')
 export class Address extends OwnedEntity {
 
-  @OneToMany(()=>NurseOrder,nurserOrder=>nurserOrder.address)
-  nurse_orders:NurseOrder[]
+
   @ManyToOne(() => User, (user) => user.addresses, {
     nullable: false,
     onDelete: 'CASCADE',
@@ -29,8 +26,7 @@ export class Address extends OwnedEntity {
   @Column()
   user_id: string;
 
-  @OneToMany(() => PhOrder, (phOrder) => phOrder.address)
-  ph_orders: PhOrder[];
+
 
   // address name e.g. home, work, etc.
   @Factory((faker) => faker.helpers.arrayElement(['home', 'work', 'other']))
@@ -42,8 +38,6 @@ export class Address extends OwnedEntity {
   @Column({ length: 500 })
   address: string;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.address)
-  reservations: Reservation[];
 
   // phone
   @Factory((faker) => faker.phone.number('+218#########'))

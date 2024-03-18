@@ -1,17 +1,15 @@
 import { OwnedEntity } from 'src/infrastructure/base/owned.entity';
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { User } from '../user/user.entity';
-import { NurseOffer } from './nurse-offer.entity';
 import { NurseLicense } from './nurse-license.entity';
-import { NurseOrder } from './nurse-order.entity';
+
 @Entity()
 export class Nurse extends OwnedEntity {
   @OneToOne(() => User,{onDelete:'CASCADE'})
   @JoinColumn({},)
   user: User;
 
-  @OneToMany(() => NurseOffer, (offer) => offer.nurse)
-  offers: NurseOffer[];
+
   @Column({ default: false })
   is_verified: boolean;
 
@@ -29,7 +27,6 @@ export class Nurse extends OwnedEntity {
   license_images: NurseLicense[];
 
 
-  @OneToMany(() => NurseOrder, (order) => order.nurse)
-  orders: NurseOrder[];
+
   
 }
