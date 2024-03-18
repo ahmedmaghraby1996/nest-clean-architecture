@@ -52,4 +52,9 @@ export class UpdateProfileRequest {
   @IsEnum(Language)
   @IsOptional()
   language: Language;
+
+  @ApiProperty({required:false})
+  @IsString()
+  @IsOptional()
+  fcm_token: string;
 }
